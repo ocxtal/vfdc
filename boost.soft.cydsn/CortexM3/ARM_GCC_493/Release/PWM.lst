@@ -1,0 +1,2409 @@
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"PWM.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.PWM_Init,"ax",%progbits
+  19              		.align	1
+  20              		.global	PWM_Init
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	PWM_Init, %function
+  24              	PWM_Init:
+  25              	.LFB1:
+  26              		.file 1 ".\\Generated_Source\\PSoC5\\PWM.c"
+   1:.\Generated_Source\PSoC5/PWM.c **** /*******************************************************************************
+   2:.\Generated_Source\PSoC5/PWM.c **** * File Name: PWM.c
+   3:.\Generated_Source\PSoC5/PWM.c **** * Version 3.30
+   4:.\Generated_Source\PSoC5/PWM.c **** *
+   5:.\Generated_Source\PSoC5/PWM.c **** * Description:
+   6:.\Generated_Source\PSoC5/PWM.c **** *  The PWM User Module consist of an 8 or 16-bit counter with two 8 or 16-bit
+   7:.\Generated_Source\PSoC5/PWM.c **** *  comparitors. Each instance of this user module is capable of generating
+   8:.\Generated_Source\PSoC5/PWM.c **** *  two PWM outputs with the same period. The pulse width is selectable between
+   9:.\Generated_Source\PSoC5/PWM.c **** *  1 and 255/65535. The period is selectable between 2 and 255/65536 clocks.
+  10:.\Generated_Source\PSoC5/PWM.c **** *  The compare value output may be configured to be active when the present
+  11:.\Generated_Source\PSoC5/PWM.c **** *  counter is less than or less than/equal to the compare value.
+  12:.\Generated_Source\PSoC5/PWM.c **** *  A terminal count output is also provided. It generates a pulse one clock
+  13:.\Generated_Source\PSoC5/PWM.c **** *  width wide when the counter is equal to zero.
+  14:.\Generated_Source\PSoC5/PWM.c **** *
+  15:.\Generated_Source\PSoC5/PWM.c **** * Note:
+  16:.\Generated_Source\PSoC5/PWM.c **** *
+  17:.\Generated_Source\PSoC5/PWM.c **** *******************************************************************************
+  18:.\Generated_Source\PSoC5/PWM.c **** * Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
+  19:.\Generated_Source\PSoC5/PWM.c **** * You may use this file only in accordance with the license, terms, conditions,
+  20:.\Generated_Source\PSoC5/PWM.c **** * disclaimers, and limitations in the end user license agreement accompanying
+  21:.\Generated_Source\PSoC5/PWM.c **** * the software package with which this file was provided.
+  22:.\Generated_Source\PSoC5/PWM.c **** ********************************************************************************/
+  23:.\Generated_Source\PSoC5/PWM.c **** 
+  24:.\Generated_Source\PSoC5/PWM.c **** #include "PWM.h"
+  25:.\Generated_Source\PSoC5/PWM.c **** 
+  26:.\Generated_Source\PSoC5/PWM.c **** /* Error message for removed <resource> through optimization */
+  27:.\Generated_Source\PSoC5/PWM.c **** #ifdef PWM_PWMUDB_genblk1_ctrlreg__REMOVED
+  28:.\Generated_Source\PSoC5/PWM.c ****     #error PWM_v3_30 detected with a constant 0 for the enable or \
+  29:.\Generated_Source\PSoC5/PWM.c ****          constant 1 for reset. This will prevent the component from operating.
+  30:.\Generated_Source\PSoC5/PWM.c **** #endif /* PWM_PWMUDB_genblk1_ctrlreg__REMOVED */
+  31:.\Generated_Source\PSoC5/PWM.c **** 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 2
+
+
+  32:.\Generated_Source\PSoC5/PWM.c **** uint8 PWM_initVar = 0u;
+  33:.\Generated_Source\PSoC5/PWM.c **** 
+  34:.\Generated_Source\PSoC5/PWM.c **** 
+  35:.\Generated_Source\PSoC5/PWM.c **** /*******************************************************************************
+  36:.\Generated_Source\PSoC5/PWM.c **** * Function Name: PWM_Start
+  37:.\Generated_Source\PSoC5/PWM.c **** ********************************************************************************
+  38:.\Generated_Source\PSoC5/PWM.c **** *
+  39:.\Generated_Source\PSoC5/PWM.c **** * Summary:
+  40:.\Generated_Source\PSoC5/PWM.c **** *  The start function initializes the pwm with the default values, the
+  41:.\Generated_Source\PSoC5/PWM.c **** *  enables the counter to begin counting.  It does not enable interrupts,
+  42:.\Generated_Source\PSoC5/PWM.c **** *  the EnableInt command should be called if interrupt generation is required.
+  43:.\Generated_Source\PSoC5/PWM.c **** *
+  44:.\Generated_Source\PSoC5/PWM.c **** * Parameters:
+  45:.\Generated_Source\PSoC5/PWM.c **** *  None
+  46:.\Generated_Source\PSoC5/PWM.c **** *
+  47:.\Generated_Source\PSoC5/PWM.c **** * Return:
+  48:.\Generated_Source\PSoC5/PWM.c **** *  None
+  49:.\Generated_Source\PSoC5/PWM.c **** *
+  50:.\Generated_Source\PSoC5/PWM.c **** * Global variables:
+  51:.\Generated_Source\PSoC5/PWM.c **** *  PWM_initVar: Is modified when this function is called for the
+  52:.\Generated_Source\PSoC5/PWM.c **** *   first time. Is used to ensure that initialization happens only once.
+  53:.\Generated_Source\PSoC5/PWM.c **** *
+  54:.\Generated_Source\PSoC5/PWM.c **** *******************************************************************************/
+  55:.\Generated_Source\PSoC5/PWM.c **** void PWM_Start(void) 
+  56:.\Generated_Source\PSoC5/PWM.c **** {
+  57:.\Generated_Source\PSoC5/PWM.c ****     /* If not Initialized then initialize all required hardware and software */
+  58:.\Generated_Source\PSoC5/PWM.c ****     if(PWM_initVar == 0u)
+  59:.\Generated_Source\PSoC5/PWM.c ****     {
+  60:.\Generated_Source\PSoC5/PWM.c ****         PWM_Init();
+  61:.\Generated_Source\PSoC5/PWM.c ****         PWM_initVar = 1u;
+  62:.\Generated_Source\PSoC5/PWM.c ****     }
+  63:.\Generated_Source\PSoC5/PWM.c ****     PWM_Enable();
+  64:.\Generated_Source\PSoC5/PWM.c **** 
+  65:.\Generated_Source\PSoC5/PWM.c **** }
+  66:.\Generated_Source\PSoC5/PWM.c **** 
+  67:.\Generated_Source\PSoC5/PWM.c **** 
+  68:.\Generated_Source\PSoC5/PWM.c **** /*******************************************************************************
+  69:.\Generated_Source\PSoC5/PWM.c **** * Function Name: PWM_Init
+  70:.\Generated_Source\PSoC5/PWM.c **** ********************************************************************************
+  71:.\Generated_Source\PSoC5/PWM.c **** *
+  72:.\Generated_Source\PSoC5/PWM.c **** * Summary:
+  73:.\Generated_Source\PSoC5/PWM.c **** *  Initialize component's parameters to the parameters set by user in the
+  74:.\Generated_Source\PSoC5/PWM.c **** *  customizer of the component placed onto schematic. Usually called in
+  75:.\Generated_Source\PSoC5/PWM.c **** *  PWM_Start().
+  76:.\Generated_Source\PSoC5/PWM.c **** *
+  77:.\Generated_Source\PSoC5/PWM.c **** * Parameters:
+  78:.\Generated_Source\PSoC5/PWM.c **** *  None
+  79:.\Generated_Source\PSoC5/PWM.c **** *
+  80:.\Generated_Source\PSoC5/PWM.c **** * Return:
+  81:.\Generated_Source\PSoC5/PWM.c **** *  None
+  82:.\Generated_Source\PSoC5/PWM.c **** *
+  83:.\Generated_Source\PSoC5/PWM.c **** *******************************************************************************/
+  84:.\Generated_Source\PSoC5/PWM.c **** void PWM_Init(void) 
+  85:.\Generated_Source\PSoC5/PWM.c **** {
+  27              		.loc 1 85 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 3
+
+
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  86:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_UsingFixedFunction || PWM_UseControl)
+  87:.\Generated_Source\PSoC5/PWM.c ****         uint8 ctrl;
+  88:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UsingFixedFunction || PWM_UseControl) */
+  89:.\Generated_Source\PSoC5/PWM.c **** 
+  90:.\Generated_Source\PSoC5/PWM.c ****     #if(!PWM_UsingFixedFunction)
+  91:.\Generated_Source\PSoC5/PWM.c ****         #if(PWM_UseStatus)
+  92:.\Generated_Source\PSoC5/PWM.c ****             /* Interrupt State Backup for Critical Region*/
+  93:.\Generated_Source\PSoC5/PWM.c ****             uint8 PWM_interruptState;
+  94:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_UseStatus) */
+  95:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (!PWM_UsingFixedFunction) */
+  96:.\Generated_Source\PSoC5/PWM.c **** 
+  97:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_UsingFixedFunction)
+  98:.\Generated_Source\PSoC5/PWM.c ****         /* You are allowed to write the compare value (FF only) */
+  99:.\Generated_Source\PSoC5/PWM.c ****         PWM_CONTROL |= PWM_CFG0_MODE;
+ 100:.\Generated_Source\PSoC5/PWM.c ****         #if (PWM_DeadBand2_4)
+ 101:.\Generated_Source\PSoC5/PWM.c ****             PWM_CONTROL |= PWM_CFG0_DB;
+ 102:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_DeadBand2_4) */
+ 103:.\Generated_Source\PSoC5/PWM.c **** 
+ 104:.\Generated_Source\PSoC5/PWM.c ****         ctrl = PWM_CONTROL3 & ((uint8 )(~PWM_CTRL_CMPMODE1_MASK));
+ 105:.\Generated_Source\PSoC5/PWM.c ****         PWM_CONTROL3 = ctrl | PWM_DEFAULT_COMPARE1_MODE;
+ 106:.\Generated_Source\PSoC5/PWM.c **** 
+ 107:.\Generated_Source\PSoC5/PWM.c ****          /* Clear and Set SYNCTC and SYNCCMP bits of RT1 register */
+ 108:.\Generated_Source\PSoC5/PWM.c ****         PWM_RT1 &= ((uint8)(~PWM_RT1_MASK));
+ 109:.\Generated_Source\PSoC5/PWM.c ****         PWM_RT1 |= PWM_SYNC;
+ 110:.\Generated_Source\PSoC5/PWM.c **** 
+ 111:.\Generated_Source\PSoC5/PWM.c ****         /*Enable DSI Sync all all inputs of the PWM*/
+ 112:.\Generated_Source\PSoC5/PWM.c ****         PWM_RT1 &= ((uint8)(~PWM_SYNCDSI_MASK));
+ 113:.\Generated_Source\PSoC5/PWM.c ****         PWM_RT1 |= PWM_SYNCDSI_EN;
+ 114:.\Generated_Source\PSoC5/PWM.c **** 
+ 115:.\Generated_Source\PSoC5/PWM.c ****     #elif (PWM_UseControl)
+ 116:.\Generated_Source\PSoC5/PWM.c ****         /* Set the default compare mode defined in the parameter */
+ 117:.\Generated_Source\PSoC5/PWM.c ****         ctrl = PWM_CONTROL & ((uint8)(~PWM_CTRL_CMPMODE2_MASK)) &
+  32              		.loc 1 117 0
+  33 0000 0A4A     		ldr	r2, .L2
+  34 0002 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+  35              	.LVL0:
+  36 0004 03F0C003 		and	r3, r3, #192
+  37              	.LVL1:
+ 118:.\Generated_Source\PSoC5/PWM.c ****                 ((uint8)(~PWM_CTRL_CMPMODE1_MASK));
+ 119:.\Generated_Source\PSoC5/PWM.c ****         PWM_CONTROL = ctrl | PWM_DEFAULT_COMPARE2_MODE |
+  38              		.loc 1 119 0
+  39 0008 43F00C03 		orr	r3, r3, #12
+  40 000c 1370     		strb	r3, [r2]
+ 120:.\Generated_Source\PSoC5/PWM.c ****                                    PWM_DEFAULT_COMPARE1_MODE;
+ 121:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UsingFixedFunction) */
+ 122:.\Generated_Source\PSoC5/PWM.c **** 
+ 123:.\Generated_Source\PSoC5/PWM.c ****     #if (!PWM_UsingFixedFunction)
+ 124:.\Generated_Source\PSoC5/PWM.c ****         #if (PWM_Resolution == 8)
+ 125:.\Generated_Source\PSoC5/PWM.c ****             /* Set FIFO 0 to 1 byte register for period*/
+ 126:.\Generated_Source\PSoC5/PWM.c ****             PWM_AUX_CONTROLDP0 |= (PWM_AUX_CTRL_FIFO0_CLR);
+  41              		.loc 1 126 0
+  42 000e 92F82030 		ldrb	r3, [r2, #32]	@ zero_extendqisi2
+  43 0012 43F00103 		orr	r3, r3, #1
+  44 0016 82F82030 		strb	r3, [r2, #32]
+  45              	.LVL2:
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 4
+
+
+  46              	.LBB8:
+  47              	.LBB9:
+ 127:.\Generated_Source\PSoC5/PWM.c ****         #else /* (PWM_Resolution == 16)*/
+ 128:.\Generated_Source\PSoC5/PWM.c ****             /* Set FIFO 0 to 1 byte register for period */
+ 129:.\Generated_Source\PSoC5/PWM.c ****             PWM_AUX_CONTROLDP0 |= (PWM_AUX_CTRL_FIFO0_CLR);
+ 130:.\Generated_Source\PSoC5/PWM.c ****             PWM_AUX_CONTROLDP1 |= (PWM_AUX_CTRL_FIFO0_CLR);
+ 131:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_Resolution == 8) */
+ 132:.\Generated_Source\PSoC5/PWM.c **** 
+ 133:.\Generated_Source\PSoC5/PWM.c ****         PWM_WriteCounter(PWM_INIT_PERIOD_VALUE);
+ 134:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (!PWM_UsingFixedFunction) */
+ 135:.\Generated_Source\PSoC5/PWM.c **** 
+ 136:.\Generated_Source\PSoC5/PWM.c ****     PWM_WritePeriod(PWM_INIT_PERIOD_VALUE);
+ 137:.\Generated_Source\PSoC5/PWM.c **** 
+ 138:.\Generated_Source\PSoC5/PWM.c ****         #if (PWM_UseOneCompareMode)
+ 139:.\Generated_Source\PSoC5/PWM.c ****             PWM_WriteCompare(PWM_INIT_COMPARE_VALUE1);
+ 140:.\Generated_Source\PSoC5/PWM.c ****         #else
+ 141:.\Generated_Source\PSoC5/PWM.c ****             PWM_WriteCompare1(PWM_INIT_COMPARE_VALUE1);
+ 142:.\Generated_Source\PSoC5/PWM.c ****             PWM_WriteCompare2(PWM_INIT_COMPARE_VALUE2);
+ 143:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_UseOneCompareMode) */
+ 144:.\Generated_Source\PSoC5/PWM.c **** 
+ 145:.\Generated_Source\PSoC5/PWM.c ****         #if (PWM_KillModeMinTime)
+ 146:.\Generated_Source\PSoC5/PWM.c ****             PWM_WriteKillTime(PWM_MinimumKillTime);
+ 147:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_KillModeMinTime) */
+ 148:.\Generated_Source\PSoC5/PWM.c **** 
+ 149:.\Generated_Source\PSoC5/PWM.c ****         #if (PWM_DeadBandUsed)
+ 150:.\Generated_Source\PSoC5/PWM.c ****             PWM_WriteDeadTime(PWM_INIT_DEAD_TIME);
+ 151:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_DeadBandUsed) */
+ 152:.\Generated_Source\PSoC5/PWM.c **** 
+ 153:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_UseStatus || PWM_UsingFixedFunction)
+ 154:.\Generated_Source\PSoC5/PWM.c ****         PWM_SetInterruptMode(PWM_INIT_INTERRUPTS_MODE);
+ 155:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UseStatus || PWM_UsingFixedFunction) */
+ 156:.\Generated_Source\PSoC5/PWM.c **** 
+ 157:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_UsingFixedFunction)
+ 158:.\Generated_Source\PSoC5/PWM.c ****         /* Globally Enable the Fixed Function Block chosen */
+ 159:.\Generated_Source\PSoC5/PWM.c ****         PWM_GLOBAL_ENABLE |= PWM_BLOCK_EN_MASK;
+ 160:.\Generated_Source\PSoC5/PWM.c ****         /* Set the Interrupt source to come from the status register */
+ 161:.\Generated_Source\PSoC5/PWM.c ****         PWM_CONTROL2 |= PWM_CTRL2_IRQ_SEL;
+ 162:.\Generated_Source\PSoC5/PWM.c ****     #else
+ 163:.\Generated_Source\PSoC5/PWM.c ****         #if(PWM_UseStatus)
+ 164:.\Generated_Source\PSoC5/PWM.c **** 
+ 165:.\Generated_Source\PSoC5/PWM.c ****             /* CyEnterCriticalRegion and CyExitCriticalRegion are used to mark following region cri
+ 166:.\Generated_Source\PSoC5/PWM.c ****             /* Enter Critical Region*/
+ 167:.\Generated_Source\PSoC5/PWM.c ****             PWM_interruptState = CyEnterCriticalSection();
+ 168:.\Generated_Source\PSoC5/PWM.c ****             /* Use the interrupt output of the status register for IRQ output */
+ 169:.\Generated_Source\PSoC5/PWM.c ****             PWM_STATUS_AUX_CTRL |= PWM_STATUS_ACTL_INT_EN_MASK;
+ 170:.\Generated_Source\PSoC5/PWM.c **** 
+ 171:.\Generated_Source\PSoC5/PWM.c ****              /* Exit Critical Region*/
+ 172:.\Generated_Source\PSoC5/PWM.c ****             CyExitCriticalSection(PWM_interruptState);
+ 173:.\Generated_Source\PSoC5/PWM.c **** 
+ 174:.\Generated_Source\PSoC5/PWM.c ****             /* Clear the FIFO to enable the PWM_STATUS_FIFOFULL
+ 175:.\Generated_Source\PSoC5/PWM.c ****                    bit to be set on FIFO full. */
+ 176:.\Generated_Source\PSoC5/PWM.c ****             PWM_ClearFIFO();
+ 177:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_UseStatus) */
+ 178:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UsingFixedFunction) */
+ 179:.\Generated_Source\PSoC5/PWM.c **** }
+ 180:.\Generated_Source\PSoC5/PWM.c **** 
+ 181:.\Generated_Source\PSoC5/PWM.c **** 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 5
+
+
+ 182:.\Generated_Source\PSoC5/PWM.c **** /*******************************************************************************
+ 183:.\Generated_Source\PSoC5/PWM.c **** * Function Name: PWM_Enable
+ 184:.\Generated_Source\PSoC5/PWM.c **** ********************************************************************************
+ 185:.\Generated_Source\PSoC5/PWM.c **** *
+ 186:.\Generated_Source\PSoC5/PWM.c **** * Summary:
+ 187:.\Generated_Source\PSoC5/PWM.c **** *  Enables the PWM block operation
+ 188:.\Generated_Source\PSoC5/PWM.c **** *
+ 189:.\Generated_Source\PSoC5/PWM.c **** * Parameters:
+ 190:.\Generated_Source\PSoC5/PWM.c **** *  None
+ 191:.\Generated_Source\PSoC5/PWM.c **** *
+ 192:.\Generated_Source\PSoC5/PWM.c **** * Return:
+ 193:.\Generated_Source\PSoC5/PWM.c **** *  None
+ 194:.\Generated_Source\PSoC5/PWM.c **** *
+ 195:.\Generated_Source\PSoC5/PWM.c **** * Side Effects:
+ 196:.\Generated_Source\PSoC5/PWM.c **** *  This works only if software enable mode is chosen
+ 197:.\Generated_Source\PSoC5/PWM.c **** *
+ 198:.\Generated_Source\PSoC5/PWM.c **** *******************************************************************************/
+ 199:.\Generated_Source\PSoC5/PWM.c **** void PWM_Enable(void) 
+ 200:.\Generated_Source\PSoC5/PWM.c **** {
+ 201:.\Generated_Source\PSoC5/PWM.c ****     /* Globally Enable the Fixed Function Block chosen */
+ 202:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_UsingFixedFunction)
+ 203:.\Generated_Source\PSoC5/PWM.c ****         PWM_GLOBAL_ENABLE |= PWM_BLOCK_EN_MASK;
+ 204:.\Generated_Source\PSoC5/PWM.c ****         PWM_GLOBAL_STBY_ENABLE |= PWM_BLOCK_STBY_EN_MASK;
+ 205:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UsingFixedFunction) */
+ 206:.\Generated_Source\PSoC5/PWM.c **** 
+ 207:.\Generated_Source\PSoC5/PWM.c ****     /* Enable the PWM from the control register  */
+ 208:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_UseControl || PWM_UsingFixedFunction)
+ 209:.\Generated_Source\PSoC5/PWM.c ****         PWM_CONTROL |= PWM_CTRL_ENABLE;
+ 210:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UseControl || PWM_UsingFixedFunction) */
+ 211:.\Generated_Source\PSoC5/PWM.c **** }
+ 212:.\Generated_Source\PSoC5/PWM.c **** 
+ 213:.\Generated_Source\PSoC5/PWM.c **** 
+ 214:.\Generated_Source\PSoC5/PWM.c **** /*******************************************************************************
+ 215:.\Generated_Source\PSoC5/PWM.c **** * Function Name: PWM_Stop
+ 216:.\Generated_Source\PSoC5/PWM.c **** ********************************************************************************
+ 217:.\Generated_Source\PSoC5/PWM.c **** *
+ 218:.\Generated_Source\PSoC5/PWM.c **** * Summary:
+ 219:.\Generated_Source\PSoC5/PWM.c **** *  The stop function halts the PWM, but does not change any modes or disable
+ 220:.\Generated_Source\PSoC5/PWM.c **** *  interrupts.
+ 221:.\Generated_Source\PSoC5/PWM.c **** *
+ 222:.\Generated_Source\PSoC5/PWM.c **** * Parameters:
+ 223:.\Generated_Source\PSoC5/PWM.c **** *  None
+ 224:.\Generated_Source\PSoC5/PWM.c **** *
+ 225:.\Generated_Source\PSoC5/PWM.c **** * Return:
+ 226:.\Generated_Source\PSoC5/PWM.c **** *  None
+ 227:.\Generated_Source\PSoC5/PWM.c **** *
+ 228:.\Generated_Source\PSoC5/PWM.c **** * Side Effects:
+ 229:.\Generated_Source\PSoC5/PWM.c **** *  If the Enable mode is set to Hardware only then this function
+ 230:.\Generated_Source\PSoC5/PWM.c **** *  has no effect on the operation of the PWM
+ 231:.\Generated_Source\PSoC5/PWM.c **** *
+ 232:.\Generated_Source\PSoC5/PWM.c **** *******************************************************************************/
+ 233:.\Generated_Source\PSoC5/PWM.c **** void PWM_Stop(void) 
+ 234:.\Generated_Source\PSoC5/PWM.c **** {
+ 235:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_UseControl || PWM_UsingFixedFunction)
+ 236:.\Generated_Source\PSoC5/PWM.c ****         PWM_CONTROL &= ((uint8)(~PWM_CTRL_ENABLE));
+ 237:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UseControl || PWM_UsingFixedFunction) */
+ 238:.\Generated_Source\PSoC5/PWM.c **** 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 6
+
+
+ 239:.\Generated_Source\PSoC5/PWM.c ****     /* Globally disable the Fixed Function Block chosen */
+ 240:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_UsingFixedFunction)
+ 241:.\Generated_Source\PSoC5/PWM.c ****         PWM_GLOBAL_ENABLE &= ((uint8)(~PWM_BLOCK_EN_MASK));
+ 242:.\Generated_Source\PSoC5/PWM.c ****         PWM_GLOBAL_STBY_ENABLE &= ((uint8)(~PWM_BLOCK_STBY_EN_MASK));
+ 243:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UsingFixedFunction) */
+ 244:.\Generated_Source\PSoC5/PWM.c **** }
+ 245:.\Generated_Source\PSoC5/PWM.c **** 
+ 246:.\Generated_Source\PSoC5/PWM.c **** #if (PWM_UseOneCompareMode)
+ 247:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_CompareMode1SW)
+ 248:.\Generated_Source\PSoC5/PWM.c **** 
+ 249:.\Generated_Source\PSoC5/PWM.c **** 
+ 250:.\Generated_Source\PSoC5/PWM.c ****         /*******************************************************************************
+ 251:.\Generated_Source\PSoC5/PWM.c ****         * Function Name: PWM_SetCompareMode
+ 252:.\Generated_Source\PSoC5/PWM.c ****         ********************************************************************************
+ 253:.\Generated_Source\PSoC5/PWM.c ****         *
+ 254:.\Generated_Source\PSoC5/PWM.c ****         * Summary:
+ 255:.\Generated_Source\PSoC5/PWM.c ****         *  This function writes the Compare Mode for the pwm output when in Dither mode,
+ 256:.\Generated_Source\PSoC5/PWM.c ****         *  Center Align Mode or One Output Mode.
+ 257:.\Generated_Source\PSoC5/PWM.c ****         *
+ 258:.\Generated_Source\PSoC5/PWM.c ****         * Parameters:
+ 259:.\Generated_Source\PSoC5/PWM.c ****         *  comparemode:  The new compare mode for the PWM output. Use the compare types
+ 260:.\Generated_Source\PSoC5/PWM.c ****         *                defined in the H file as input arguments.
+ 261:.\Generated_Source\PSoC5/PWM.c ****         *
+ 262:.\Generated_Source\PSoC5/PWM.c ****         * Return:
+ 263:.\Generated_Source\PSoC5/PWM.c ****         *  None
+ 264:.\Generated_Source\PSoC5/PWM.c ****         *
+ 265:.\Generated_Source\PSoC5/PWM.c ****         *******************************************************************************/
+ 266:.\Generated_Source\PSoC5/PWM.c ****         void PWM_SetCompareMode(uint8 comparemode) 
+ 267:.\Generated_Source\PSoC5/PWM.c ****         {
+ 268:.\Generated_Source\PSoC5/PWM.c ****             #if(PWM_UsingFixedFunction)
+ 269:.\Generated_Source\PSoC5/PWM.c **** 
+ 270:.\Generated_Source\PSoC5/PWM.c ****                 #if(0 != PWM_CTRL_CMPMODE1_SHIFT)
+ 271:.\Generated_Source\PSoC5/PWM.c ****                     uint8 comparemodemasked = ((uint8)((uint8)comparemode << PWM_CTRL_CMPMODE1_SHIF
+ 272:.\Generated_Source\PSoC5/PWM.c ****                 #else
+ 273:.\Generated_Source\PSoC5/PWM.c ****                     uint8 comparemodemasked = comparemode;
+ 274:.\Generated_Source\PSoC5/PWM.c ****                 #endif /* (0 != PWM_CTRL_CMPMODE1_SHIFT) */
+ 275:.\Generated_Source\PSoC5/PWM.c **** 
+ 276:.\Generated_Source\PSoC5/PWM.c ****                 PWM_CONTROL3 &= ((uint8)(~PWM_CTRL_CMPMODE1_MASK)); /*Clear Existing Data */
+ 277:.\Generated_Source\PSoC5/PWM.c ****                 PWM_CONTROL3 |= comparemodemasked;
+ 278:.\Generated_Source\PSoC5/PWM.c **** 
+ 279:.\Generated_Source\PSoC5/PWM.c ****             #elif (PWM_UseControl)
+ 280:.\Generated_Source\PSoC5/PWM.c **** 
+ 281:.\Generated_Source\PSoC5/PWM.c ****                 #if(0 != PWM_CTRL_CMPMODE1_SHIFT)
+ 282:.\Generated_Source\PSoC5/PWM.c ****                     uint8 comparemode1masked = ((uint8)((uint8)comparemode << PWM_CTRL_CMPMODE1_SHI
+ 283:.\Generated_Source\PSoC5/PWM.c ****                                                 PWM_CTRL_CMPMODE1_MASK;
+ 284:.\Generated_Source\PSoC5/PWM.c ****                 #else
+ 285:.\Generated_Source\PSoC5/PWM.c ****                     uint8 comparemode1masked = comparemode & PWM_CTRL_CMPMODE1_MASK;
+ 286:.\Generated_Source\PSoC5/PWM.c ****                 #endif /* (0 != PWM_CTRL_CMPMODE1_SHIFT) */
+ 287:.\Generated_Source\PSoC5/PWM.c **** 
+ 288:.\Generated_Source\PSoC5/PWM.c ****                 #if(0 != PWM_CTRL_CMPMODE2_SHIFT)
+ 289:.\Generated_Source\PSoC5/PWM.c ****                     uint8 comparemode2masked = ((uint8)((uint8)comparemode << PWM_CTRL_CMPMODE2_SHI
+ 290:.\Generated_Source\PSoC5/PWM.c ****                                                PWM_CTRL_CMPMODE2_MASK;
+ 291:.\Generated_Source\PSoC5/PWM.c ****                 #else
+ 292:.\Generated_Source\PSoC5/PWM.c ****                     uint8 comparemode2masked = comparemode & PWM_CTRL_CMPMODE2_MASK;
+ 293:.\Generated_Source\PSoC5/PWM.c ****                 #endif /* (0 != PWM_CTRL_CMPMODE2_SHIFT) */
+ 294:.\Generated_Source\PSoC5/PWM.c **** 
+ 295:.\Generated_Source\PSoC5/PWM.c ****                 /*Clear existing mode */
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 7
+
+
+ 296:.\Generated_Source\PSoC5/PWM.c ****                 PWM_CONTROL &= ((uint8)(~(PWM_CTRL_CMPMODE1_MASK |
+ 297:.\Generated_Source\PSoC5/PWM.c ****                                             PWM_CTRL_CMPMODE2_MASK)));
+ 298:.\Generated_Source\PSoC5/PWM.c ****                 PWM_CONTROL |= (comparemode1masked | comparemode2masked);
+ 299:.\Generated_Source\PSoC5/PWM.c **** 
+ 300:.\Generated_Source\PSoC5/PWM.c ****             #else
+ 301:.\Generated_Source\PSoC5/PWM.c ****                 uint8 temp = comparemode;
+ 302:.\Generated_Source\PSoC5/PWM.c ****             #endif /* (PWM_UsingFixedFunction) */
+ 303:.\Generated_Source\PSoC5/PWM.c ****         }
+ 304:.\Generated_Source\PSoC5/PWM.c ****     #endif /* PWM_CompareMode1SW */
+ 305:.\Generated_Source\PSoC5/PWM.c **** 
+ 306:.\Generated_Source\PSoC5/PWM.c **** #else /* UseOneCompareMode */
+ 307:.\Generated_Source\PSoC5/PWM.c **** 
+ 308:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_CompareMode1SW)
+ 309:.\Generated_Source\PSoC5/PWM.c **** 
+ 310:.\Generated_Source\PSoC5/PWM.c **** 
+ 311:.\Generated_Source\PSoC5/PWM.c ****         /*******************************************************************************
+ 312:.\Generated_Source\PSoC5/PWM.c ****         * Function Name: PWM_SetCompareMode1
+ 313:.\Generated_Source\PSoC5/PWM.c ****         ********************************************************************************
+ 314:.\Generated_Source\PSoC5/PWM.c ****         *
+ 315:.\Generated_Source\PSoC5/PWM.c ****         * Summary:
+ 316:.\Generated_Source\PSoC5/PWM.c ****         *  This function writes the Compare Mode for the pwm or pwm1 output
+ 317:.\Generated_Source\PSoC5/PWM.c ****         *
+ 318:.\Generated_Source\PSoC5/PWM.c ****         * Parameters:
+ 319:.\Generated_Source\PSoC5/PWM.c ****         *  comparemode:  The new compare mode for the PWM output. Use the compare types
+ 320:.\Generated_Source\PSoC5/PWM.c ****         *                defined in the H file as input arguments.
+ 321:.\Generated_Source\PSoC5/PWM.c ****         *
+ 322:.\Generated_Source\PSoC5/PWM.c ****         * Return:
+ 323:.\Generated_Source\PSoC5/PWM.c ****         *  None
+ 324:.\Generated_Source\PSoC5/PWM.c ****         *
+ 325:.\Generated_Source\PSoC5/PWM.c ****         *******************************************************************************/
+ 326:.\Generated_Source\PSoC5/PWM.c ****         void PWM_SetCompareMode1(uint8 comparemode) 
+ 327:.\Generated_Source\PSoC5/PWM.c ****         {
+ 328:.\Generated_Source\PSoC5/PWM.c ****             #if(0 != PWM_CTRL_CMPMODE1_SHIFT)
+ 329:.\Generated_Source\PSoC5/PWM.c ****                 uint8 comparemodemasked = ((uint8)((uint8)comparemode << PWM_CTRL_CMPMODE1_SHIFT)) 
+ 330:.\Generated_Source\PSoC5/PWM.c ****                                            PWM_CTRL_CMPMODE1_MASK;
+ 331:.\Generated_Source\PSoC5/PWM.c ****             #else
+ 332:.\Generated_Source\PSoC5/PWM.c ****                 uint8 comparemodemasked = comparemode & PWM_CTRL_CMPMODE1_MASK;
+ 333:.\Generated_Source\PSoC5/PWM.c ****             #endif /* (0 != PWM_CTRL_CMPMODE1_SHIFT) */
+ 334:.\Generated_Source\PSoC5/PWM.c **** 
+ 335:.\Generated_Source\PSoC5/PWM.c ****             #if (PWM_UseControl)
+ 336:.\Generated_Source\PSoC5/PWM.c ****                 PWM_CONTROL &= ((uint8)(~PWM_CTRL_CMPMODE1_MASK)); /*Clear existing mode */
+ 337:.\Generated_Source\PSoC5/PWM.c ****                 PWM_CONTROL |= comparemodemasked;
+ 338:.\Generated_Source\PSoC5/PWM.c ****             #endif /* (PWM_UseControl) */
+ 339:.\Generated_Source\PSoC5/PWM.c ****         }
+ 340:.\Generated_Source\PSoC5/PWM.c ****     #endif /* PWM_CompareMode1SW */
+ 341:.\Generated_Source\PSoC5/PWM.c **** 
+ 342:.\Generated_Source\PSoC5/PWM.c **** #if (PWM_CompareMode2SW)
+ 343:.\Generated_Source\PSoC5/PWM.c **** 
+ 344:.\Generated_Source\PSoC5/PWM.c **** 
+ 345:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 346:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_SetCompareMode2
+ 347:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 348:.\Generated_Source\PSoC5/PWM.c ****     *
+ 349:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 350:.\Generated_Source\PSoC5/PWM.c ****     *  This function writes the Compare Mode for the pwm or pwm2 output
+ 351:.\Generated_Source\PSoC5/PWM.c ****     *
+ 352:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 8
+
+
+ 353:.\Generated_Source\PSoC5/PWM.c ****     *  comparemode:  The new compare mode for the PWM output. Use the compare types
+ 354:.\Generated_Source\PSoC5/PWM.c ****     *                defined in the H file as input arguments.
+ 355:.\Generated_Source\PSoC5/PWM.c ****     *
+ 356:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 357:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 358:.\Generated_Source\PSoC5/PWM.c ****     *
+ 359:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 360:.\Generated_Source\PSoC5/PWM.c ****     void PWM_SetCompareMode2(uint8 comparemode) 
+ 361:.\Generated_Source\PSoC5/PWM.c ****     {
+ 362:.\Generated_Source\PSoC5/PWM.c **** 
+ 363:.\Generated_Source\PSoC5/PWM.c ****         #if(0 != PWM_CTRL_CMPMODE2_SHIFT)
+ 364:.\Generated_Source\PSoC5/PWM.c ****             uint8 comparemodemasked = ((uint8)((uint8)comparemode << PWM_CTRL_CMPMODE2_SHIFT)) &
+ 365:.\Generated_Source\PSoC5/PWM.c ****                                                  PWM_CTRL_CMPMODE2_MASK;
+ 366:.\Generated_Source\PSoC5/PWM.c ****         #else
+ 367:.\Generated_Source\PSoC5/PWM.c ****             uint8 comparemodemasked = comparemode & PWM_CTRL_CMPMODE2_MASK;
+ 368:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (0 != PWM_CTRL_CMPMODE2_SHIFT) */
+ 369:.\Generated_Source\PSoC5/PWM.c **** 
+ 370:.\Generated_Source\PSoC5/PWM.c ****         #if (PWM_UseControl)
+ 371:.\Generated_Source\PSoC5/PWM.c ****             PWM_CONTROL &= ((uint8)(~PWM_CTRL_CMPMODE2_MASK)); /*Clear existing mode */
+ 372:.\Generated_Source\PSoC5/PWM.c ****             PWM_CONTROL |= comparemodemasked;
+ 373:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_UseControl) */
+ 374:.\Generated_Source\PSoC5/PWM.c ****     }
+ 375:.\Generated_Source\PSoC5/PWM.c ****     #endif /*PWM_CompareMode2SW */
+ 376:.\Generated_Source\PSoC5/PWM.c **** 
+ 377:.\Generated_Source\PSoC5/PWM.c **** #endif /* UseOneCompareMode */
+ 378:.\Generated_Source\PSoC5/PWM.c **** 
+ 379:.\Generated_Source\PSoC5/PWM.c **** 
+ 380:.\Generated_Source\PSoC5/PWM.c **** #if (!PWM_UsingFixedFunction)
+ 381:.\Generated_Source\PSoC5/PWM.c **** 
+ 382:.\Generated_Source\PSoC5/PWM.c **** 
+ 383:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 384:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_WriteCounter
+ 385:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 386:.\Generated_Source\PSoC5/PWM.c ****     *
+ 387:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 388:.\Generated_Source\PSoC5/PWM.c ****     *  Writes a new counter value directly to the counter register. This will be
+ 389:.\Generated_Source\PSoC5/PWM.c ****     *  implemented for that currently running period and only that period. This API
+ 390:.\Generated_Source\PSoC5/PWM.c ****     *  is valid only for UDB implementation and not available for fixed function
+ 391:.\Generated_Source\PSoC5/PWM.c ****     *  PWM implementation.
+ 392:.\Generated_Source\PSoC5/PWM.c ****     *
+ 393:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 394:.\Generated_Source\PSoC5/PWM.c ****     *  counter:  The period new period counter value.
+ 395:.\Generated_Source\PSoC5/PWM.c ****     *
+ 396:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 397:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 398:.\Generated_Source\PSoC5/PWM.c ****     *
+ 399:.\Generated_Source\PSoC5/PWM.c ****     * Side Effects:
+ 400:.\Generated_Source\PSoC5/PWM.c ****     *  The PWM Period will be reloaded when a counter value will be a zero
+ 401:.\Generated_Source\PSoC5/PWM.c ****     *
+ 402:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 403:.\Generated_Source\PSoC5/PWM.c ****     void PWM_WriteCounter(uint8 counter) \
+ 404:.\Generated_Source\PSoC5/PWM.c ****                                        
+ 405:.\Generated_Source\PSoC5/PWM.c ****     {
+ 406:.\Generated_Source\PSoC5/PWM.c ****         CY_SET_REG8(PWM_COUNTER_LSB_PTR, counter);
+  48              		.loc 1 406 0
+  49 001a FF23     		movs	r3, #255
+  50 001c 02F8703C 		strb	r3, [r2, #-112]
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 9
+
+
+  51              	.LVL3:
+  52              	.LBE9:
+  53              	.LBE8:
+  54              	.LBB10:
+  55              	.LBB11:
+ 407:.\Generated_Source\PSoC5/PWM.c ****     }
+ 408:.\Generated_Source\PSoC5/PWM.c **** 
+ 409:.\Generated_Source\PSoC5/PWM.c **** 
+ 410:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 411:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_ReadCounter
+ 412:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 413:.\Generated_Source\PSoC5/PWM.c ****     *
+ 414:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 415:.\Generated_Source\PSoC5/PWM.c ****     *  This function returns the current value of the counter.  It doesn't matter
+ 416:.\Generated_Source\PSoC5/PWM.c ****     *  if the counter is enabled or running.
+ 417:.\Generated_Source\PSoC5/PWM.c ****     *
+ 418:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 419:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 420:.\Generated_Source\PSoC5/PWM.c ****     *
+ 421:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 422:.\Generated_Source\PSoC5/PWM.c ****     *  The current value of the counter.
+ 423:.\Generated_Source\PSoC5/PWM.c ****     *
+ 424:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 425:.\Generated_Source\PSoC5/PWM.c ****     uint8 PWM_ReadCounter(void) 
+ 426:.\Generated_Source\PSoC5/PWM.c ****     {
+ 427:.\Generated_Source\PSoC5/PWM.c ****         /* Force capture by reading Accumulator */
+ 428:.\Generated_Source\PSoC5/PWM.c ****         /* Must first do a software capture to be able to read the counter */
+ 429:.\Generated_Source\PSoC5/PWM.c ****         /* It is up to the user code to make sure there isn't already captured data in the FIFO */
+ 430:.\Generated_Source\PSoC5/PWM.c ****           (void)CY_GET_REG8(PWM_COUNTERCAP_LSB_PTR_8BIT);
+ 431:.\Generated_Source\PSoC5/PWM.c **** 
+ 432:.\Generated_Source\PSoC5/PWM.c ****         /* Read the data from the FIFO */
+ 433:.\Generated_Source\PSoC5/PWM.c ****         return (CY_GET_REG8(PWM_CAPTURE_LSB_PTR));
+ 434:.\Generated_Source\PSoC5/PWM.c ****     }
+ 435:.\Generated_Source\PSoC5/PWM.c **** 
+ 436:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_UseStatus)
+ 437:.\Generated_Source\PSoC5/PWM.c **** 
+ 438:.\Generated_Source\PSoC5/PWM.c **** 
+ 439:.\Generated_Source\PSoC5/PWM.c ****         /*******************************************************************************
+ 440:.\Generated_Source\PSoC5/PWM.c ****         * Function Name: PWM_ClearFIFO
+ 441:.\Generated_Source\PSoC5/PWM.c ****         ********************************************************************************
+ 442:.\Generated_Source\PSoC5/PWM.c ****         *
+ 443:.\Generated_Source\PSoC5/PWM.c ****         * Summary:
+ 444:.\Generated_Source\PSoC5/PWM.c ****         *  This function clears all capture data from the capture FIFO
+ 445:.\Generated_Source\PSoC5/PWM.c ****         *
+ 446:.\Generated_Source\PSoC5/PWM.c ****         * Parameters:
+ 447:.\Generated_Source\PSoC5/PWM.c ****         *  None
+ 448:.\Generated_Source\PSoC5/PWM.c ****         *
+ 449:.\Generated_Source\PSoC5/PWM.c ****         * Return:
+ 450:.\Generated_Source\PSoC5/PWM.c ****         *  None
+ 451:.\Generated_Source\PSoC5/PWM.c ****         *
+ 452:.\Generated_Source\PSoC5/PWM.c ****         *******************************************************************************/
+ 453:.\Generated_Source\PSoC5/PWM.c ****         void PWM_ClearFIFO(void) 
+ 454:.\Generated_Source\PSoC5/PWM.c ****         {
+ 455:.\Generated_Source\PSoC5/PWM.c ****             while(0u != (PWM_ReadStatusRegister() & PWM_STATUS_FIFONEMPTY))
+ 456:.\Generated_Source\PSoC5/PWM.c ****             {
+ 457:.\Generated_Source\PSoC5/PWM.c ****                 (void)PWM_ReadCapture();
+ 458:.\Generated_Source\PSoC5/PWM.c ****             }
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 10
+
+
+ 459:.\Generated_Source\PSoC5/PWM.c ****         }
+ 460:.\Generated_Source\PSoC5/PWM.c **** 
+ 461:.\Generated_Source\PSoC5/PWM.c ****     #endif /* PWM_UseStatus */
+ 462:.\Generated_Source\PSoC5/PWM.c **** 
+ 463:.\Generated_Source\PSoC5/PWM.c **** #endif /* !PWM_UsingFixedFunction */
+ 464:.\Generated_Source\PSoC5/PWM.c **** 
+ 465:.\Generated_Source\PSoC5/PWM.c **** 
+ 466:.\Generated_Source\PSoC5/PWM.c **** /*******************************************************************************
+ 467:.\Generated_Source\PSoC5/PWM.c **** * Function Name: PWM_WritePeriod
+ 468:.\Generated_Source\PSoC5/PWM.c **** ********************************************************************************
+ 469:.\Generated_Source\PSoC5/PWM.c **** *
+ 470:.\Generated_Source\PSoC5/PWM.c **** * Summary:
+ 471:.\Generated_Source\PSoC5/PWM.c **** *  This function is used to change the period of the counter.  The new period
+ 472:.\Generated_Source\PSoC5/PWM.c **** *  will be loaded the next time terminal count is detected.
+ 473:.\Generated_Source\PSoC5/PWM.c **** *
+ 474:.\Generated_Source\PSoC5/PWM.c **** * Parameters:
+ 475:.\Generated_Source\PSoC5/PWM.c **** *  period:  Period value. May be between 1 and (2^Resolution)-1.  A value of 0
+ 476:.\Generated_Source\PSoC5/PWM.c **** *           will result in the counter remaining at zero.
+ 477:.\Generated_Source\PSoC5/PWM.c **** *
+ 478:.\Generated_Source\PSoC5/PWM.c **** * Return:
+ 479:.\Generated_Source\PSoC5/PWM.c **** *  None
+ 480:.\Generated_Source\PSoC5/PWM.c **** *
+ 481:.\Generated_Source\PSoC5/PWM.c **** *******************************************************************************/
+ 482:.\Generated_Source\PSoC5/PWM.c **** void PWM_WritePeriod(uint8 period) 
+ 483:.\Generated_Source\PSoC5/PWM.c **** {
+ 484:.\Generated_Source\PSoC5/PWM.c ****     #if(PWM_UsingFixedFunction)
+ 485:.\Generated_Source\PSoC5/PWM.c ****         CY_SET_REG16(PWM_PERIOD_LSB_PTR, (uint16)period);
+ 486:.\Generated_Source\PSoC5/PWM.c ****     #else
+ 487:.\Generated_Source\PSoC5/PWM.c ****         CY_SET_REG8(PWM_PERIOD_LSB_PTR, period);
+  56              		.loc 1 487 0
+  57 0020 02F8303C 		strb	r3, [r2, #-48]
+  58              	.LVL4:
+  59              	.LBE11:
+  60              	.LBE10:
+  61              	.LBB12:
+  62              	.LBB13:
+ 488:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UsingFixedFunction) */
+ 489:.\Generated_Source\PSoC5/PWM.c **** }
+ 490:.\Generated_Source\PSoC5/PWM.c **** 
+ 491:.\Generated_Source\PSoC5/PWM.c **** #if (PWM_UseOneCompareMode)
+ 492:.\Generated_Source\PSoC5/PWM.c **** 
+ 493:.\Generated_Source\PSoC5/PWM.c **** 
+ 494:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 495:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_WriteCompare
+ 496:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 497:.\Generated_Source\PSoC5/PWM.c ****     *
+ 498:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 499:.\Generated_Source\PSoC5/PWM.c ****     *  This funtion is used to change the compare1 value when the PWM is in Dither
+ 500:.\Generated_Source\PSoC5/PWM.c ****     *  mode. The compare output will reflect the new value on the next UDB clock.
+ 501:.\Generated_Source\PSoC5/PWM.c ****     *  The compare output will be driven high when the present counter value is
+ 502:.\Generated_Source\PSoC5/PWM.c ****     *  compared to the compare value based on the compare mode defined in
+ 503:.\Generated_Source\PSoC5/PWM.c ****     *  Dither Mode.
+ 504:.\Generated_Source\PSoC5/PWM.c ****     *
+ 505:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 506:.\Generated_Source\PSoC5/PWM.c ****     *  compare:  New compare value.
+ 507:.\Generated_Source\PSoC5/PWM.c ****     *
+ 508:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 11
+
+
+ 509:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 510:.\Generated_Source\PSoC5/PWM.c ****     *
+ 511:.\Generated_Source\PSoC5/PWM.c ****     * Side Effects:
+ 512:.\Generated_Source\PSoC5/PWM.c ****     *  This function is only available if the PWM mode parameter is set to
+ 513:.\Generated_Source\PSoC5/PWM.c ****     *  Dither Mode, Center Aligned Mode or One Output Mode
+ 514:.\Generated_Source\PSoC5/PWM.c ****     *
+ 515:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 516:.\Generated_Source\PSoC5/PWM.c ****     void PWM_WriteCompare(uint8 compare) \
+ 517:.\Generated_Source\PSoC5/PWM.c ****                                        
+ 518:.\Generated_Source\PSoC5/PWM.c ****     {
+ 519:.\Generated_Source\PSoC5/PWM.c ****         #if(PWM_UsingFixedFunction)
+ 520:.\Generated_Source\PSoC5/PWM.c ****             CY_SET_REG16(PWM_COMPARE1_LSB_PTR, (uint16)compare);
+ 521:.\Generated_Source\PSoC5/PWM.c ****         #else
+ 522:.\Generated_Source\PSoC5/PWM.c ****             CY_SET_REG8(PWM_COMPARE1_LSB_PTR, compare);
+  63              		.loc 1 522 0
+  64 0024 024B     		ldr	r3, .L2+4
+  65 0026 7F22     		movs	r2, #127
+  66 0028 1A70     		strb	r2, [r3]
+  67 002a 7047     		bx	lr
+  68              	.L3:
+  69              		.align	2
+  70              	.L2:
+  71 002c 7A650040 		.word	1073767802
+  72 0030 2A650040 		.word	1073767722
+  73              	.LBE13:
+  74              	.LBE12:
+  75              		.cfi_endproc
+  76              	.LFE1:
+  77              		.size	PWM_Init, .-PWM_Init
+  78              		.section	.text.PWM_Enable,"ax",%progbits
+  79              		.align	1
+  80              		.global	PWM_Enable
+  81              		.thumb
+  82              		.thumb_func
+  83              		.type	PWM_Enable, %function
+  84              	PWM_Enable:
+  85              	.LFB2:
+ 200:.\Generated_Source\PSoC5/PWM.c ****     /* Globally Enable the Fixed Function Block chosen */
+  86              		.loc 1 200 0
+  87              		.cfi_startproc
+  88              		@ args = 0, pretend = 0, frame = 0
+  89              		@ frame_needed = 0, uses_anonymous_args = 0
+  90              		@ link register save eliminated.
+ 209:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UseControl || PWM_UsingFixedFunction) */
+  91              		.loc 1 209 0
+  92 0000 024A     		ldr	r2, .L5
+  93 0002 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+  94 0004 43F08003 		orr	r3, r3, #128
+  95 0008 1370     		strb	r3, [r2]
+  96 000a 7047     		bx	lr
+  97              	.L6:
+  98              		.align	2
+  99              	.L5:
+ 100 000c 7A650040 		.word	1073767802
+ 101              		.cfi_endproc
+ 102              	.LFE2:
+ 103              		.size	PWM_Enable, .-PWM_Enable
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 12
+
+
+ 104              		.section	.text.PWM_Start,"ax",%progbits
+ 105              		.align	1
+ 106              		.global	PWM_Start
+ 107              		.thumb
+ 108              		.thumb_func
+ 109              		.type	PWM_Start, %function
+ 110              	PWM_Start:
+ 111              	.LFB0:
+  56:.\Generated_Source\PSoC5/PWM.c ****     /* If not Initialized then initialize all required hardware and software */
+ 112              		.loc 1 56 0
+ 113              		.cfi_startproc
+ 114              		@ args = 0, pretend = 0, frame = 0
+ 115              		@ frame_needed = 0, uses_anonymous_args = 0
+ 116 0000 10B5     		push	{r4, lr}
+ 117              		.cfi_def_cfa_offset 8
+ 118              		.cfi_offset 4, -8
+ 119              		.cfi_offset 14, -4
+  58:.\Generated_Source\PSoC5/PWM.c ****     {
+ 120              		.loc 1 58 0
+ 121 0002 054C     		ldr	r4, .L10
+ 122 0004 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 123 0006 1BB9     		cbnz	r3, .L8
+  60:.\Generated_Source\PSoC5/PWM.c ****         PWM_initVar = 1u;
+ 124              		.loc 1 60 0
+ 125 0008 FFF7FEFF 		bl	PWM_Init
+ 126              	.LVL5:
+  61:.\Generated_Source\PSoC5/PWM.c ****     }
+ 127              		.loc 1 61 0
+ 128 000c 0123     		movs	r3, #1
+ 129 000e 2370     		strb	r3, [r4]
+ 130              	.L8:
+  65:.\Generated_Source\PSoC5/PWM.c **** 
+ 131              		.loc 1 65 0
+ 132 0010 BDE81040 		pop	{r4, lr}
+ 133              		.cfi_restore 14
+ 134              		.cfi_restore 4
+ 135              		.cfi_def_cfa_offset 0
+  63:.\Generated_Source\PSoC5/PWM.c **** 
+ 136              		.loc 1 63 0
+ 137 0014 FFF7FEBF 		b	PWM_Enable
+ 138              	.LVL6:
+ 139              	.L11:
+ 140              		.align	2
+ 141              	.L10:
+ 142 0018 00000000 		.word	.LANCHOR0
+ 143              		.cfi_endproc
+ 144              	.LFE0:
+ 145              		.size	PWM_Start, .-PWM_Start
+ 146              		.section	.text.PWM_Stop,"ax",%progbits
+ 147              		.align	1
+ 148              		.global	PWM_Stop
+ 149              		.thumb
+ 150              		.thumb_func
+ 151              		.type	PWM_Stop, %function
+ 152              	PWM_Stop:
+ 153              	.LFB3:
+ 234:.\Generated_Source\PSoC5/PWM.c ****     #if (PWM_UseControl || PWM_UsingFixedFunction)
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 13
+
+
+ 154              		.loc 1 234 0
+ 155              		.cfi_startproc
+ 156              		@ args = 0, pretend = 0, frame = 0
+ 157              		@ frame_needed = 0, uses_anonymous_args = 0
+ 158              		@ link register save eliminated.
+ 236:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UseControl || PWM_UsingFixedFunction) */
+ 159              		.loc 1 236 0
+ 160 0000 024A     		ldr	r2, .L13
+ 161 0002 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 162 0004 03F07F03 		and	r3, r3, #127
+ 163 0008 1370     		strb	r3, [r2]
+ 164 000a 7047     		bx	lr
+ 165              	.L14:
+ 166              		.align	2
+ 167              	.L13:
+ 168 000c 7A650040 		.word	1073767802
+ 169              		.cfi_endproc
+ 170              	.LFE3:
+ 171              		.size	PWM_Stop, .-PWM_Stop
+ 172              		.section	.text.PWM_WriteCounter,"ax",%progbits
+ 173              		.align	1
+ 174              		.global	PWM_WriteCounter
+ 175              		.thumb
+ 176              		.thumb_func
+ 177              		.type	PWM_WriteCounter, %function
+ 178              	PWM_WriteCounter:
+ 179              	.LFB4:
+ 405:.\Generated_Source\PSoC5/PWM.c ****         CY_SET_REG8(PWM_COUNTER_LSB_PTR, counter);
+ 180              		.loc 1 405 0
+ 181              		.cfi_startproc
+ 182              		@ args = 0, pretend = 0, frame = 0
+ 183              		@ frame_needed = 0, uses_anonymous_args = 0
+ 184              		@ link register save eliminated.
+ 185              	.LVL7:
+ 406:.\Generated_Source\PSoC5/PWM.c ****     }
+ 186              		.loc 1 406 0
+ 187 0000 014B     		ldr	r3, .L16
+ 188 0002 1870     		strb	r0, [r3]
+ 189 0004 7047     		bx	lr
+ 190              	.L17:
+ 191 0006 00BF     		.align	2
+ 192              	.L16:
+ 193 0008 0A650040 		.word	1073767690
+ 194              		.cfi_endproc
+ 195              	.LFE4:
+ 196              		.size	PWM_WriteCounter, .-PWM_WriteCounter
+ 197              		.section	.text.PWM_ReadCounter,"ax",%progbits
+ 198              		.align	1
+ 199              		.global	PWM_ReadCounter
+ 200              		.thumb
+ 201              		.thumb_func
+ 202              		.type	PWM_ReadCounter, %function
+ 203              	PWM_ReadCounter:
+ 204              	.LFB5:
+ 426:.\Generated_Source\PSoC5/PWM.c ****         /* Force capture by reading Accumulator */
+ 205              		.loc 1 426 0
+ 206              		.cfi_startproc
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 14
+
+
+ 207              		@ args = 0, pretend = 0, frame = 0
+ 208              		@ frame_needed = 0, uses_anonymous_args = 0
+ 209              		@ link register save eliminated.
+ 430:.\Generated_Source\PSoC5/PWM.c **** 
+ 210              		.loc 1 430 0
+ 211 0000 024B     		ldr	r3, .L19
+ 212 0002 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 433:.\Generated_Source\PSoC5/PWM.c ****     }
+ 213              		.loc 1 433 0
+ 214 0004 024B     		ldr	r3, .L19+4
+ 215 0006 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 434:.\Generated_Source\PSoC5/PWM.c **** 
+ 216              		.loc 1 434 0
+ 217 0008 7047     		bx	lr
+ 218              	.L20:
+ 219 000a 00BF     		.align	2
+ 220              	.L19:
+ 221 000c 1A650040 		.word	1073767706
+ 222 0010 5A650040 		.word	1073767770
+ 223              		.cfi_endproc
+ 224              	.LFE5:
+ 225              		.size	PWM_ReadCounter, .-PWM_ReadCounter
+ 226              		.section	.text.PWM_WritePeriod,"ax",%progbits
+ 227              		.align	1
+ 228              		.global	PWM_WritePeriod
+ 229              		.thumb
+ 230              		.thumb_func
+ 231              		.type	PWM_WritePeriod, %function
+ 232              	PWM_WritePeriod:
+ 233              	.LFB6:
+ 483:.\Generated_Source\PSoC5/PWM.c ****     #if(PWM_UsingFixedFunction)
+ 234              		.loc 1 483 0
+ 235              		.cfi_startproc
+ 236              		@ args = 0, pretend = 0, frame = 0
+ 237              		@ frame_needed = 0, uses_anonymous_args = 0
+ 238              		@ link register save eliminated.
+ 239              	.LVL8:
+ 487:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UsingFixedFunction) */
+ 240              		.loc 1 487 0
+ 241 0000 014B     		ldr	r3, .L22
+ 242 0002 1870     		strb	r0, [r3]
+ 243 0004 7047     		bx	lr
+ 244              	.L23:
+ 245 0006 00BF     		.align	2
+ 246              	.L22:
+ 247 0008 4A650040 		.word	1073767754
+ 248              		.cfi_endproc
+ 249              	.LFE6:
+ 250              		.size	PWM_WritePeriod, .-PWM_WritePeriod
+ 251              		.section	.text.PWM_WriteCompare,"ax",%progbits
+ 252              		.align	1
+ 253              		.global	PWM_WriteCompare
+ 254              		.thumb
+ 255              		.thumb_func
+ 256              		.type	PWM_WriteCompare, %function
+ 257              	PWM_WriteCompare:
+ 258              	.LFB7:
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 15
+
+
+ 518:.\Generated_Source\PSoC5/PWM.c ****         #if(PWM_UsingFixedFunction)
+ 259              		.loc 1 518 0
+ 260              		.cfi_startproc
+ 261              		@ args = 0, pretend = 0, frame = 0
+ 262              		@ frame_needed = 0, uses_anonymous_args = 0
+ 263              		@ link register save eliminated.
+ 264              	.LVL9:
+ 265              		.loc 1 522 0
+ 266 0000 014B     		ldr	r3, .L25
+ 267 0002 1870     		strb	r0, [r3]
+ 268 0004 7047     		bx	lr
+ 269              	.L26:
+ 270 0006 00BF     		.align	2
+ 271              	.L25:
+ 272 0008 2A650040 		.word	1073767722
+ 273              		.cfi_endproc
+ 274              	.LFE7:
+ 275              		.size	PWM_WriteCompare, .-PWM_WriteCompare
+ 276              		.section	.text.PWM_ReadControlRegister,"ax",%progbits
+ 277              		.align	1
+ 278              		.global	PWM_ReadControlRegister
+ 279              		.thumb
+ 280              		.thumb_func
+ 281              		.type	PWM_ReadControlRegister, %function
+ 282              	PWM_ReadControlRegister:
+ 283              	.LFB8:
+ 523:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_UsingFixedFunction) */
+ 524:.\Generated_Source\PSoC5/PWM.c **** 
+ 525:.\Generated_Source\PSoC5/PWM.c ****         #if (PWM_PWMMode == PWM__B_PWM__DITHER)
+ 526:.\Generated_Source\PSoC5/PWM.c ****             #if(PWM_UsingFixedFunction)
+ 527:.\Generated_Source\PSoC5/PWM.c ****                 CY_SET_REG16(PWM_COMPARE2_LSB_PTR, (uint16)(compare + 1u));
+ 528:.\Generated_Source\PSoC5/PWM.c ****             #else
+ 529:.\Generated_Source\PSoC5/PWM.c ****                 CY_SET_REG8(PWM_COMPARE2_LSB_PTR, (compare + 1u));
+ 530:.\Generated_Source\PSoC5/PWM.c ****             #endif /* (PWM_UsingFixedFunction) */
+ 531:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_PWMMode == PWM__B_PWM__DITHER) */
+ 532:.\Generated_Source\PSoC5/PWM.c ****     }
+ 533:.\Generated_Source\PSoC5/PWM.c **** 
+ 534:.\Generated_Source\PSoC5/PWM.c **** 
+ 535:.\Generated_Source\PSoC5/PWM.c **** #else
+ 536:.\Generated_Source\PSoC5/PWM.c **** 
+ 537:.\Generated_Source\PSoC5/PWM.c **** 
+ 538:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 539:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_WriteCompare1
+ 540:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 541:.\Generated_Source\PSoC5/PWM.c ****     *
+ 542:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 543:.\Generated_Source\PSoC5/PWM.c ****     *  This funtion is used to change the compare1 value.  The compare output will
+ 544:.\Generated_Source\PSoC5/PWM.c ****     *  reflect the new value on the next UDB clock.  The compare output will be
+ 545:.\Generated_Source\PSoC5/PWM.c ****     *  driven high when the present counter value is less than or less than or
+ 546:.\Generated_Source\PSoC5/PWM.c ****     *  equal to the compare register, depending on the mode.
+ 547:.\Generated_Source\PSoC5/PWM.c ****     *
+ 548:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 549:.\Generated_Source\PSoC5/PWM.c ****     *  compare:  New compare value.
+ 550:.\Generated_Source\PSoC5/PWM.c ****     *
+ 551:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 552:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 553:.\Generated_Source\PSoC5/PWM.c ****     *
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 16
+
+
+ 554:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 555:.\Generated_Source\PSoC5/PWM.c ****     void PWM_WriteCompare1(uint8 compare) \
+ 556:.\Generated_Source\PSoC5/PWM.c ****                                         
+ 557:.\Generated_Source\PSoC5/PWM.c ****     {
+ 558:.\Generated_Source\PSoC5/PWM.c ****         #if(PWM_UsingFixedFunction)
+ 559:.\Generated_Source\PSoC5/PWM.c ****             CY_SET_REG16(PWM_COMPARE1_LSB_PTR, (uint16)compare);
+ 560:.\Generated_Source\PSoC5/PWM.c ****         #else
+ 561:.\Generated_Source\PSoC5/PWM.c ****             CY_SET_REG8(PWM_COMPARE1_LSB_PTR, compare);
+ 562:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_UsingFixedFunction) */
+ 563:.\Generated_Source\PSoC5/PWM.c ****     }
+ 564:.\Generated_Source\PSoC5/PWM.c **** 
+ 565:.\Generated_Source\PSoC5/PWM.c **** 
+ 566:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 567:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_WriteCompare2
+ 568:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 569:.\Generated_Source\PSoC5/PWM.c ****     *
+ 570:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 571:.\Generated_Source\PSoC5/PWM.c ****     *  This funtion is used to change the compare value, for compare1 output.
+ 572:.\Generated_Source\PSoC5/PWM.c ****     *  The compare output will reflect the new value on the next UDB clock.
+ 573:.\Generated_Source\PSoC5/PWM.c ****     *  The compare output will be driven high when the present counter value is
+ 574:.\Generated_Source\PSoC5/PWM.c ****     *  less than or less than or equal to the compare register, depending on the
+ 575:.\Generated_Source\PSoC5/PWM.c ****     *  mode.
+ 576:.\Generated_Source\PSoC5/PWM.c ****     *
+ 577:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 578:.\Generated_Source\PSoC5/PWM.c ****     *  compare:  New compare value.
+ 579:.\Generated_Source\PSoC5/PWM.c ****     *
+ 580:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 581:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 582:.\Generated_Source\PSoC5/PWM.c ****     *
+ 583:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 584:.\Generated_Source\PSoC5/PWM.c ****     void PWM_WriteCompare2(uint8 compare) \
+ 585:.\Generated_Source\PSoC5/PWM.c ****                                         
+ 586:.\Generated_Source\PSoC5/PWM.c ****     {
+ 587:.\Generated_Source\PSoC5/PWM.c ****         #if(PWM_UsingFixedFunction)
+ 588:.\Generated_Source\PSoC5/PWM.c ****             CY_SET_REG16(PWM_COMPARE2_LSB_PTR, compare);
+ 589:.\Generated_Source\PSoC5/PWM.c ****         #else
+ 590:.\Generated_Source\PSoC5/PWM.c ****             CY_SET_REG8(PWM_COMPARE2_LSB_PTR, compare);
+ 591:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_UsingFixedFunction) */
+ 592:.\Generated_Source\PSoC5/PWM.c ****     }
+ 593:.\Generated_Source\PSoC5/PWM.c **** #endif /* UseOneCompareMode */
+ 594:.\Generated_Source\PSoC5/PWM.c **** 
+ 595:.\Generated_Source\PSoC5/PWM.c **** #if (PWM_DeadBandUsed)
+ 596:.\Generated_Source\PSoC5/PWM.c **** 
+ 597:.\Generated_Source\PSoC5/PWM.c **** 
+ 598:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 599:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_WriteDeadTime
+ 600:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 601:.\Generated_Source\PSoC5/PWM.c ****     *
+ 602:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 603:.\Generated_Source\PSoC5/PWM.c ****     *  This function writes the dead-band counts to the corresponding register
+ 604:.\Generated_Source\PSoC5/PWM.c ****     *
+ 605:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 606:.\Generated_Source\PSoC5/PWM.c ****     *  deadtime:  Number of counts for dead time
+ 607:.\Generated_Source\PSoC5/PWM.c ****     *
+ 608:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 609:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 610:.\Generated_Source\PSoC5/PWM.c ****     *
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 17
+
+
+ 611:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 612:.\Generated_Source\PSoC5/PWM.c ****     void PWM_WriteDeadTime(uint8 deadtime) 
+ 613:.\Generated_Source\PSoC5/PWM.c ****     {
+ 614:.\Generated_Source\PSoC5/PWM.c ****         /* If using the Dead Band 1-255 mode then just write the register */
+ 615:.\Generated_Source\PSoC5/PWM.c ****         #if(!PWM_DeadBand2_4)
+ 616:.\Generated_Source\PSoC5/PWM.c ****             CY_SET_REG8(PWM_DEADBAND_COUNT_PTR, deadtime);
+ 617:.\Generated_Source\PSoC5/PWM.c ****         #else
+ 618:.\Generated_Source\PSoC5/PWM.c ****             /* Otherwise the data has to be masked and offset */
+ 619:.\Generated_Source\PSoC5/PWM.c ****             /* Clear existing data */
+ 620:.\Generated_Source\PSoC5/PWM.c ****             PWM_DEADBAND_COUNT &= ((uint8)(~PWM_DEADBAND_COUNT_MASK));
+ 621:.\Generated_Source\PSoC5/PWM.c **** 
+ 622:.\Generated_Source\PSoC5/PWM.c ****             /* Set new dead time */
+ 623:.\Generated_Source\PSoC5/PWM.c ****             #if(PWM_DEADBAND_COUNT_SHIFT)
+ 624:.\Generated_Source\PSoC5/PWM.c ****                 PWM_DEADBAND_COUNT |= ((uint8)((uint8)deadtime << PWM_DEADBAND_COUNT_SHIFT)) &
+ 625:.\Generated_Source\PSoC5/PWM.c ****                                                     PWM_DEADBAND_COUNT_MASK;
+ 626:.\Generated_Source\PSoC5/PWM.c ****             #else
+ 627:.\Generated_Source\PSoC5/PWM.c ****                 PWM_DEADBAND_COUNT |= deadtime & PWM_DEADBAND_COUNT_MASK;
+ 628:.\Generated_Source\PSoC5/PWM.c ****             #endif /* (PWM_DEADBAND_COUNT_SHIFT) */
+ 629:.\Generated_Source\PSoC5/PWM.c **** 
+ 630:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (!PWM_DeadBand2_4) */
+ 631:.\Generated_Source\PSoC5/PWM.c ****     }
+ 632:.\Generated_Source\PSoC5/PWM.c **** 
+ 633:.\Generated_Source\PSoC5/PWM.c **** 
+ 634:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 635:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_ReadDeadTime
+ 636:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 637:.\Generated_Source\PSoC5/PWM.c ****     *
+ 638:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 639:.\Generated_Source\PSoC5/PWM.c ****     *  This function reads the dead-band counts from the corresponding register
+ 640:.\Generated_Source\PSoC5/PWM.c ****     *
+ 641:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 642:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 643:.\Generated_Source\PSoC5/PWM.c ****     *
+ 644:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 645:.\Generated_Source\PSoC5/PWM.c ****     *  Dead Band Counts
+ 646:.\Generated_Source\PSoC5/PWM.c ****     *
+ 647:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 648:.\Generated_Source\PSoC5/PWM.c ****     uint8 PWM_ReadDeadTime(void) 
+ 649:.\Generated_Source\PSoC5/PWM.c ****     {
+ 650:.\Generated_Source\PSoC5/PWM.c ****         /* If using the Dead Band 1-255 mode then just read the register */
+ 651:.\Generated_Source\PSoC5/PWM.c ****         #if(!PWM_DeadBand2_4)
+ 652:.\Generated_Source\PSoC5/PWM.c ****             return (CY_GET_REG8(PWM_DEADBAND_COUNT_PTR));
+ 653:.\Generated_Source\PSoC5/PWM.c ****         #else
+ 654:.\Generated_Source\PSoC5/PWM.c **** 
+ 655:.\Generated_Source\PSoC5/PWM.c ****             /* Otherwise the data has to be masked and offset */
+ 656:.\Generated_Source\PSoC5/PWM.c ****             #if(PWM_DEADBAND_COUNT_SHIFT)
+ 657:.\Generated_Source\PSoC5/PWM.c ****                 return ((uint8)(((uint8)(PWM_DEADBAND_COUNT & PWM_DEADBAND_COUNT_MASK)) >>
+ 658:.\Generated_Source\PSoC5/PWM.c ****                                                                            PWM_DEADBAND_COUNT_SHIFT
+ 659:.\Generated_Source\PSoC5/PWM.c ****             #else
+ 660:.\Generated_Source\PSoC5/PWM.c ****                 return (PWM_DEADBAND_COUNT & PWM_DEADBAND_COUNT_MASK);
+ 661:.\Generated_Source\PSoC5/PWM.c ****             #endif /* (PWM_DEADBAND_COUNT_SHIFT) */
+ 662:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (!PWM_DeadBand2_4) */
+ 663:.\Generated_Source\PSoC5/PWM.c ****     }
+ 664:.\Generated_Source\PSoC5/PWM.c **** #endif /* DeadBandUsed */
+ 665:.\Generated_Source\PSoC5/PWM.c **** 
+ 666:.\Generated_Source\PSoC5/PWM.c **** #if (PWM_UseStatus || PWM_UsingFixedFunction)
+ 667:.\Generated_Source\PSoC5/PWM.c **** 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 18
+
+
+ 668:.\Generated_Source\PSoC5/PWM.c **** 
+ 669:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 670:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_SetInterruptMode
+ 671:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 672:.\Generated_Source\PSoC5/PWM.c ****     *
+ 673:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 674:.\Generated_Source\PSoC5/PWM.c ****     *  This function configures the interrupts mask control of theinterrupt
+ 675:.\Generated_Source\PSoC5/PWM.c ****     *  source status register.
+ 676:.\Generated_Source\PSoC5/PWM.c ****     *
+ 677:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 678:.\Generated_Source\PSoC5/PWM.c ****     *  uint8 interruptMode: Bit field containing the interrupt sources enabled
+ 679:.\Generated_Source\PSoC5/PWM.c ****     *
+ 680:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 681:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 682:.\Generated_Source\PSoC5/PWM.c ****     *
+ 683:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 684:.\Generated_Source\PSoC5/PWM.c ****     void PWM_SetInterruptMode(uint8 interruptMode) 
+ 685:.\Generated_Source\PSoC5/PWM.c ****     {
+ 686:.\Generated_Source\PSoC5/PWM.c ****         CY_SET_REG8(PWM_STATUS_MASK_PTR, interruptMode);
+ 687:.\Generated_Source\PSoC5/PWM.c ****     }
+ 688:.\Generated_Source\PSoC5/PWM.c **** 
+ 689:.\Generated_Source\PSoC5/PWM.c **** 
+ 690:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 691:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_ReadStatusRegister
+ 692:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 693:.\Generated_Source\PSoC5/PWM.c ****     *
+ 694:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 695:.\Generated_Source\PSoC5/PWM.c ****     *  This function returns the current state of the status register.
+ 696:.\Generated_Source\PSoC5/PWM.c ****     *
+ 697:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 698:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 699:.\Generated_Source\PSoC5/PWM.c ****     *
+ 700:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 701:.\Generated_Source\PSoC5/PWM.c ****     *  uint8 : Current status register value. The status register bits are:
+ 702:.\Generated_Source\PSoC5/PWM.c ****     *  [7:6] : Unused(0)
+ 703:.\Generated_Source\PSoC5/PWM.c ****     *  [5]   : Kill event output
+ 704:.\Generated_Source\PSoC5/PWM.c ****     *  [4]   : FIFO not empty
+ 705:.\Generated_Source\PSoC5/PWM.c ****     *  [3]   : FIFO full
+ 706:.\Generated_Source\PSoC5/PWM.c ****     *  [2]   : Terminal count
+ 707:.\Generated_Source\PSoC5/PWM.c ****     *  [1]   : Compare output 2
+ 708:.\Generated_Source\PSoC5/PWM.c ****     *  [0]   : Compare output 1
+ 709:.\Generated_Source\PSoC5/PWM.c ****     *
+ 710:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 711:.\Generated_Source\PSoC5/PWM.c ****     uint8 PWM_ReadStatusRegister(void) 
+ 712:.\Generated_Source\PSoC5/PWM.c ****     {
+ 713:.\Generated_Source\PSoC5/PWM.c ****         return (CY_GET_REG8(PWM_STATUS_PTR));
+ 714:.\Generated_Source\PSoC5/PWM.c ****     }
+ 715:.\Generated_Source\PSoC5/PWM.c **** 
+ 716:.\Generated_Source\PSoC5/PWM.c **** #endif /* (PWM_UseStatus || PWM_UsingFixedFunction) */
+ 717:.\Generated_Source\PSoC5/PWM.c **** 
+ 718:.\Generated_Source\PSoC5/PWM.c **** 
+ 719:.\Generated_Source\PSoC5/PWM.c **** #if (PWM_UseControl)
+ 720:.\Generated_Source\PSoC5/PWM.c **** 
+ 721:.\Generated_Source\PSoC5/PWM.c **** 
+ 722:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 723:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_ReadControlRegister
+ 724:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 19
+
+
+ 725:.\Generated_Source\PSoC5/PWM.c ****     *
+ 726:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 727:.\Generated_Source\PSoC5/PWM.c ****     *  Returns the current state of the control register. This API is available
+ 728:.\Generated_Source\PSoC5/PWM.c ****     *  only if the control register is not removed.
+ 729:.\Generated_Source\PSoC5/PWM.c ****     *
+ 730:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 731:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 732:.\Generated_Source\PSoC5/PWM.c ****     *
+ 733:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 734:.\Generated_Source\PSoC5/PWM.c ****     *  uint8 : Current control register value
+ 735:.\Generated_Source\PSoC5/PWM.c ****     *
+ 736:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 737:.\Generated_Source\PSoC5/PWM.c ****     uint8 PWM_ReadControlRegister(void) 
+ 738:.\Generated_Source\PSoC5/PWM.c ****     {
+ 284              		.loc 1 738 0
+ 285              		.cfi_startproc
+ 286              		@ args = 0, pretend = 0, frame = 0
+ 287              		@ frame_needed = 0, uses_anonymous_args = 0
+ 288              		@ link register save eliminated.
+ 739:.\Generated_Source\PSoC5/PWM.c ****         uint8 result;
+ 740:.\Generated_Source\PSoC5/PWM.c **** 
+ 741:.\Generated_Source\PSoC5/PWM.c ****         result = CY_GET_REG8(PWM_CONTROL_PTR);
+ 289              		.loc 1 741 0
+ 290 0000 014B     		ldr	r3, .L28
+ 291 0002 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 292              	.LVL10:
+ 742:.\Generated_Source\PSoC5/PWM.c ****         return (result);
+ 743:.\Generated_Source\PSoC5/PWM.c ****     }
+ 293              		.loc 1 743 0
+ 294 0004 7047     		bx	lr
+ 295              	.L29:
+ 296 0006 00BF     		.align	2
+ 297              	.L28:
+ 298 0008 7A650040 		.word	1073767802
+ 299              		.cfi_endproc
+ 300              	.LFE8:
+ 301              		.size	PWM_ReadControlRegister, .-PWM_ReadControlRegister
+ 302              		.section	.text.PWM_WriteControlRegister,"ax",%progbits
+ 303              		.align	1
+ 304              		.global	PWM_WriteControlRegister
+ 305              		.thumb
+ 306              		.thumb_func
+ 307              		.type	PWM_WriteControlRegister, %function
+ 308              	PWM_WriteControlRegister:
+ 309              	.LFB9:
+ 744:.\Generated_Source\PSoC5/PWM.c **** 
+ 745:.\Generated_Source\PSoC5/PWM.c **** 
+ 746:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 747:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_WriteControlRegister
+ 748:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 749:.\Generated_Source\PSoC5/PWM.c ****     *
+ 750:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 751:.\Generated_Source\PSoC5/PWM.c ****     *  Sets the bit field of the control register. This API is available only if
+ 752:.\Generated_Source\PSoC5/PWM.c ****     *  the control register is not removed.
+ 753:.\Generated_Source\PSoC5/PWM.c ****     *
+ 754:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 755:.\Generated_Source\PSoC5/PWM.c ****     *  uint8 control: Control register bit field, The status register bits are:
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 20
+
+
+ 756:.\Generated_Source\PSoC5/PWM.c ****     *  [7]   : PWM Enable
+ 757:.\Generated_Source\PSoC5/PWM.c ****     *  [6]   : Reset
+ 758:.\Generated_Source\PSoC5/PWM.c ****     *  [5:3] : Compare Mode2
+ 759:.\Generated_Source\PSoC5/PWM.c ****     *  [2:0] : Compare Mode2
+ 760:.\Generated_Source\PSoC5/PWM.c ****     *
+ 761:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 762:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 763:.\Generated_Source\PSoC5/PWM.c ****     *
+ 764:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 765:.\Generated_Source\PSoC5/PWM.c ****     void PWM_WriteControlRegister(uint8 control) 
+ 766:.\Generated_Source\PSoC5/PWM.c ****     {
+ 310              		.loc 1 766 0
+ 311              		.cfi_startproc
+ 312              		@ args = 0, pretend = 0, frame = 0
+ 313              		@ frame_needed = 0, uses_anonymous_args = 0
+ 314              		@ link register save eliminated.
+ 315              	.LVL11:
+ 767:.\Generated_Source\PSoC5/PWM.c ****         CY_SET_REG8(PWM_CONTROL_PTR, control);
+ 316              		.loc 1 767 0
+ 317 0000 014B     		ldr	r3, .L31
+ 318 0002 1870     		strb	r0, [r3]
+ 319 0004 7047     		bx	lr
+ 320              	.L32:
+ 321 0006 00BF     		.align	2
+ 322              	.L31:
+ 323 0008 7A650040 		.word	1073767802
+ 324              		.cfi_endproc
+ 325              	.LFE9:
+ 326              		.size	PWM_WriteControlRegister, .-PWM_WriteControlRegister
+ 327              		.section	.text.PWM_ReadCapture,"ax",%progbits
+ 328              		.align	1
+ 329              		.global	PWM_ReadCapture
+ 330              		.thumb
+ 331              		.thumb_func
+ 332              		.type	PWM_ReadCapture, %function
+ 333              	PWM_ReadCapture:
+ 334              	.LFB10:
+ 768:.\Generated_Source\PSoC5/PWM.c ****     }
+ 769:.\Generated_Source\PSoC5/PWM.c **** 
+ 770:.\Generated_Source\PSoC5/PWM.c **** #endif /* (PWM_UseControl) */
+ 771:.\Generated_Source\PSoC5/PWM.c **** 
+ 772:.\Generated_Source\PSoC5/PWM.c **** 
+ 773:.\Generated_Source\PSoC5/PWM.c **** #if (!PWM_UsingFixedFunction)
+ 774:.\Generated_Source\PSoC5/PWM.c **** 
+ 775:.\Generated_Source\PSoC5/PWM.c **** 
+ 776:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 777:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_ReadCapture
+ 778:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 779:.\Generated_Source\PSoC5/PWM.c ****     *
+ 780:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 781:.\Generated_Source\PSoC5/PWM.c ****     *  Reads the capture value from the capture FIFO.
+ 782:.\Generated_Source\PSoC5/PWM.c ****     *
+ 783:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 784:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 785:.\Generated_Source\PSoC5/PWM.c ****     *
+ 786:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 787:.\Generated_Source\PSoC5/PWM.c ****     *  uint8/uint16: The current capture value
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 21
+
+
+ 788:.\Generated_Source\PSoC5/PWM.c ****     *
+ 789:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 790:.\Generated_Source\PSoC5/PWM.c ****     uint8 PWM_ReadCapture(void) 
+ 791:.\Generated_Source\PSoC5/PWM.c ****     {
+ 335              		.loc 1 791 0
+ 336              		.cfi_startproc
+ 337              		@ args = 0, pretend = 0, frame = 0
+ 338              		@ frame_needed = 0, uses_anonymous_args = 0
+ 339              		@ link register save eliminated.
+ 792:.\Generated_Source\PSoC5/PWM.c ****         return (CY_GET_REG8(PWM_CAPTURE_LSB_PTR));
+ 340              		.loc 1 792 0
+ 341 0000 014B     		ldr	r3, .L34
+ 342 0002 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 793:.\Generated_Source\PSoC5/PWM.c ****     }
+ 343              		.loc 1 793 0
+ 344 0004 7047     		bx	lr
+ 345              	.L35:
+ 346 0006 00BF     		.align	2
+ 347              	.L34:
+ 348 0008 5A650040 		.word	1073767770
+ 349              		.cfi_endproc
+ 350              	.LFE10:
+ 351              		.size	PWM_ReadCapture, .-PWM_ReadCapture
+ 352              		.section	.text.PWM_ReadCompare,"ax",%progbits
+ 353              		.align	1
+ 354              		.global	PWM_ReadCompare
+ 355              		.thumb
+ 356              		.thumb_func
+ 357              		.type	PWM_ReadCompare, %function
+ 358              	PWM_ReadCompare:
+ 359              	.LFB11:
+ 794:.\Generated_Source\PSoC5/PWM.c **** 
+ 795:.\Generated_Source\PSoC5/PWM.c **** #endif /* (!PWM_UsingFixedFunction) */
+ 796:.\Generated_Source\PSoC5/PWM.c **** 
+ 797:.\Generated_Source\PSoC5/PWM.c **** 
+ 798:.\Generated_Source\PSoC5/PWM.c **** #if (PWM_UseOneCompareMode)
+ 799:.\Generated_Source\PSoC5/PWM.c **** 
+ 800:.\Generated_Source\PSoC5/PWM.c **** 
+ 801:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 802:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_ReadCompare
+ 803:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 804:.\Generated_Source\PSoC5/PWM.c ****     *
+ 805:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 806:.\Generated_Source\PSoC5/PWM.c ****     *  Reads the compare value for the compare output when the PWM Mode parameter is
+ 807:.\Generated_Source\PSoC5/PWM.c ****     *  set to Dither mode, Center Aligned mode, or One Output mode.
+ 808:.\Generated_Source\PSoC5/PWM.c ****     *
+ 809:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 810:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 811:.\Generated_Source\PSoC5/PWM.c ****     *
+ 812:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 813:.\Generated_Source\PSoC5/PWM.c ****     *  uint8/uint16: Current compare value
+ 814:.\Generated_Source\PSoC5/PWM.c ****     *
+ 815:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 816:.\Generated_Source\PSoC5/PWM.c ****     uint8 PWM_ReadCompare(void) 
+ 817:.\Generated_Source\PSoC5/PWM.c ****     {
+ 360              		.loc 1 817 0
+ 361              		.cfi_startproc
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 22
+
+
+ 362              		@ args = 0, pretend = 0, frame = 0
+ 363              		@ frame_needed = 0, uses_anonymous_args = 0
+ 364              		@ link register save eliminated.
+ 818:.\Generated_Source\PSoC5/PWM.c ****         #if(PWM_UsingFixedFunction)
+ 819:.\Generated_Source\PSoC5/PWM.c ****             return ((uint8)CY_GET_REG16(PWM_COMPARE1_LSB_PTR));
+ 820:.\Generated_Source\PSoC5/PWM.c ****         #else
+ 821:.\Generated_Source\PSoC5/PWM.c ****             return (CY_GET_REG8(PWM_COMPARE1_LSB_PTR));
+ 365              		.loc 1 821 0
+ 366 0000 014B     		ldr	r3, .L37
+ 367 0002 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 822:.\Generated_Source\PSoC5/PWM.c ****         #endif /* (PWM_UsingFixedFunction) */
+ 823:.\Generated_Source\PSoC5/PWM.c ****     }
+ 368              		.loc 1 823 0
+ 369 0004 7047     		bx	lr
+ 370              	.L38:
+ 371 0006 00BF     		.align	2
+ 372              	.L37:
+ 373 0008 2A650040 		.word	1073767722
+ 374              		.cfi_endproc
+ 375              	.LFE11:
+ 376              		.size	PWM_ReadCompare, .-PWM_ReadCompare
+ 377              		.section	.text.PWM_ReadPeriod,"ax",%progbits
+ 378              		.align	1
+ 379              		.global	PWM_ReadPeriod
+ 380              		.thumb
+ 381              		.thumb_func
+ 382              		.type	PWM_ReadPeriod, %function
+ 383              	PWM_ReadPeriod:
+ 384              	.LFB12:
+ 824:.\Generated_Source\PSoC5/PWM.c **** 
+ 825:.\Generated_Source\PSoC5/PWM.c **** #else
+ 826:.\Generated_Source\PSoC5/PWM.c **** 
+ 827:.\Generated_Source\PSoC5/PWM.c **** 
+ 828:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 829:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_ReadCompare1
+ 830:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 831:.\Generated_Source\PSoC5/PWM.c ****     *
+ 832:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 833:.\Generated_Source\PSoC5/PWM.c ****     *  Reads the compare value for the compare1 output.
+ 834:.\Generated_Source\PSoC5/PWM.c ****     *
+ 835:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 836:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 837:.\Generated_Source\PSoC5/PWM.c ****     *
+ 838:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 839:.\Generated_Source\PSoC5/PWM.c ****     *  uint8/uint16: Current compare value.
+ 840:.\Generated_Source\PSoC5/PWM.c ****     *
+ 841:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 842:.\Generated_Source\PSoC5/PWM.c ****     uint8 PWM_ReadCompare1(void) 
+ 843:.\Generated_Source\PSoC5/PWM.c ****     {
+ 844:.\Generated_Source\PSoC5/PWM.c ****         return (CY_GET_REG8(PWM_COMPARE1_LSB_PTR));
+ 845:.\Generated_Source\PSoC5/PWM.c ****     }
+ 846:.\Generated_Source\PSoC5/PWM.c **** 
+ 847:.\Generated_Source\PSoC5/PWM.c **** 
+ 848:.\Generated_Source\PSoC5/PWM.c ****     /*******************************************************************************
+ 849:.\Generated_Source\PSoC5/PWM.c ****     * Function Name: PWM_ReadCompare2
+ 850:.\Generated_Source\PSoC5/PWM.c ****     ********************************************************************************
+ 851:.\Generated_Source\PSoC5/PWM.c ****     *
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 23
+
+
+ 852:.\Generated_Source\PSoC5/PWM.c ****     * Summary:
+ 853:.\Generated_Source\PSoC5/PWM.c ****     *  Reads the compare value for the compare2 output.
+ 854:.\Generated_Source\PSoC5/PWM.c ****     *
+ 855:.\Generated_Source\PSoC5/PWM.c ****     * Parameters:
+ 856:.\Generated_Source\PSoC5/PWM.c ****     *  None
+ 857:.\Generated_Source\PSoC5/PWM.c ****     *
+ 858:.\Generated_Source\PSoC5/PWM.c ****     * Return:
+ 859:.\Generated_Source\PSoC5/PWM.c ****     *  uint8/uint16: Current compare value.
+ 860:.\Generated_Source\PSoC5/PWM.c ****     *
+ 861:.\Generated_Source\PSoC5/PWM.c ****     *******************************************************************************/
+ 862:.\Generated_Source\PSoC5/PWM.c ****     uint8 PWM_ReadCompare2(void) 
+ 863:.\Generated_Source\PSoC5/PWM.c ****     {
+ 864:.\Generated_Source\PSoC5/PWM.c ****         return (CY_GET_REG8(PWM_COMPARE2_LSB_PTR));
+ 865:.\Generated_Source\PSoC5/PWM.c ****     }
+ 866:.\Generated_Source\PSoC5/PWM.c **** 
+ 867:.\Generated_Source\PSoC5/PWM.c **** #endif /* (PWM_UseOneCompareMode) */
+ 868:.\Generated_Source\PSoC5/PWM.c **** 
+ 869:.\Generated_Source\PSoC5/PWM.c **** 
+ 870:.\Generated_Source\PSoC5/PWM.c **** /*******************************************************************************
+ 871:.\Generated_Source\PSoC5/PWM.c **** * Function Name: PWM_ReadPeriod
+ 872:.\Generated_Source\PSoC5/PWM.c **** ********************************************************************************
+ 873:.\Generated_Source\PSoC5/PWM.c **** *
+ 874:.\Generated_Source\PSoC5/PWM.c **** * Summary:
+ 875:.\Generated_Source\PSoC5/PWM.c **** *  Reads the period value used by the PWM hardware.
+ 876:.\Generated_Source\PSoC5/PWM.c **** *
+ 877:.\Generated_Source\PSoC5/PWM.c **** * Parameters:
+ 878:.\Generated_Source\PSoC5/PWM.c **** *  None
+ 879:.\Generated_Source\PSoC5/PWM.c **** *
+ 880:.\Generated_Source\PSoC5/PWM.c **** * Return:
+ 881:.\Generated_Source\PSoC5/PWM.c **** *  uint8/16: Period value
+ 882:.\Generated_Source\PSoC5/PWM.c **** *
+ 883:.\Generated_Source\PSoC5/PWM.c **** *******************************************************************************/
+ 884:.\Generated_Source\PSoC5/PWM.c **** uint8 PWM_ReadPeriod(void) 
+ 885:.\Generated_Source\PSoC5/PWM.c **** {
+ 385              		.loc 1 885 0
+ 386              		.cfi_startproc
+ 387              		@ args = 0, pretend = 0, frame = 0
+ 388              		@ frame_needed = 0, uses_anonymous_args = 0
+ 389              		@ link register save eliminated.
+ 886:.\Generated_Source\PSoC5/PWM.c ****     #if(PWM_UsingFixedFunction)
+ 887:.\Generated_Source\PSoC5/PWM.c ****         return ((uint8)CY_GET_REG16(PWM_PERIOD_LSB_PTR));
+ 888:.\Generated_Source\PSoC5/PWM.c ****     #else
+ 889:.\Generated_Source\PSoC5/PWM.c ****         return (CY_GET_REG8(PWM_PERIOD_LSB_PTR));
+ 390              		.loc 1 889 0
+ 391 0000 014B     		ldr	r3, .L40
+ 392 0002 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 890:.\Generated_Source\PSoC5/PWM.c ****     #endif /* (PWM_UsingFixedFunction) */
+ 891:.\Generated_Source\PSoC5/PWM.c **** }
+ 393              		.loc 1 891 0
+ 394 0004 7047     		bx	lr
+ 395              	.L41:
+ 396 0006 00BF     		.align	2
+ 397              	.L40:
+ 398 0008 4A650040 		.word	1073767754
+ 399              		.cfi_endproc
+ 400              	.LFE12:
+ 401              		.size	PWM_ReadPeriod, .-PWM_ReadPeriod
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 24
+
+
+ 402              		.global	PWM_initVar
+ 403              		.bss
+ 404              		.set	.LANCHOR0,. + 0
+ 405              		.type	PWM_initVar, %object
+ 406              		.size	PWM_initVar, 1
+ 407              	PWM_initVar:
+ 408 0000 00       		.space	1
+ 409              		.text
+ 410              	.Letext0:
+ 411              		.file 2 ".\\Generated_Source\\PSoC5\\cytypes.h"
+ 412              		.section	.debug_info,"",%progbits
+ 413              	.Ldebug_info0:
+ 414 0000 B0020000 		.4byte	0x2b0
+ 415 0004 0400     		.2byte	0x4
+ 416 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 417 000a 04       		.byte	0x4
+ 418 000b 01       		.uleb128 0x1
+ 419 000c 96000000 		.4byte	.LASF32
+ 420 0010 01       		.byte	0x1
+ 421 0011 32010000 		.4byte	.LASF33
+ 422 0015 34000000 		.4byte	.LASF34
+ 423 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 424 001d 00000000 		.4byte	0
+ 425 0021 00000000 		.4byte	.Ldebug_line0
+ 426 0025 02       		.uleb128 0x2
+ 427 0026 01       		.byte	0x1
+ 428 0027 06       		.byte	0x6
+ 429 0028 77020000 		.4byte	.LASF0
+ 430 002c 02       		.uleb128 0x2
+ 431 002d 01       		.byte	0x1
+ 432 002e 08       		.byte	0x8
+ 433 002f 24010000 		.4byte	.LASF1
+ 434 0033 02       		.uleb128 0x2
+ 435 0034 02       		.byte	0x2
+ 436 0035 05       		.byte	0x5
+ 437 0036 32020000 		.4byte	.LASF2
+ 438 003a 02       		.uleb128 0x2
+ 439 003b 02       		.byte	0x2
+ 440 003c 07       		.byte	0x7
+ 441 003d 21000000 		.4byte	.LASF3
+ 442 0041 02       		.uleb128 0x2
+ 443 0042 04       		.byte	0x4
+ 444 0043 05       		.byte	0x5
+ 445 0044 56020000 		.4byte	.LASF4
+ 446 0048 02       		.uleb128 0x2
+ 447 0049 04       		.byte	0x4
+ 448 004a 07       		.byte	0x7
+ 449 004b 56010000 		.4byte	.LASF5
+ 450 004f 02       		.uleb128 0x2
+ 451 0050 08       		.byte	0x8
+ 452 0051 05       		.byte	0x5
+ 453 0052 F7010000 		.4byte	.LASF6
+ 454 0056 02       		.uleb128 0x2
+ 455 0057 08       		.byte	0x8
+ 456 0058 07       		.byte	0x7
+ 457 0059 C0010000 		.4byte	.LASF7
+ 458 005d 03       		.uleb128 0x3
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 25
+
+
+ 459 005e 04       		.byte	0x4
+ 460 005f 05       		.byte	0x5
+ 461 0060 696E7400 		.ascii	"int\000"
+ 462 0064 02       		.uleb128 0x2
+ 463 0065 04       		.byte	0x4
+ 464 0066 07       		.byte	0x7
+ 465 0067 B3010000 		.4byte	.LASF8
+ 466 006b 04       		.uleb128 0x4
+ 467 006c 78010000 		.4byte	.LASF12
+ 468 0070 02       		.byte	0x2
+ 469 0071 9201     		.2byte	0x192
+ 470 0073 2C000000 		.4byte	0x2c
+ 471 0077 02       		.uleb128 0x2
+ 472 0078 04       		.byte	0x4
+ 473 0079 04       		.byte	0x4
+ 474 007a 88000000 		.4byte	.LASF9
+ 475 007e 02       		.uleb128 0x2
+ 476 007f 08       		.byte	0x8
+ 477 0080 04       		.byte	0x4
+ 478 0081 86010000 		.4byte	.LASF10
+ 479 0085 02       		.uleb128 0x2
+ 480 0086 01       		.byte	0x1
+ 481 0087 08       		.byte	0x8
+ 482 0088 05020000 		.4byte	.LASF11
+ 483 008c 04       		.uleb128 0x4
+ 484 008d 51010000 		.4byte	.LASF13
+ 485 0091 02       		.byte	0x2
+ 486 0092 3C02     		.2byte	0x23c
+ 487 0094 98000000 		.4byte	0x98
+ 488 0098 05       		.uleb128 0x5
+ 489 0099 6B000000 		.4byte	0x6b
+ 490 009d 02       		.uleb128 0x2
+ 491 009e 04       		.byte	0x4
+ 492 009f 07       		.byte	0x7
+ 493 00a0 EE010000 		.4byte	.LASF14
+ 494 00a4 06       		.uleb128 0x6
+ 495 00a5 3C020000 		.4byte	.LASF15
+ 496 00a9 01       		.byte	0x1
+ 497 00aa 9301     		.2byte	0x193
+ 498 00ac 01       		.byte	0x1
+ 499 00ad BE000000 		.4byte	0xbe
+ 500 00b1 07       		.uleb128 0x7
+ 501 00b2 8E000000 		.4byte	.LASF17
+ 502 00b6 01       		.byte	0x1
+ 503 00b7 9301     		.2byte	0x193
+ 504 00b9 6B000000 		.4byte	0x6b
+ 505 00bd 00       		.byte	0
+ 506 00be 06       		.uleb128 0x6
+ 507 00bf DE010000 		.4byte	.LASF16
+ 508 00c3 01       		.byte	0x1
+ 509 00c4 E201     		.2byte	0x1e2
+ 510 00c6 01       		.byte	0x1
+ 511 00c7 D8000000 		.4byte	0xd8
+ 512 00cb 07       		.uleb128 0x7
+ 513 00cc 10000000 		.4byte	.LASF18
+ 514 00d0 01       		.byte	0x1
+ 515 00d1 E201     		.2byte	0x1e2
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 26
+
+
+ 516 00d3 6B000000 		.4byte	0x6b
+ 517 00d7 00       		.byte	0
+ 518 00d8 06       		.uleb128 0x6
+ 519 00d9 8D010000 		.4byte	.LASF19
+ 520 00dd 01       		.byte	0x1
+ 521 00de 0402     		.2byte	0x204
+ 522 00e0 01       		.byte	0x1
+ 523 00e1 F2000000 		.4byte	0xf2
+ 524 00e5 07       		.uleb128 0x7
+ 525 00e6 83020000 		.4byte	.LASF20
+ 526 00ea 01       		.byte	0x1
+ 527 00eb 0402     		.2byte	0x204
+ 528 00ed 6B000000 		.4byte	0x6b
+ 529 00f1 00       		.byte	0
+ 530 00f2 08       		.uleb128 0x8
+ 531 00f3 9E010000 		.4byte	.LASF21
+ 532 00f7 01       		.byte	0x1
+ 533 00f8 54       		.byte	0x54
+ 534 00f9 00000000 		.4byte	.LFB1
+ 535 00fd 34000000 		.4byte	.LFE1-.LFB1
+ 536 0101 01       		.uleb128 0x1
+ 537 0102 9C       		.byte	0x9c
+ 538 0103 61010000 		.4byte	0x161
+ 539 0107 09       		.uleb128 0x9
+ 540 0108 96020000 		.4byte	.LASF25
+ 541 010c 01       		.byte	0x1
+ 542 010d 57       		.byte	0x57
+ 543 010e 6B000000 		.4byte	0x6b
+ 544 0112 00000000 		.4byte	.LLST0
+ 545 0116 0A       		.uleb128 0xa
+ 546 0117 A4000000 		.4byte	0xa4
+ 547 011b 1A000000 		.4byte	.LBB8
+ 548 011f 06000000 		.4byte	.LBE8-.LBB8
+ 549 0123 01       		.byte	0x1
+ 550 0124 85       		.byte	0x85
+ 551 0125 30010000 		.4byte	0x130
+ 552 0129 0B       		.uleb128 0xb
+ 553 012a B1000000 		.4byte	0xb1
+ 554 012e 7F       		.sleb128 -1
+ 555 012f 00       		.byte	0
+ 556 0130 0A       		.uleb128 0xa
+ 557 0131 BE000000 		.4byte	0xbe
+ 558 0135 20000000 		.4byte	.LBB10
+ 559 0139 04000000 		.4byte	.LBE10-.LBB10
+ 560 013d 01       		.byte	0x1
+ 561 013e 88       		.byte	0x88
+ 562 013f 4A010000 		.4byte	0x14a
+ 563 0143 0B       		.uleb128 0xb
+ 564 0144 CB000000 		.4byte	0xcb
+ 565 0148 7F       		.sleb128 -1
+ 566 0149 00       		.byte	0
+ 567 014a 0C       		.uleb128 0xc
+ 568 014b D8000000 		.4byte	0xd8
+ 569 014f 24000000 		.4byte	.LBB12
+ 570 0153 10000000 		.4byte	.LBE12-.LBB12
+ 571 0157 01       		.byte	0x1
+ 572 0158 8B       		.byte	0x8b
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 27
+
+
+ 573 0159 0D       		.uleb128 0xd
+ 574 015a E5000000 		.4byte	0xe5
+ 575 015e 7F       		.byte	0x7f
+ 576 015f 00       		.byte	0
+ 577 0160 00       		.byte	0
+ 578 0161 0E       		.uleb128 0xe
+ 579 0162 8B020000 		.4byte	.LASF23
+ 580 0166 01       		.byte	0x1
+ 581 0167 C7       		.byte	0xc7
+ 582 0168 00000000 		.4byte	.LFB2
+ 583 016c 10000000 		.4byte	.LFE2-.LFB2
+ 584 0170 01       		.uleb128 0x1
+ 585 0171 9C       		.byte	0x9c
+ 586 0172 08       		.uleb128 0x8
+ 587 0173 17000000 		.4byte	.LASF22
+ 588 0177 01       		.byte	0x1
+ 589 0178 37       		.byte	0x37
+ 590 0179 00000000 		.4byte	.LFB0
+ 591 017d 1C000000 		.4byte	.LFE0-.LFB0
+ 592 0181 01       		.uleb128 0x1
+ 593 0182 9C       		.byte	0x9c
+ 594 0183 9A010000 		.4byte	0x19a
+ 595 0187 0F       		.uleb128 0xf
+ 596 0188 0C000000 		.4byte	.LVL5
+ 597 018c F2000000 		.4byte	0xf2
+ 598 0190 10       		.uleb128 0x10
+ 599 0191 18000000 		.4byte	.LVL6
+ 600 0195 61010000 		.4byte	0x161
+ 601 0199 00       		.byte	0
+ 602 019a 0E       		.uleb128 0xe
+ 603 019b 4D020000 		.4byte	.LASF24
+ 604 019f 01       		.byte	0x1
+ 605 01a0 E9       		.byte	0xe9
+ 606 01a1 00000000 		.4byte	.LFB3
+ 607 01a5 10000000 		.4byte	.LFE3-.LFB3
+ 608 01a9 01       		.uleb128 0x1
+ 609 01aa 9C       		.byte	0x9c
+ 610 01ab 11       		.uleb128 0x11
+ 611 01ac A4000000 		.4byte	0xa4
+ 612 01b0 00000000 		.4byte	.LFB4
+ 613 01b4 0C000000 		.4byte	.LFE4-.LFB4
+ 614 01b8 01       		.uleb128 0x1
+ 615 01b9 9C       		.byte	0x9c
+ 616 01ba C6010000 		.4byte	0x1c6
+ 617 01be 12       		.uleb128 0x12
+ 618 01bf B1000000 		.4byte	0xb1
+ 619 01c3 01       		.uleb128 0x1
+ 620 01c4 50       		.byte	0x50
+ 621 01c5 00       		.byte	0
+ 622 01c6 13       		.uleb128 0x13
+ 623 01c7 68010000 		.4byte	.LASF28
+ 624 01cb 01       		.byte	0x1
+ 625 01cc A901     		.2byte	0x1a9
+ 626 01ce 6B000000 		.4byte	0x6b
+ 627 01d2 00000000 		.4byte	.LFB5
+ 628 01d6 14000000 		.4byte	.LFE5-.LFB5
+ 629 01da 01       		.uleb128 0x1
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 28
+
+
+ 630 01db 9C       		.byte	0x9c
+ 631 01dc 11       		.uleb128 0x11
+ 632 01dd BE000000 		.4byte	0xbe
+ 633 01e1 00000000 		.4byte	.LFB6
+ 634 01e5 0C000000 		.4byte	.LFE6-.LFB6
+ 635 01e9 01       		.uleb128 0x1
+ 636 01ea 9C       		.byte	0x9c
+ 637 01eb F7010000 		.4byte	0x1f7
+ 638 01ef 12       		.uleb128 0x12
+ 639 01f0 CB000000 		.4byte	0xcb
+ 640 01f4 01       		.uleb128 0x1
+ 641 01f5 50       		.byte	0x50
+ 642 01f6 00       		.byte	0
+ 643 01f7 11       		.uleb128 0x11
+ 644 01f8 D8000000 		.4byte	0xd8
+ 645 01fc 00000000 		.4byte	.LFB7
+ 646 0200 0C000000 		.4byte	.LFE7-.LFB7
+ 647 0204 01       		.uleb128 0x1
+ 648 0205 9C       		.byte	0x9c
+ 649 0206 12020000 		.4byte	0x212
+ 650 020a 12       		.uleb128 0x12
+ 651 020b E5000000 		.4byte	0xe5
+ 652 020f 01       		.uleb128 0x1
+ 653 0210 50       		.byte	0x50
+ 654 0211 00       		.byte	0
+ 655 0212 14       		.uleb128 0x14
+ 656 0213 5F020000 		.4byte	.LASF35
+ 657 0217 01       		.byte	0x1
+ 658 0218 E102     		.2byte	0x2e1
+ 659 021a 6B000000 		.4byte	0x6b
+ 660 021e 00000000 		.4byte	.LFB8
+ 661 0222 0C000000 		.4byte	.LFE8-.LFB8
+ 662 0226 01       		.uleb128 0x1
+ 663 0227 9C       		.byte	0x9c
+ 664 0228 3B020000 		.4byte	0x23b
+ 665 022c 15       		.uleb128 0x15
+ 666 022d D7010000 		.4byte	.LASF26
+ 667 0231 01       		.byte	0x1
+ 668 0232 E302     		.2byte	0x2e3
+ 669 0234 6B000000 		.4byte	0x6b
+ 670 0238 01       		.uleb128 0x1
+ 671 0239 50       		.byte	0x50
+ 672 023a 00       		.byte	0
+ 673 023b 16       		.uleb128 0x16
+ 674 023c 0A020000 		.4byte	.LASF27
+ 675 0240 01       		.byte	0x1
+ 676 0241 FD02     		.2byte	0x2fd
+ 677 0243 00000000 		.4byte	.LFB9
+ 678 0247 0C000000 		.4byte	.LFE9-.LFB9
+ 679 024b 01       		.uleb128 0x1
+ 680 024c 9C       		.byte	0x9c
+ 681 024d 60020000 		.4byte	0x260
+ 682 0251 17       		.uleb128 0x17
+ 683 0252 7E010000 		.4byte	.LASF36
+ 684 0256 01       		.byte	0x1
+ 685 0257 FD02     		.2byte	0x2fd
+ 686 0259 6B000000 		.4byte	0x6b
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 29
+
+
+ 687 025d 01       		.uleb128 0x1
+ 688 025e 50       		.byte	0x50
+ 689 025f 00       		.byte	0
+ 690 0260 13       		.uleb128 0x13
+ 691 0261 78000000 		.4byte	.LASF29
+ 692 0265 01       		.byte	0x1
+ 693 0266 1603     		.2byte	0x316
+ 694 0268 6B000000 		.4byte	0x6b
+ 695 026c 00000000 		.4byte	.LFB10
+ 696 0270 0C000000 		.4byte	.LFE10-.LFB10
+ 697 0274 01       		.uleb128 0x1
+ 698 0275 9C       		.byte	0x9c
+ 699 0276 13       		.uleb128 0x13
+ 700 0277 00000000 		.4byte	.LASF30
+ 701 027b 01       		.byte	0x1
+ 702 027c 3003     		.2byte	0x330
+ 703 027e 6B000000 		.4byte	0x6b
+ 704 0282 00000000 		.4byte	.LFB11
+ 705 0286 0C000000 		.4byte	.LFE11-.LFB11
+ 706 028a 01       		.uleb128 0x1
+ 707 028b 9C       		.byte	0x9c
+ 708 028c 13       		.uleb128 0x13
+ 709 028d 23020000 		.4byte	.LASF31
+ 710 0291 01       		.byte	0x1
+ 711 0292 7403     		.2byte	0x374
+ 712 0294 6B000000 		.4byte	0x6b
+ 713 0298 00000000 		.4byte	.LFB12
+ 714 029c 0C000000 		.4byte	.LFE12-.LFB12
+ 715 02a0 01       		.uleb128 0x1
+ 716 02a1 9C       		.byte	0x9c
+ 717 02a2 18       		.uleb128 0x18
+ 718 02a3 A7010000 		.4byte	.LASF37
+ 719 02a7 01       		.byte	0x1
+ 720 02a8 20       		.byte	0x20
+ 721 02a9 6B000000 		.4byte	0x6b
+ 722 02ad 05       		.uleb128 0x5
+ 723 02ae 03       		.byte	0x3
+ 724 02af 00000000 		.4byte	PWM_initVar
+ 725 02b3 00       		.byte	0
+ 726              		.section	.debug_abbrev,"",%progbits
+ 727              	.Ldebug_abbrev0:
+ 728 0000 01       		.uleb128 0x1
+ 729 0001 11       		.uleb128 0x11
+ 730 0002 01       		.byte	0x1
+ 731 0003 25       		.uleb128 0x25
+ 732 0004 0E       		.uleb128 0xe
+ 733 0005 13       		.uleb128 0x13
+ 734 0006 0B       		.uleb128 0xb
+ 735 0007 03       		.uleb128 0x3
+ 736 0008 0E       		.uleb128 0xe
+ 737 0009 1B       		.uleb128 0x1b
+ 738 000a 0E       		.uleb128 0xe
+ 739 000b 55       		.uleb128 0x55
+ 740 000c 17       		.uleb128 0x17
+ 741 000d 11       		.uleb128 0x11
+ 742 000e 01       		.uleb128 0x1
+ 743 000f 10       		.uleb128 0x10
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 30
+
+
+ 744 0010 17       		.uleb128 0x17
+ 745 0011 00       		.byte	0
+ 746 0012 00       		.byte	0
+ 747 0013 02       		.uleb128 0x2
+ 748 0014 24       		.uleb128 0x24
+ 749 0015 00       		.byte	0
+ 750 0016 0B       		.uleb128 0xb
+ 751 0017 0B       		.uleb128 0xb
+ 752 0018 3E       		.uleb128 0x3e
+ 753 0019 0B       		.uleb128 0xb
+ 754 001a 03       		.uleb128 0x3
+ 755 001b 0E       		.uleb128 0xe
+ 756 001c 00       		.byte	0
+ 757 001d 00       		.byte	0
+ 758 001e 03       		.uleb128 0x3
+ 759 001f 24       		.uleb128 0x24
+ 760 0020 00       		.byte	0
+ 761 0021 0B       		.uleb128 0xb
+ 762 0022 0B       		.uleb128 0xb
+ 763 0023 3E       		.uleb128 0x3e
+ 764 0024 0B       		.uleb128 0xb
+ 765 0025 03       		.uleb128 0x3
+ 766 0026 08       		.uleb128 0x8
+ 767 0027 00       		.byte	0
+ 768 0028 00       		.byte	0
+ 769 0029 04       		.uleb128 0x4
+ 770 002a 16       		.uleb128 0x16
+ 771 002b 00       		.byte	0
+ 772 002c 03       		.uleb128 0x3
+ 773 002d 0E       		.uleb128 0xe
+ 774 002e 3A       		.uleb128 0x3a
+ 775 002f 0B       		.uleb128 0xb
+ 776 0030 3B       		.uleb128 0x3b
+ 777 0031 05       		.uleb128 0x5
+ 778 0032 49       		.uleb128 0x49
+ 779 0033 13       		.uleb128 0x13
+ 780 0034 00       		.byte	0
+ 781 0035 00       		.byte	0
+ 782 0036 05       		.uleb128 0x5
+ 783 0037 35       		.uleb128 0x35
+ 784 0038 00       		.byte	0
+ 785 0039 49       		.uleb128 0x49
+ 786 003a 13       		.uleb128 0x13
+ 787 003b 00       		.byte	0
+ 788 003c 00       		.byte	0
+ 789 003d 06       		.uleb128 0x6
+ 790 003e 2E       		.uleb128 0x2e
+ 791 003f 01       		.byte	0x1
+ 792 0040 3F       		.uleb128 0x3f
+ 793 0041 19       		.uleb128 0x19
+ 794 0042 03       		.uleb128 0x3
+ 795 0043 0E       		.uleb128 0xe
+ 796 0044 3A       		.uleb128 0x3a
+ 797 0045 0B       		.uleb128 0xb
+ 798 0046 3B       		.uleb128 0x3b
+ 799 0047 05       		.uleb128 0x5
+ 800 0048 27       		.uleb128 0x27
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 31
+
+
+ 801 0049 19       		.uleb128 0x19
+ 802 004a 20       		.uleb128 0x20
+ 803 004b 0B       		.uleb128 0xb
+ 804 004c 01       		.uleb128 0x1
+ 805 004d 13       		.uleb128 0x13
+ 806 004e 00       		.byte	0
+ 807 004f 00       		.byte	0
+ 808 0050 07       		.uleb128 0x7
+ 809 0051 05       		.uleb128 0x5
+ 810 0052 00       		.byte	0
+ 811 0053 03       		.uleb128 0x3
+ 812 0054 0E       		.uleb128 0xe
+ 813 0055 3A       		.uleb128 0x3a
+ 814 0056 0B       		.uleb128 0xb
+ 815 0057 3B       		.uleb128 0x3b
+ 816 0058 05       		.uleb128 0x5
+ 817 0059 49       		.uleb128 0x49
+ 818 005a 13       		.uleb128 0x13
+ 819 005b 00       		.byte	0
+ 820 005c 00       		.byte	0
+ 821 005d 08       		.uleb128 0x8
+ 822 005e 2E       		.uleb128 0x2e
+ 823 005f 01       		.byte	0x1
+ 824 0060 3F       		.uleb128 0x3f
+ 825 0061 19       		.uleb128 0x19
+ 826 0062 03       		.uleb128 0x3
+ 827 0063 0E       		.uleb128 0xe
+ 828 0064 3A       		.uleb128 0x3a
+ 829 0065 0B       		.uleb128 0xb
+ 830 0066 3B       		.uleb128 0x3b
+ 831 0067 0B       		.uleb128 0xb
+ 832 0068 27       		.uleb128 0x27
+ 833 0069 19       		.uleb128 0x19
+ 834 006a 11       		.uleb128 0x11
+ 835 006b 01       		.uleb128 0x1
+ 836 006c 12       		.uleb128 0x12
+ 837 006d 06       		.uleb128 0x6
+ 838 006e 40       		.uleb128 0x40
+ 839 006f 18       		.uleb128 0x18
+ 840 0070 9742     		.uleb128 0x2117
+ 841 0072 19       		.uleb128 0x19
+ 842 0073 01       		.uleb128 0x1
+ 843 0074 13       		.uleb128 0x13
+ 844 0075 00       		.byte	0
+ 845 0076 00       		.byte	0
+ 846 0077 09       		.uleb128 0x9
+ 847 0078 34       		.uleb128 0x34
+ 848 0079 00       		.byte	0
+ 849 007a 03       		.uleb128 0x3
+ 850 007b 0E       		.uleb128 0xe
+ 851 007c 3A       		.uleb128 0x3a
+ 852 007d 0B       		.uleb128 0xb
+ 853 007e 3B       		.uleb128 0x3b
+ 854 007f 0B       		.uleb128 0xb
+ 855 0080 49       		.uleb128 0x49
+ 856 0081 13       		.uleb128 0x13
+ 857 0082 02       		.uleb128 0x2
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 32
+
+
+ 858 0083 17       		.uleb128 0x17
+ 859 0084 00       		.byte	0
+ 860 0085 00       		.byte	0
+ 861 0086 0A       		.uleb128 0xa
+ 862 0087 1D       		.uleb128 0x1d
+ 863 0088 01       		.byte	0x1
+ 864 0089 31       		.uleb128 0x31
+ 865 008a 13       		.uleb128 0x13
+ 866 008b 11       		.uleb128 0x11
+ 867 008c 01       		.uleb128 0x1
+ 868 008d 12       		.uleb128 0x12
+ 869 008e 06       		.uleb128 0x6
+ 870 008f 58       		.uleb128 0x58
+ 871 0090 0B       		.uleb128 0xb
+ 872 0091 59       		.uleb128 0x59
+ 873 0092 0B       		.uleb128 0xb
+ 874 0093 01       		.uleb128 0x1
+ 875 0094 13       		.uleb128 0x13
+ 876 0095 00       		.byte	0
+ 877 0096 00       		.byte	0
+ 878 0097 0B       		.uleb128 0xb
+ 879 0098 05       		.uleb128 0x5
+ 880 0099 00       		.byte	0
+ 881 009a 31       		.uleb128 0x31
+ 882 009b 13       		.uleb128 0x13
+ 883 009c 1C       		.uleb128 0x1c
+ 884 009d 0D       		.uleb128 0xd
+ 885 009e 00       		.byte	0
+ 886 009f 00       		.byte	0
+ 887 00a0 0C       		.uleb128 0xc
+ 888 00a1 1D       		.uleb128 0x1d
+ 889 00a2 01       		.byte	0x1
+ 890 00a3 31       		.uleb128 0x31
+ 891 00a4 13       		.uleb128 0x13
+ 892 00a5 11       		.uleb128 0x11
+ 893 00a6 01       		.uleb128 0x1
+ 894 00a7 12       		.uleb128 0x12
+ 895 00a8 06       		.uleb128 0x6
+ 896 00a9 58       		.uleb128 0x58
+ 897 00aa 0B       		.uleb128 0xb
+ 898 00ab 59       		.uleb128 0x59
+ 899 00ac 0B       		.uleb128 0xb
+ 900 00ad 00       		.byte	0
+ 901 00ae 00       		.byte	0
+ 902 00af 0D       		.uleb128 0xd
+ 903 00b0 05       		.uleb128 0x5
+ 904 00b1 00       		.byte	0
+ 905 00b2 31       		.uleb128 0x31
+ 906 00b3 13       		.uleb128 0x13
+ 907 00b4 1C       		.uleb128 0x1c
+ 908 00b5 0B       		.uleb128 0xb
+ 909 00b6 00       		.byte	0
+ 910 00b7 00       		.byte	0
+ 911 00b8 0E       		.uleb128 0xe
+ 912 00b9 2E       		.uleb128 0x2e
+ 913 00ba 00       		.byte	0
+ 914 00bb 3F       		.uleb128 0x3f
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 33
+
+
+ 915 00bc 19       		.uleb128 0x19
+ 916 00bd 03       		.uleb128 0x3
+ 917 00be 0E       		.uleb128 0xe
+ 918 00bf 3A       		.uleb128 0x3a
+ 919 00c0 0B       		.uleb128 0xb
+ 920 00c1 3B       		.uleb128 0x3b
+ 921 00c2 0B       		.uleb128 0xb
+ 922 00c3 27       		.uleb128 0x27
+ 923 00c4 19       		.uleb128 0x19
+ 924 00c5 11       		.uleb128 0x11
+ 925 00c6 01       		.uleb128 0x1
+ 926 00c7 12       		.uleb128 0x12
+ 927 00c8 06       		.uleb128 0x6
+ 928 00c9 40       		.uleb128 0x40
+ 929 00ca 18       		.uleb128 0x18
+ 930 00cb 9742     		.uleb128 0x2117
+ 931 00cd 19       		.uleb128 0x19
+ 932 00ce 00       		.byte	0
+ 933 00cf 00       		.byte	0
+ 934 00d0 0F       		.uleb128 0xf
+ 935 00d1 898201   		.uleb128 0x4109
+ 936 00d4 00       		.byte	0
+ 937 00d5 11       		.uleb128 0x11
+ 938 00d6 01       		.uleb128 0x1
+ 939 00d7 31       		.uleb128 0x31
+ 940 00d8 13       		.uleb128 0x13
+ 941 00d9 00       		.byte	0
+ 942 00da 00       		.byte	0
+ 943 00db 10       		.uleb128 0x10
+ 944 00dc 898201   		.uleb128 0x4109
+ 945 00df 00       		.byte	0
+ 946 00e0 11       		.uleb128 0x11
+ 947 00e1 01       		.uleb128 0x1
+ 948 00e2 9542     		.uleb128 0x2115
+ 949 00e4 19       		.uleb128 0x19
+ 950 00e5 31       		.uleb128 0x31
+ 951 00e6 13       		.uleb128 0x13
+ 952 00e7 00       		.byte	0
+ 953 00e8 00       		.byte	0
+ 954 00e9 11       		.uleb128 0x11
+ 955 00ea 2E       		.uleb128 0x2e
+ 956 00eb 01       		.byte	0x1
+ 957 00ec 31       		.uleb128 0x31
+ 958 00ed 13       		.uleb128 0x13
+ 959 00ee 11       		.uleb128 0x11
+ 960 00ef 01       		.uleb128 0x1
+ 961 00f0 12       		.uleb128 0x12
+ 962 00f1 06       		.uleb128 0x6
+ 963 00f2 40       		.uleb128 0x40
+ 964 00f3 18       		.uleb128 0x18
+ 965 00f4 9742     		.uleb128 0x2117
+ 966 00f6 19       		.uleb128 0x19
+ 967 00f7 01       		.uleb128 0x1
+ 968 00f8 13       		.uleb128 0x13
+ 969 00f9 00       		.byte	0
+ 970 00fa 00       		.byte	0
+ 971 00fb 12       		.uleb128 0x12
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 34
+
+
+ 972 00fc 05       		.uleb128 0x5
+ 973 00fd 00       		.byte	0
+ 974 00fe 31       		.uleb128 0x31
+ 975 00ff 13       		.uleb128 0x13
+ 976 0100 02       		.uleb128 0x2
+ 977 0101 18       		.uleb128 0x18
+ 978 0102 00       		.byte	0
+ 979 0103 00       		.byte	0
+ 980 0104 13       		.uleb128 0x13
+ 981 0105 2E       		.uleb128 0x2e
+ 982 0106 00       		.byte	0
+ 983 0107 3F       		.uleb128 0x3f
+ 984 0108 19       		.uleb128 0x19
+ 985 0109 03       		.uleb128 0x3
+ 986 010a 0E       		.uleb128 0xe
+ 987 010b 3A       		.uleb128 0x3a
+ 988 010c 0B       		.uleb128 0xb
+ 989 010d 3B       		.uleb128 0x3b
+ 990 010e 05       		.uleb128 0x5
+ 991 010f 27       		.uleb128 0x27
+ 992 0110 19       		.uleb128 0x19
+ 993 0111 49       		.uleb128 0x49
+ 994 0112 13       		.uleb128 0x13
+ 995 0113 11       		.uleb128 0x11
+ 996 0114 01       		.uleb128 0x1
+ 997 0115 12       		.uleb128 0x12
+ 998 0116 06       		.uleb128 0x6
+ 999 0117 40       		.uleb128 0x40
+ 1000 0118 18       		.uleb128 0x18
+ 1001 0119 9742     		.uleb128 0x2117
+ 1002 011b 19       		.uleb128 0x19
+ 1003 011c 00       		.byte	0
+ 1004 011d 00       		.byte	0
+ 1005 011e 14       		.uleb128 0x14
+ 1006 011f 2E       		.uleb128 0x2e
+ 1007 0120 01       		.byte	0x1
+ 1008 0121 3F       		.uleb128 0x3f
+ 1009 0122 19       		.uleb128 0x19
+ 1010 0123 03       		.uleb128 0x3
+ 1011 0124 0E       		.uleb128 0xe
+ 1012 0125 3A       		.uleb128 0x3a
+ 1013 0126 0B       		.uleb128 0xb
+ 1014 0127 3B       		.uleb128 0x3b
+ 1015 0128 05       		.uleb128 0x5
+ 1016 0129 27       		.uleb128 0x27
+ 1017 012a 19       		.uleb128 0x19
+ 1018 012b 49       		.uleb128 0x49
+ 1019 012c 13       		.uleb128 0x13
+ 1020 012d 11       		.uleb128 0x11
+ 1021 012e 01       		.uleb128 0x1
+ 1022 012f 12       		.uleb128 0x12
+ 1023 0130 06       		.uleb128 0x6
+ 1024 0131 40       		.uleb128 0x40
+ 1025 0132 18       		.uleb128 0x18
+ 1026 0133 9742     		.uleb128 0x2117
+ 1027 0135 19       		.uleb128 0x19
+ 1028 0136 01       		.uleb128 0x1
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 35
+
+
+ 1029 0137 13       		.uleb128 0x13
+ 1030 0138 00       		.byte	0
+ 1031 0139 00       		.byte	0
+ 1032 013a 15       		.uleb128 0x15
+ 1033 013b 34       		.uleb128 0x34
+ 1034 013c 00       		.byte	0
+ 1035 013d 03       		.uleb128 0x3
+ 1036 013e 0E       		.uleb128 0xe
+ 1037 013f 3A       		.uleb128 0x3a
+ 1038 0140 0B       		.uleb128 0xb
+ 1039 0141 3B       		.uleb128 0x3b
+ 1040 0142 05       		.uleb128 0x5
+ 1041 0143 49       		.uleb128 0x49
+ 1042 0144 13       		.uleb128 0x13
+ 1043 0145 02       		.uleb128 0x2
+ 1044 0146 18       		.uleb128 0x18
+ 1045 0147 00       		.byte	0
+ 1046 0148 00       		.byte	0
+ 1047 0149 16       		.uleb128 0x16
+ 1048 014a 2E       		.uleb128 0x2e
+ 1049 014b 01       		.byte	0x1
+ 1050 014c 3F       		.uleb128 0x3f
+ 1051 014d 19       		.uleb128 0x19
+ 1052 014e 03       		.uleb128 0x3
+ 1053 014f 0E       		.uleb128 0xe
+ 1054 0150 3A       		.uleb128 0x3a
+ 1055 0151 0B       		.uleb128 0xb
+ 1056 0152 3B       		.uleb128 0x3b
+ 1057 0153 05       		.uleb128 0x5
+ 1058 0154 27       		.uleb128 0x27
+ 1059 0155 19       		.uleb128 0x19
+ 1060 0156 11       		.uleb128 0x11
+ 1061 0157 01       		.uleb128 0x1
+ 1062 0158 12       		.uleb128 0x12
+ 1063 0159 06       		.uleb128 0x6
+ 1064 015a 40       		.uleb128 0x40
+ 1065 015b 18       		.uleb128 0x18
+ 1066 015c 9742     		.uleb128 0x2117
+ 1067 015e 19       		.uleb128 0x19
+ 1068 015f 01       		.uleb128 0x1
+ 1069 0160 13       		.uleb128 0x13
+ 1070 0161 00       		.byte	0
+ 1071 0162 00       		.byte	0
+ 1072 0163 17       		.uleb128 0x17
+ 1073 0164 05       		.uleb128 0x5
+ 1074 0165 00       		.byte	0
+ 1075 0166 03       		.uleb128 0x3
+ 1076 0167 0E       		.uleb128 0xe
+ 1077 0168 3A       		.uleb128 0x3a
+ 1078 0169 0B       		.uleb128 0xb
+ 1079 016a 3B       		.uleb128 0x3b
+ 1080 016b 05       		.uleb128 0x5
+ 1081 016c 49       		.uleb128 0x49
+ 1082 016d 13       		.uleb128 0x13
+ 1083 016e 02       		.uleb128 0x2
+ 1084 016f 18       		.uleb128 0x18
+ 1085 0170 00       		.byte	0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 36
+
+
+ 1086 0171 00       		.byte	0
+ 1087 0172 18       		.uleb128 0x18
+ 1088 0173 34       		.uleb128 0x34
+ 1089 0174 00       		.byte	0
+ 1090 0175 03       		.uleb128 0x3
+ 1091 0176 0E       		.uleb128 0xe
+ 1092 0177 3A       		.uleb128 0x3a
+ 1093 0178 0B       		.uleb128 0xb
+ 1094 0179 3B       		.uleb128 0x3b
+ 1095 017a 0B       		.uleb128 0xb
+ 1096 017b 49       		.uleb128 0x49
+ 1097 017c 13       		.uleb128 0x13
+ 1098 017d 3F       		.uleb128 0x3f
+ 1099 017e 19       		.uleb128 0x19
+ 1100 017f 02       		.uleb128 0x2
+ 1101 0180 18       		.uleb128 0x18
+ 1102 0181 00       		.byte	0
+ 1103 0182 00       		.byte	0
+ 1104 0183 00       		.byte	0
+ 1105              		.section	.debug_loc,"",%progbits
+ 1106              	.Ldebug_loc0:
+ 1107              	.LLST0:
+ 1108 0000 04000000 		.4byte	.LVL0
+ 1109 0004 08000000 		.4byte	.LVL1
+ 1110 0008 0600     		.2byte	0x6
+ 1111 000a 73       		.byte	0x73
+ 1112 000b 00       		.sleb128 0
+ 1113 000c 09       		.byte	0x9
+ 1114 000d C0       		.byte	0xc0
+ 1115 000e 1A       		.byte	0x1a
+ 1116 000f 9F       		.byte	0x9f
+ 1117 0010 00000000 		.4byte	0
+ 1118 0014 00000000 		.4byte	0
+ 1119              		.section	.debug_aranges,"",%progbits
+ 1120 0000 7C000000 		.4byte	0x7c
+ 1121 0004 0200     		.2byte	0x2
+ 1122 0006 00000000 		.4byte	.Ldebug_info0
+ 1123 000a 04       		.byte	0x4
+ 1124 000b 00       		.byte	0
+ 1125 000c 0000     		.2byte	0
+ 1126 000e 0000     		.2byte	0
+ 1127 0010 00000000 		.4byte	.LFB1
+ 1128 0014 34000000 		.4byte	.LFE1-.LFB1
+ 1129 0018 00000000 		.4byte	.LFB2
+ 1130 001c 10000000 		.4byte	.LFE2-.LFB2
+ 1131 0020 00000000 		.4byte	.LFB0
+ 1132 0024 1C000000 		.4byte	.LFE0-.LFB0
+ 1133 0028 00000000 		.4byte	.LFB3
+ 1134 002c 10000000 		.4byte	.LFE3-.LFB3
+ 1135 0030 00000000 		.4byte	.LFB4
+ 1136 0034 0C000000 		.4byte	.LFE4-.LFB4
+ 1137 0038 00000000 		.4byte	.LFB5
+ 1138 003c 14000000 		.4byte	.LFE5-.LFB5
+ 1139 0040 00000000 		.4byte	.LFB6
+ 1140 0044 0C000000 		.4byte	.LFE6-.LFB6
+ 1141 0048 00000000 		.4byte	.LFB7
+ 1142 004c 0C000000 		.4byte	.LFE7-.LFB7
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 37
+
+
+ 1143 0050 00000000 		.4byte	.LFB8
+ 1144 0054 0C000000 		.4byte	.LFE8-.LFB8
+ 1145 0058 00000000 		.4byte	.LFB9
+ 1146 005c 0C000000 		.4byte	.LFE9-.LFB9
+ 1147 0060 00000000 		.4byte	.LFB10
+ 1148 0064 0C000000 		.4byte	.LFE10-.LFB10
+ 1149 0068 00000000 		.4byte	.LFB11
+ 1150 006c 0C000000 		.4byte	.LFE11-.LFB11
+ 1151 0070 00000000 		.4byte	.LFB12
+ 1152 0074 0C000000 		.4byte	.LFE12-.LFB12
+ 1153 0078 00000000 		.4byte	0
+ 1154 007c 00000000 		.4byte	0
+ 1155              		.section	.debug_ranges,"",%progbits
+ 1156              	.Ldebug_ranges0:
+ 1157 0000 00000000 		.4byte	.LFB1
+ 1158 0004 34000000 		.4byte	.LFE1
+ 1159 0008 00000000 		.4byte	.LFB2
+ 1160 000c 10000000 		.4byte	.LFE2
+ 1161 0010 00000000 		.4byte	.LFB0
+ 1162 0014 1C000000 		.4byte	.LFE0
+ 1163 0018 00000000 		.4byte	.LFB3
+ 1164 001c 10000000 		.4byte	.LFE3
+ 1165 0020 00000000 		.4byte	.LFB4
+ 1166 0024 0C000000 		.4byte	.LFE4
+ 1167 0028 00000000 		.4byte	.LFB5
+ 1168 002c 14000000 		.4byte	.LFE5
+ 1169 0030 00000000 		.4byte	.LFB6
+ 1170 0034 0C000000 		.4byte	.LFE6
+ 1171 0038 00000000 		.4byte	.LFB7
+ 1172 003c 0C000000 		.4byte	.LFE7
+ 1173 0040 00000000 		.4byte	.LFB8
+ 1174 0044 0C000000 		.4byte	.LFE8
+ 1175 0048 00000000 		.4byte	.LFB9
+ 1176 004c 0C000000 		.4byte	.LFE9
+ 1177 0050 00000000 		.4byte	.LFB10
+ 1178 0054 0C000000 		.4byte	.LFE10
+ 1179 0058 00000000 		.4byte	.LFB11
+ 1180 005c 0C000000 		.4byte	.LFE11
+ 1181 0060 00000000 		.4byte	.LFB12
+ 1182 0064 0C000000 		.4byte	.LFE12
+ 1183 0068 00000000 		.4byte	0
+ 1184 006c 00000000 		.4byte	0
+ 1185              		.section	.debug_line,"",%progbits
+ 1186              	.Ldebug_line0:
+ 1187 0000 3F010000 		.section	.debug_str,"MS",%progbits,1
+ 1187      02004200 
+ 1187      00000201 
+ 1187      FB0E0D00 
+ 1187      01010101 
+ 1188              	.LASF30:
+ 1189 0000 50574D5F 		.ascii	"PWM_ReadCompare\000"
+ 1189      52656164 
+ 1189      436F6D70 
+ 1189      61726500 
+ 1190              	.LASF18:
+ 1191 0010 70657269 		.ascii	"period\000"
+ 1191      6F6400
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 38
+
+
+ 1192              	.LASF22:
+ 1193 0017 50574D5F 		.ascii	"PWM_Start\000"
+ 1193      53746172 
+ 1193      7400
+ 1194              	.LASF3:
+ 1195 0021 73686F72 		.ascii	"short unsigned int\000"
+ 1195      7420756E 
+ 1195      7369676E 
+ 1195      65642069 
+ 1195      6E7400
+ 1196              	.LASF34:
+ 1197 0034 433A5C55 		.ascii	"C:\\Users\\suzukihajime\\Documents\\PSoC Creator\\b"
+ 1197      73657273 
+ 1197      5C73757A 
+ 1197      756B6968 
+ 1197      616A696D 
+ 1198 0062 6F6F7374 		.ascii	"oost\\boost.soft.cydsn\000"
+ 1198      5C626F6F 
+ 1198      73742E73 
+ 1198      6F66742E 
+ 1198      63796473 
+ 1199              	.LASF29:
+ 1200 0078 50574D5F 		.ascii	"PWM_ReadCapture\000"
+ 1200      52656164 
+ 1200      43617074 
+ 1200      75726500 
+ 1201              	.LASF9:
+ 1202 0088 666C6F61 		.ascii	"float\000"
+ 1202      7400
+ 1203              	.LASF17:
+ 1204 008e 636F756E 		.ascii	"counter\000"
+ 1204      74657200 
+ 1205              	.LASF32:
+ 1206 0096 474E5520 		.ascii	"GNU C 4.9.3 20150303 (release) [ARM/embedded-4_9-br"
+ 1206      4320342E 
+ 1206      392E3320 
+ 1206      32303135 
+ 1206      30333033 
+ 1207 00c9 616E6368 		.ascii	"anch revision 221220] -mcpu=cortex-m3 -mthumb -g -O"
+ 1207      20726576 
+ 1207      6973696F 
+ 1207      6E203232 
+ 1207      31323230 
+ 1208 00fc 73202D66 		.ascii	"s -ffunction-sections -ffat-lto-objects\000"
+ 1208      66756E63 
+ 1208      74696F6E 
+ 1208      2D736563 
+ 1208      74696F6E 
+ 1209              	.LASF1:
+ 1210 0124 756E7369 		.ascii	"unsigned char\000"
+ 1210      676E6564 
+ 1210      20636861 
+ 1210      7200
+ 1211              	.LASF33:
+ 1212 0132 2E5C4765 		.ascii	".\\Generated_Source\\PSoC5\\PWM.c\000"
+ 1212      6E657261 
+ 1212      7465645F 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 39
+
+
+ 1212      536F7572 
+ 1212      63655C50 
+ 1213              	.LASF13:
+ 1214 0151 72656738 		.ascii	"reg8\000"
+ 1214      00
+ 1215              	.LASF5:
+ 1216 0156 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1216      20756E73 
+ 1216      69676E65 
+ 1216      6420696E 
+ 1216      7400
+ 1217              	.LASF28:
+ 1218 0168 50574D5F 		.ascii	"PWM_ReadCounter\000"
+ 1218      52656164 
+ 1218      436F756E 
+ 1218      74657200 
+ 1219              	.LASF12:
+ 1220 0178 75696E74 		.ascii	"uint8\000"
+ 1220      3800
+ 1221              	.LASF36:
+ 1222 017e 636F6E74 		.ascii	"control\000"
+ 1222      726F6C00 
+ 1223              	.LASF10:
+ 1224 0186 646F7562 		.ascii	"double\000"
+ 1224      6C6500
+ 1225              	.LASF19:
+ 1226 018d 50574D5F 		.ascii	"PWM_WriteCompare\000"
+ 1226      57726974 
+ 1226      65436F6D 
+ 1226      70617265 
+ 1226      00
+ 1227              	.LASF21:
+ 1228 019e 50574D5F 		.ascii	"PWM_Init\000"
+ 1228      496E6974 
+ 1228      00
+ 1229              	.LASF37:
+ 1230 01a7 50574D5F 		.ascii	"PWM_initVar\000"
+ 1230      696E6974 
+ 1230      56617200 
+ 1231              	.LASF8:
+ 1232 01b3 756E7369 		.ascii	"unsigned int\000"
+ 1232      676E6564 
+ 1232      20696E74 
+ 1232      00
+ 1233              	.LASF7:
+ 1234 01c0 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1234      206C6F6E 
+ 1234      6720756E 
+ 1234      7369676E 
+ 1234      65642069 
+ 1235              	.LASF26:
+ 1236 01d7 72657375 		.ascii	"result\000"
+ 1236      6C7400
+ 1237              	.LASF16:
+ 1238 01de 50574D5F 		.ascii	"PWM_WritePeriod\000"
+ 1238      57726974 
+ 1238      65506572 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 40
+
+
+ 1238      696F6400 
+ 1239              	.LASF14:
+ 1240 01ee 73697A65 		.ascii	"sizetype\000"
+ 1240      74797065 
+ 1240      00
+ 1241              	.LASF6:
+ 1242 01f7 6C6F6E67 		.ascii	"long long int\000"
+ 1242      206C6F6E 
+ 1242      6720696E 
+ 1242      7400
+ 1243              	.LASF11:
+ 1244 0205 63686172 		.ascii	"char\000"
+ 1244      00
+ 1245              	.LASF27:
+ 1246 020a 50574D5F 		.ascii	"PWM_WriteControlRegister\000"
+ 1246      57726974 
+ 1246      65436F6E 
+ 1246      74726F6C 
+ 1246      52656769 
+ 1247              	.LASF31:
+ 1248 0223 50574D5F 		.ascii	"PWM_ReadPeriod\000"
+ 1248      52656164 
+ 1248      50657269 
+ 1248      6F6400
+ 1249              	.LASF2:
+ 1250 0232 73686F72 		.ascii	"short int\000"
+ 1250      7420696E 
+ 1250      7400
+ 1251              	.LASF15:
+ 1252 023c 50574D5F 		.ascii	"PWM_WriteCounter\000"
+ 1252      57726974 
+ 1252      65436F75 
+ 1252      6E746572 
+ 1252      00
+ 1253              	.LASF24:
+ 1254 024d 50574D5F 		.ascii	"PWM_Stop\000"
+ 1254      53746F70 
+ 1254      00
+ 1255              	.LASF4:
+ 1256 0256 6C6F6E67 		.ascii	"long int\000"
+ 1256      20696E74 
+ 1256      00
+ 1257              	.LASF35:
+ 1258 025f 50574D5F 		.ascii	"PWM_ReadControlRegister\000"
+ 1258      52656164 
+ 1258      436F6E74 
+ 1258      726F6C52 
+ 1258      65676973 
+ 1259              	.LASF0:
+ 1260 0277 7369676E 		.ascii	"signed char\000"
+ 1260      65642063 
+ 1260      68617200 
+ 1261              	.LASF20:
+ 1262 0283 636F6D70 		.ascii	"compare\000"
+ 1262      61726500 
+ 1263              	.LASF23:
+ 1264 028b 50574D5F 		.ascii	"PWM_Enable\000"
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccZh2LxN.s 			page 41
+
+
+ 1264      456E6162 
+ 1264      6C6500
+ 1265              	.LASF25:
+ 1266 0296 6374726C 		.ascii	"ctrl\000"
+ 1266      00
+ 1267              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.9.3 20150303 (release) [ARM/embedded-4_9-br

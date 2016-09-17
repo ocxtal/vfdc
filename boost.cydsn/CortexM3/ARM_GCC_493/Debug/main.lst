@@ -1,0 +1,1774 @@
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"main.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.main,"ax",%progbits
+  19              		.align	2
+  20              		.global	main
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	main, %function
+  24              	main:
+  25              	.LFB2:
+  26              		.file 1 ".\\main.c"
+   1:.\main.c      **** /* ========================================
+   2:.\main.c      ****  *
+   3:.\main.c      ****  * Copyright YOUR COMPANY, THE YEAR
+   4:.\main.c      ****  * All Rights Reserved
+   5:.\main.c      ****  * UNPUBLISHED, LICENSED SOFTWARE.
+   6:.\main.c      ****  *
+   7:.\main.c      ****  * CONFIDENTIAL AND PROPRIETARY INFORMATION
+   8:.\main.c      ****  * WHICH IS THE PROPERTY OF your company.
+   9:.\main.c      ****  *
+  10:.\main.c      ****  * ========================================
+  11:.\main.c      **** */
+  12:.\main.c      **** #include <stdint.h>
+  13:.\main.c      **** #include <project.h>
+  14:.\main.c      **** 
+  15:.\main.c      **** /*
+  16:.\main.c      ****  * 5V -> 12V boost converter
+  17:.\main.c      ****  */
+  18:.\main.c      **** static uint8_t boost_coef_table[256] __attribute__(( aligned(256) ));
+  19:.\main.c      **** static uint8_t DMA1_Chan, DMA2_Chan;
+  20:.\main.c      **** static uint8_t DMA1_TD[1], DMA2_TD[1];
+  21:.\main.c      **** static inline
+  22:.\main.c      **** void boost_start(void)
+  23:.\main.c      **** {
+  24:.\main.c      **** 	int i, offset = 10;
+  25:.\main.c      **** 	
+  26:.\main.c      **** 	/* bootstrap */
+  27:.\main.c      **** 	PWM_Start();
+  28:.\main.c      **** 	PWM_WriteCompare(100);
+  29:.\main.c      **** 	ADC_Start();
+  30:.\main.c      **** 
+  31:.\main.c      **** 	for(i = 0; i < 100000; i++) {}
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 2
+
+
+  32:.\main.c      **** 
+  33:.\main.c      **** 	/* initialize coefficient table */
+  34:.\main.c      **** 	#define clip(x)		( (x) < 0 ? 0 : ((x) > 255 ? 255 : (x)) )
+  35:.\main.c      **** 	for(i = 0; i < 256; i++) {
+  36:.\main.c      **** 		boost_coef_table[i] = clip(i + offset);
+  37:.\main.c      **** 	}
+  38:.\main.c      **** 	
+  39:.\main.c      **** 	/*
+  40:.\main.c      **** 	 * indexed DMA: DMA1 and DMA2 cooperatively calculates
+  41:.\main.c      **** 	 * `pwm_duty <- boost_coef_table[adc_read_value]' on every ADC conversion.
+  42:.\main.c      **** 	 * DMA1: write current ADC value to the base address register of DMA2
+  43:.\main.c      **** 	 * DMA2: transfer the content of boost_coef_table to PWM compare register
+  44:.\main.c      **** 	 */
+  45:.\main.c      **** 	#if 1
+  46:.\main.c      **** 	DMA2_Chan = DMA2_DmaInitialize(1, 0, HI16(CYDEV_SRAM_BASE), HI16(CYDEV_PERIPH_BASE));
+  47:.\main.c      **** 	DMA2_TD[0] = CyDmaTdAllocate();
+  48:.\main.c      **** 	CyDmaTdSetConfiguration(DMA2_TD[0], 1, DMA_INVALID_TD, 0);
+  49:.\main.c      **** 	CyDmaTdSetAddress(DMA2_TD[0], LO16((uint32)boost_coef_table), LO16((uint32)PWM_COMPARE1_LSB_PTR));
+  50:.\main.c      **** 	CyDmaChSetInitialTd(DMA2_Chan, DMA2_TD[0]);
+  51:.\main.c      **** 	CyDmaChEnable(DMA2_Chan, 1);
+  52:.\main.c      **** 	CyDmaClearPendingDrq(DMA2_Chan);
+  53:.\main.c      **** 
+  54:.\main.c      **** 	DMA1_Chan = DMA1_DmaInitialize(1, 0, HI16(CYDEV_PERIPH_BASE), HI16(CYDEV_PERIPH_BASE));
+  55:.\main.c      **** 	DMA1_TD[0] = CyDmaTdAllocate();
+  56:.\main.c      **** 	CyDmaTdSetConfiguration(DMA1_TD[0], 1, DMA_INVALID_TD, DMA1__TD_TERMOUT_EN);
+  57:.\main.c      **** 	CyDmaTdSetAddress(DMA1_TD[0], LO16((uint32)ADC_SAR_WRK0_PTR), LO16((uint32)&((dmac_tdmem2 CYXDATA 
+  58:.\main.c      **** 	CyDmaChSetInitialTd(DMA1_Chan, DMA1_TD[0]);
+  59:.\main.c      **** 	CyDmaChEnable(DMA1_Chan, 1);
+  60:.\main.c      **** 	CyDmaClearPendingDrq(DMA1_Chan);
+  61:.\main.c      **** 	#else
+  62:.\main.c      **** 	DMA1_Chan = DMA1_DmaInitialize(0, 0, HI16(CYDEV_PERIPH_BASE), HI16(CYDEV_PERIPH_BASE));
+  63:.\main.c      **** 	DMA1_TD[0] = CyDmaTdAllocate();
+  64:.\main.c      **** 	CyDmaTdSetConfiguration(DMA1_TD[0], 1, DMA_INVALID_TD, DMA1__TD_TERMOUT_EN);
+  65:.\main.c      **** 	CyDmaTdSetAddress(DMA1_TD[0], LO16((uint32)ADC_SAR_WRK0_PTR), LO16((uint32)PWM_COMPARE1_LSB_PTR));
+  66:.\main.c      **** 	CyDmaChSetInitialTd(DMA1_Chan, DMA1_TD[0]);
+  67:.\main.c      **** 	CyDmaChEnable(DMA1_Chan, 1);
+  68:.\main.c      **** 	#endif
+  69:.\main.c      **** 	return;
+  70:.\main.c      **** }
+  71:.\main.c      **** 
+  72:.\main.c      **** /*
+  73:.\main.c      ****  * filament driver
+  74:.\main.c      ****  */
+  75:.\main.c      **** static inline
+  76:.\main.c      **** void vdac_start(void)
+  77:.\main.c      **** {
+  78:.\main.c      **** 	DAC_Start();
+  79:.\main.c      **** 	DAC_SetValue(60);
+  80:.\main.c      **** 	return;
+  81:.\main.c      **** }
+  82:.\main.c      **** 
+  83:.\main.c      **** //int goffset = -32;
+  84:.\main.c      **** 
+  85:.\main.c      **** int main()
+  86:.\main.c      **** {
+  27              		.loc 1 86 0
+  28              		.cfi_startproc
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 3
+
+
+  29              		@ Volatile: function does not return.
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 08B5     		push	{r3, lr}
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 3, -8
+  35              		.cfi_offset 14, -4
+  36              	.LVL0:
+  37              	.LBB8:
+  38              	.LBB9:
+  27:.\main.c      **** 	PWM_WriteCompare(100);
+  39              		.loc 1 27 0
+  40 0002 FFF7FEFF 		bl	PWM_Start
+  41              	.LVL1:
+  28:.\main.c      **** 	ADC_Start();
+  42              		.loc 1 28 0
+  43 0006 6420     		movs	r0, #100
+  44 0008 FFF7FEFF 		bl	PWM_WriteCompare
+  45              	.LVL2:
+  29:.\main.c      **** 
+  46              		.loc 1 29 0
+  47 000c FFF7FEFF 		bl	ADC_Start
+  48              	.LVL3:
+  31:.\main.c      **** 
+  49              		.loc 1 31 0
+  50 0010 0023     		movs	r3, #0
+  51 0012 00E0     		b	.L2
+  52              	.LVL4:
+  53              	.L3:
+  54 0014 0133     		adds	r3, r3, #1
+  55              	.LVL5:
+  56              	.L2:
+  57 0016 394A     		ldr	r2, .L10
+  58 0018 9342     		cmp	r3, r2
+  59 001a FBDD     		ble	.L3
+  60 001c 0023     		movs	r3, #0
+  61              	.LVL6:
+  62 001e 0BE0     		b	.L4
+  63              	.LVL7:
+  64              	.L6:
+  36:.\main.c      **** 	}
+  65              		.loc 1 36 0
+  66 0020 13F10A02 		adds	r2, r3, #10
+  67 0024 04D4     		bmi	.L8
+  68 0026 FF2A     		cmp	r2, #255
+  69 0028 A8BF     		it	ge
+  70 002a FF22     		movge	r2, #255
+  71 002c D2B2     		uxtb	r2, r2
+  72 002e 00E0     		b	.L5
+  73              	.L8:
+  74 0030 0022     		movs	r2, #0
+  75              	.L5:
+  76 0032 3349     		ldr	r1, .L10+4
+  77 0034 CA54     		strb	r2, [r1, r3]
+  35:.\main.c      **** 		boost_coef_table[i] = clip(i + offset);
+  78              		.loc 1 35 0
+  79 0036 0133     		adds	r3, r3, #1
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 4
+
+
+  80              	.LVL8:
+  81              	.L4:
+  82 0038 FF2B     		cmp	r3, #255
+  83 003a F1DD     		ble	.L6
+  46:.\main.c      **** 	DMA2_TD[0] = CyDmaTdAllocate();
+  84              		.loc 1 46 0
+  85 003c 0120     		movs	r0, #1
+  86 003e 0021     		movs	r1, #0
+  87 0040 41F6FF72 		movw	r2, #8191
+  88 0044 4FF48043 		mov	r3, #16384
+  89              	.LVL9:
+  90 0048 FFF7FEFF 		bl	DMA2_DmaInitialize
+  91              	.LVL10:
+  92 004c 2C4C     		ldr	r4, .L10+4
+  93 004e 84F80001 		strb	r0, [r4, #256]
+  47:.\main.c      **** 	CyDmaTdSetConfiguration(DMA2_TD[0], 1, DMA_INVALID_TD, 0);
+  94              		.loc 1 47 0
+  95 0052 FFF7FEFF 		bl	CyDmaTdAllocate
+  96              	.LVL11:
+  97 0056 84F80401 		strb	r0, [r4, #260]
+  48:.\main.c      **** 	CyDmaTdSetAddress(DMA2_TD[0], LO16((uint32)boost_coef_table), LO16((uint32)PWM_COMPARE1_LSB_PTR));
+  98              		.loc 1 48 0
+  99 005a 0121     		movs	r1, #1
+ 100 005c FF22     		movs	r2, #255
+ 101 005e 0023     		movs	r3, #0
+ 102 0060 FFF7FEFF 		bl	CyDmaTdSetConfiguration
+ 103              	.LVL12:
+  49:.\main.c      **** 	CyDmaChSetInitialTd(DMA2_Chan, DMA2_TD[0]);
+ 104              		.loc 1 49 0
+ 105 0064 94F80401 		ldrb	r0, [r4, #260]	@ zero_extendqisi2
+ 106 0068 A1B2     		uxth	r1, r4
+ 107 006a 46F22A52 		movw	r2, #25898
+ 108 006e FFF7FEFF 		bl	CyDmaTdSetAddress
+ 109              	.LVL13:
+  50:.\main.c      **** 	CyDmaChEnable(DMA2_Chan, 1);
+ 110              		.loc 1 50 0
+ 111 0072 94F80001 		ldrb	r0, [r4, #256]	@ zero_extendqisi2
+ 112 0076 94F80411 		ldrb	r1, [r4, #260]	@ zero_extendqisi2
+ 113 007a FFF7FEFF 		bl	CyDmaChSetInitialTd
+ 114              	.LVL14:
+  51:.\main.c      **** 	CyDmaClearPendingDrq(DMA2_Chan);
+ 115              		.loc 1 51 0
+ 116 007e 94F80001 		ldrb	r0, [r4, #256]	@ zero_extendqisi2
+ 117 0082 0121     		movs	r1, #1
+ 118 0084 FFF7FEFF 		bl	CyDmaChEnable
+ 119              	.LVL15:
+  52:.\main.c      **** 
+ 120              		.loc 1 52 0
+ 121 0088 94F80001 		ldrb	r0, [r4, #256]	@ zero_extendqisi2
+ 122 008c FFF7FEFF 		bl	CyDmaClearPendingDrq
+ 123              	.LVL16:
+  54:.\main.c      **** 	DMA1_TD[0] = CyDmaTdAllocate();
+ 124              		.loc 1 54 0
+ 125 0090 0120     		movs	r0, #1
+ 126 0092 0021     		movs	r1, #0
+ 127 0094 4FF48042 		mov	r2, #16384
+ 128 0098 1346     		mov	r3, r2
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 5
+
+
+ 129 009a FFF7FEFF 		bl	DMA1_DmaInitialize
+ 130              	.LVL17:
+ 131 009e 84F80501 		strb	r0, [r4, #261]
+  55:.\main.c      **** 	CyDmaTdSetConfiguration(DMA1_TD[0], 1, DMA_INVALID_TD, DMA1__TD_TERMOUT_EN);
+ 132              		.loc 1 55 0
+ 133 00a2 FFF7FEFF 		bl	CyDmaTdAllocate
+ 134              	.LVL18:
+ 135 00a6 84F80801 		strb	r0, [r4, #264]
+  56:.\main.c      **** 	CyDmaTdSetAddress(DMA1_TD[0], LO16((uint32)ADC_SAR_WRK0_PTR), LO16((uint32)&((dmac_tdmem2 CYXDATA 
+ 136              		.loc 1 56 0
+ 137 00aa 0121     		movs	r1, #1
+ 138 00ac FF22     		movs	r2, #255
+ 139 00ae 0423     		movs	r3, #4
+ 140 00b0 FFF7FEFF 		bl	CyDmaTdSetConfiguration
+ 141              	.LVL19:
+  57:.\main.c      **** 	CyDmaChSetInitialTd(DMA1_Chan, DMA1_TD[0]);
+ 142              		.loc 1 57 0
+ 143 00b4 94F80421 		ldrb	r2, [r4, #260]	@ zero_extendqisi2
+ 144 00b8 D200     		lsls	r2, r2, #3
+ 145 00ba 94F80801 		ldrb	r0, [r4, #264]	@ zero_extendqisi2
+ 146 00be 45F6A031 		movw	r1, #23456
+ 147 00c2 02F5F042 		add	r2, r2, #30720
+ 148 00c6 0432     		adds	r2, r2, #4
+ 149 00c8 FFF7FEFF 		bl	CyDmaTdSetAddress
+ 150              	.LVL20:
+  58:.\main.c      **** 	CyDmaChEnable(DMA1_Chan, 1);
+ 151              		.loc 1 58 0
+ 152 00cc 94F80501 		ldrb	r0, [r4, #261]	@ zero_extendqisi2
+ 153 00d0 94F80811 		ldrb	r1, [r4, #264]	@ zero_extendqisi2
+ 154 00d4 FFF7FEFF 		bl	CyDmaChSetInitialTd
+ 155              	.LVL21:
+  59:.\main.c      **** 	CyDmaClearPendingDrq(DMA1_Chan);
+ 156              		.loc 1 59 0
+ 157 00d8 94F80501 		ldrb	r0, [r4, #261]	@ zero_extendqisi2
+ 158 00dc 0121     		movs	r1, #1
+ 159 00de FFF7FEFF 		bl	CyDmaChEnable
+ 160              	.LVL22:
+  60:.\main.c      **** 	#else
+ 161              		.loc 1 60 0
+ 162 00e2 94F80501 		ldrb	r0, [r4, #261]	@ zero_extendqisi2
+ 163 00e6 FFF7FEFF 		bl	CyDmaClearPendingDrq
+ 164              	.LVL23:
+ 165              	.LBE9:
+ 166              	.LBE8:
+ 167              	.LBB10:
+ 168              	.LBB11:
+  78:.\main.c      **** 	DAC_SetValue(60);
+ 169              		.loc 1 78 0
+ 170 00ea FFF7FEFF 		bl	DAC_Start
+ 171              	.LVL24:
+  79:.\main.c      **** 	return;
+ 172              		.loc 1 79 0
+ 173 00ee 3C20     		movs	r0, #60
+ 174 00f0 FFF7FEFF 		bl	DAC_SetValue
+ 175              	.LVL25:
+ 176              	.LBE11:
+ 177              	.LBE10:
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 6
+
+
+  87:.\main.c      **** 	boost_start();
+  88:.\main.c      **** 	vdac_start();
+  89:.\main.c      **** 	clock_Start();
+ 178              		.loc 1 89 0
+ 179 00f4 FFF7FEFF 		bl	clock_Start
+ 180              	.LVL26:
+  90:.\main.c      **** 	CyGlobalIntEnable; /* Enable global interrupts. */
+ 181              		.loc 1 90 0
+ 182              	@ 90 ".\main.c" 1
+ 183 00f8 62B6     		CPSIE   i
+ 184              	@ 0 "" 2
+ 185              		.thumb
+ 186              	.L7:
+  91:.\main.c      **** 	while(1) {
+  92:.\main.c      **** 		/*
+  93:.\main.c      **** 		int64_t i;
+  94:.\main.c      **** 		volatile int j = 0;
+  95:.\main.c      **** 		for(i = 0; i < 1000; i++) { j++; }
+  96:.\main.c      **** 		for(i = 0; i < 256; i++) { boost_coef_table[i] = clip(i + goffset); }
+  97:.\main.c      **** 		*/
+  98:.\main.c      **** 	}
+ 187              		.loc 1 98 0 discriminator 1
+ 188 00fa FEE7     		b	.L7
+ 189              	.L11:
+ 190              		.align	2
+ 191              	.L10:
+ 192 00fc 9F860100 		.word	99999
+ 193 0100 00000000 		.word	.LANCHOR0
+ 194              		.cfi_endproc
+ 195              	.LFE2:
+ 196              		.size	main, .-main
+ 197              		.bss
+ 198              		.align	8
+ 199              		.set	.LANCHOR0,. + 0
+ 200              		.type	boost_coef_table, %object
+ 201              		.size	boost_coef_table, 256
+ 202              	boost_coef_table:
+ 203 0000 00000000 		.space	256
+ 203      00000000 
+ 203      00000000 
+ 203      00000000 
+ 203      00000000 
+ 204              		.type	DMA2_Chan, %object
+ 205              		.size	DMA2_Chan, 1
+ 206              	DMA2_Chan:
+ 207 0100 00       		.space	1
+ 208 0101 000000   		.space	3
+ 209              		.type	DMA2_TD, %object
+ 210              		.size	DMA2_TD, 1
+ 211              	DMA2_TD:
+ 212 0104 00       		.space	1
+ 213              		.type	DMA1_Chan, %object
+ 214              		.size	DMA1_Chan, 1
+ 215              	DMA1_Chan:
+ 216 0105 00       		.space	1
+ 217 0106 0000     		.space	2
+ 218              		.type	DMA1_TD, %object
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 7
+
+
+ 219              		.size	DMA1_TD, 1
+ 220              	DMA1_TD:
+ 221 0108 00       		.space	1
+ 222 0109 00000000 		.text
+ 222      00000000 
+ 222      00000000 
+ 222      00000000 
+ 222      00000000 
+ 223              	.Letext0:
+ 224              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 225              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 226              		.file 4 "Generated_Source\\PSoC5/cytypes.h"
+ 227              		.file 5 "Generated_Source\\PSoC5/CYDMAC.H"
+ 228              		.file 6 "Generated_Source\\PSoC5/PWM.h"
+ 229              		.file 7 "Generated_Source\\PSoC5/ADC.h"
+ 230              		.file 8 "Generated_Source\\PSoC5/DMA2_dma.h"
+ 231              		.file 9 "Generated_Source\\PSoC5/DMA1_dma.h"
+ 232              		.file 10 "Generated_Source\\PSoC5/DAC.h"
+ 233              		.file 11 "Generated_Source\\PSoC5/clock_clock24.h"
+ 234              		.section	.debug_info,"",%progbits
+ 235              	.Ldebug_info0:
+ 236 0000 F0040000 		.4byte	0x4f0
+ 237 0004 0400     		.2byte	0x4
+ 238 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 239 000a 04       		.byte	0x4
+ 240 000b 01       		.uleb128 0x1
+ 241 000c 60010000 		.4byte	.LASF48
+ 242 0010 01       		.byte	0x1
+ 243 0011 2F010000 		.4byte	.LASF49
+ 244 0015 07030000 		.4byte	.LASF50
+ 245 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 246 001d 00000000 		.4byte	0
+ 247 0021 00000000 		.4byte	.Ldebug_line0
+ 248 0025 02       		.uleb128 0x2
+ 249 0026 01       		.byte	0x1
+ 250 0027 06       		.byte	0x6
+ 251 0028 EA020000 		.4byte	.LASF0
+ 252 002c 03       		.uleb128 0x3
+ 253 002d 1C000000 		.4byte	.LASF9
+ 254 0031 02       		.byte	0x2
+ 255 0032 1D       		.byte	0x1d
+ 256 0033 37000000 		.4byte	0x37
+ 257 0037 02       		.uleb128 0x2
+ 258 0038 01       		.byte	0x1
+ 259 0039 08       		.byte	0x8
+ 260 003a 9F000000 		.4byte	.LASF1
+ 261 003e 02       		.uleb128 0x2
+ 262 003f 02       		.byte	0x2
+ 263 0040 05       		.byte	0x5
+ 264 0041 A4020000 		.4byte	.LASF2
+ 265 0045 02       		.uleb128 0x2
+ 266 0046 02       		.byte	0x2
+ 267 0047 07       		.byte	0x7
+ 268 0048 55000000 		.4byte	.LASF3
+ 269 004c 02       		.uleb128 0x2
+ 270 004d 04       		.byte	0x4
+ 271 004e 05       		.byte	0x5
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 8
+
+
+ 272 004f D1020000 		.4byte	.LASF4
+ 273 0053 02       		.uleb128 0x2
+ 274 0054 04       		.byte	0x4
+ 275 0055 07       		.byte	0x7
+ 276 0056 CA000000 		.4byte	.LASF5
+ 277 005a 02       		.uleb128 0x2
+ 278 005b 08       		.byte	0x8
+ 279 005c 05       		.byte	0x5
+ 280 005d 5C020000 		.4byte	.LASF6
+ 281 0061 02       		.uleb128 0x2
+ 282 0062 08       		.byte	0x8
+ 283 0063 07       		.byte	0x7
+ 284 0064 06020000 		.4byte	.LASF7
+ 285 0068 04       		.uleb128 0x4
+ 286 0069 04       		.byte	0x4
+ 287 006a 05       		.byte	0x5
+ 288 006b 696E7400 		.ascii	"int\000"
+ 289 006f 02       		.uleb128 0x2
+ 290 0070 04       		.byte	0x4
+ 291 0071 07       		.byte	0x7
+ 292 0072 EE010000 		.4byte	.LASF8
+ 293 0076 03       		.uleb128 0x3
+ 294 0077 1D020000 		.4byte	.LASF10
+ 295 007b 03       		.byte	0x3
+ 296 007c 15       		.byte	0x15
+ 297 007d 2C000000 		.4byte	0x2c
+ 298 0081 05       		.uleb128 0x5
+ 299 0082 DC000000 		.4byte	.LASF11
+ 300 0086 04       		.byte	0x4
+ 301 0087 9201     		.2byte	0x192
+ 302 0089 37000000 		.4byte	0x37
+ 303 008d 05       		.uleb128 0x5
+ 304 008e 52010000 		.4byte	.LASF12
+ 305 0092 04       		.byte	0x4
+ 306 0093 9301     		.2byte	0x193
+ 307 0095 45000000 		.4byte	0x45
+ 308 0099 05       		.uleb128 0x5
+ 309 009a 59010000 		.4byte	.LASF13
+ 310 009e 04       		.byte	0x4
+ 311 009f 9401     		.2byte	0x194
+ 312 00a1 53000000 		.4byte	0x53
+ 313 00a5 02       		.uleb128 0x2
+ 314 00a6 04       		.byte	0x4
+ 315 00a7 04       		.byte	0x4
+ 316 00a8 99000000 		.4byte	.LASF14
+ 317 00ac 02       		.uleb128 0x2
+ 318 00ad 08       		.byte	0x8
+ 319 00ae 04       		.byte	0x4
+ 320 00af 02010000 		.4byte	.LASF15
+ 321 00b3 02       		.uleb128 0x2
+ 322 00b4 01       		.byte	0x1
+ 323 00b5 08       		.byte	0x8
+ 324 00b6 7C020000 		.4byte	.LASF16
+ 325 00ba 05       		.uleb128 0x5
+ 326 00bb 13000000 		.4byte	.LASF17
+ 327 00bf 04       		.byte	0x4
+ 328 00c0 3402     		.2byte	0x234
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 9
+
+
+ 329 00c2 53000000 		.4byte	0x53
+ 330 00c6 05       		.uleb128 0x5
+ 331 00c7 AD000000 		.4byte	.LASF18
+ 332 00cb 04       		.byte	0x4
+ 333 00cc 3C02     		.2byte	0x23c
+ 334 00ce D2000000 		.4byte	0xd2
+ 335 00d2 06       		.uleb128 0x6
+ 336 00d3 81000000 		.4byte	0x81
+ 337 00d7 06       		.uleb128 0x6
+ 338 00d8 8D000000 		.4byte	0x8d
+ 339 00dc 02       		.uleb128 0x2
+ 340 00dd 04       		.byte	0x4
+ 341 00de 07       		.byte	0x7
+ 342 00df 48020000 		.4byte	.LASF19
+ 343 00e3 07       		.uleb128 0x7
+ 344 00e4 81000000 		.4byte	0x81
+ 345 00e8 F3000000 		.4byte	0xf3
+ 346 00ec 08       		.uleb128 0x8
+ 347 00ed DC000000 		.4byte	0xdc
+ 348 00f1 03       		.byte	0x3
+ 349 00f2 00       		.byte	0
+ 350 00f3 09       		.uleb128 0x9
+ 351 00f4 81020000 		.4byte	.LASF21
+ 352 00f8 08       		.byte	0x8
+ 353 00f9 05       		.byte	0x5
+ 354 00fa 59       		.byte	0x59
+ 355 00fb 18010000 		.4byte	0x118
+ 356 00ff 0A       		.uleb128 0xa
+ 357 0100 54443000 		.ascii	"TD0\000"
+ 358 0104 05       		.byte	0x5
+ 359 0105 5B       		.byte	0x5b
+ 360 0106 18010000 		.4byte	0x118
+ 361 010a 00       		.byte	0
+ 362 010b 0A       		.uleb128 0xa
+ 363 010c 54443100 		.ascii	"TD1\000"
+ 364 0110 05       		.byte	0x5
+ 365 0111 5C       		.byte	0x5c
+ 366 0112 1D010000 		.4byte	0x11d
+ 367 0116 04       		.byte	0x4
+ 368 0117 00       		.byte	0
+ 369 0118 06       		.uleb128 0x6
+ 370 0119 E3000000 		.4byte	0xe3
+ 371 011d 06       		.uleb128 0x6
+ 372 011e E3000000 		.4byte	0xe3
+ 373 0122 03       		.uleb128 0x3
+ 374 0123 51020000 		.4byte	.LASF20
+ 375 0127 05       		.byte	0x5
+ 376 0128 5E       		.byte	0x5e
+ 377 0129 F3000000 		.4byte	0xf3
+ 378 012d 09       		.uleb128 0x9
+ 379 012e BE020000 		.4byte	.LASF22
+ 380 0132 08       		.byte	0x8
+ 381 0133 05       		.byte	0x5
+ 382 0134 61       		.byte	0x61
+ 383 0135 76010000 		.4byte	0x176
+ 384 0139 0B       		.uleb128 0xb
+ 385 013a 4D000000 		.4byte	.LASF23
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 10
+
+
+ 386 013e 05       		.byte	0x5
+ 387 013f 63       		.byte	0x63
+ 388 0140 D7000000 		.4byte	0xd7
+ 389 0144 00       		.byte	0
+ 390 0145 0B       		.uleb128 0xb
+ 391 0146 E2000000 		.4byte	.LASF24
+ 392 014a 05       		.byte	0x5
+ 393 014b 64       		.byte	0x64
+ 394 014c D2000000 		.4byte	0xd2
+ 395 0150 02       		.byte	0x2
+ 396 0151 0B       		.uleb128 0xb
+ 397 0152 B8020000 		.4byte	.LASF25
+ 398 0156 05       		.byte	0x5
+ 399 0157 65       		.byte	0x65
+ 400 0158 D2000000 		.4byte	0xd2
+ 401 015c 03       		.byte	0x3
+ 402 015d 0B       		.uleb128 0xb
+ 403 015e E2020000 		.4byte	.LASF26
+ 404 0162 05       		.byte	0x5
+ 405 0163 66       		.byte	0x66
+ 406 0164 D7000000 		.4byte	0xd7
+ 407 0168 04       		.byte	0x4
+ 408 0169 0B       		.uleb128 0xb
+ 409 016a 45000000 		.4byte	.LASF27
+ 410 016e 05       		.byte	0x5
+ 411 016f 67       		.byte	0x67
+ 412 0170 D7000000 		.4byte	0xd7
+ 413 0174 06       		.byte	0x6
+ 414 0175 00       		.byte	0
+ 415 0176 03       		.uleb128 0x3
+ 416 0177 34020000 		.4byte	.LASF28
+ 417 017b 05       		.byte	0x5
+ 418 017c 68       		.byte	0x68
+ 419 017d 2D010000 		.4byte	0x12d
+ 420 0181 0C       		.uleb128 0xc
+ 421 0182 FB010000 		.4byte	.LASF51
+ 422 0186 01       		.byte	0x1
+ 423 0187 4C       		.byte	0x4c
+ 424 0188 03       		.byte	0x3
+ 425 0189 0D       		.uleb128 0xd
+ 426 018a 38010000 		.4byte	.LASF52
+ 427 018e 01       		.byte	0x1
+ 428 018f 16       		.byte	0x16
+ 429 0190 03       		.byte	0x3
+ 430 0191 AA010000 		.4byte	0x1aa
+ 431 0195 0E       		.uleb128 0xe
+ 432 0196 6900     		.ascii	"i\000"
+ 433 0198 01       		.byte	0x1
+ 434 0199 18       		.byte	0x18
+ 435 019a 68000000 		.4byte	0x68
+ 436 019e 0F       		.uleb128 0xf
+ 437 019f 93020000 		.4byte	.LASF29
+ 438 01a3 01       		.byte	0x1
+ 439 01a4 18       		.byte	0x18
+ 440 01a5 68000000 		.4byte	0x68
+ 441 01a9 00       		.byte	0
+ 442 01aa 10       		.uleb128 0x10
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 11
+
+
+ 443 01ab 2F020000 		.4byte	.LASF53
+ 444 01af 01       		.byte	0x1
+ 445 01b0 55       		.byte	0x55
+ 446 01b1 68000000 		.4byte	0x68
+ 447 01b5 00000000 		.4byte	.LFB2
+ 448 01b9 04010000 		.4byte	.LFE2-.LFB2
+ 449 01bd 01       		.uleb128 0x1
+ 450 01be 9C       		.byte	0x9c
+ 451 01bf 61030000 		.4byte	0x361
+ 452 01c3 11       		.uleb128 0x11
+ 453 01c4 89010000 		.4byte	0x189
+ 454 01c8 02000000 		.4byte	.LBB8
+ 455 01cc E8000000 		.4byte	.LBE8-.LBB8
+ 456 01d0 01       		.byte	0x1
+ 457 01d1 57       		.byte	0x57
+ 458 01d2 2A030000 		.4byte	0x32a
+ 459 01d6 12       		.uleb128 0x12
+ 460 01d7 02000000 		.4byte	.LBB9
+ 461 01db E8000000 		.4byte	.LBE9-.LBB9
+ 462 01df 13       		.uleb128 0x13
+ 463 01e0 95010000 		.4byte	0x195
+ 464 01e4 00000000 		.4byte	.LLST0
+ 465 01e8 14       		.uleb128 0x14
+ 466 01e9 9E010000 		.4byte	0x19e
+ 467 01ed 0A       		.byte	0xa
+ 468 01ee 15       		.uleb128 0x15
+ 469 01ef 06000000 		.4byte	.LVL1
+ 470 01f3 D6030000 		.4byte	0x3d6
+ 471 01f7 16       		.uleb128 0x16
+ 472 01f8 0C000000 		.4byte	.LVL2
+ 473 01fc DD030000 		.4byte	0x3dd
+ 474 0200 0B020000 		.4byte	0x20b
+ 475 0204 17       		.uleb128 0x17
+ 476 0205 01       		.uleb128 0x1
+ 477 0206 50       		.byte	0x50
+ 478 0207 02       		.uleb128 0x2
+ 479 0208 08       		.byte	0x8
+ 480 0209 64       		.byte	0x64
+ 481 020a 00       		.byte	0
+ 482 020b 15       		.uleb128 0x15
+ 483 020c 10000000 		.4byte	.LVL3
+ 484 0210 EE030000 		.4byte	0x3ee
+ 485 0214 16       		.uleb128 0x16
+ 486 0215 4C000000 		.4byte	.LVL10
+ 487 0219 F5030000 		.4byte	0x3f5
+ 488 021d 3A020000 		.4byte	0x23a
+ 489 0221 17       		.uleb128 0x17
+ 490 0222 01       		.uleb128 0x1
+ 491 0223 53       		.byte	0x53
+ 492 0224 03       		.uleb128 0x3
+ 493 0225 0A       		.byte	0xa
+ 494 0226 0040     		.2byte	0x4000
+ 495 0228 17       		.uleb128 0x17
+ 496 0229 01       		.uleb128 0x1
+ 497 022a 52       		.byte	0x52
+ 498 022b 03       		.uleb128 0x3
+ 499 022c 0A       		.byte	0xa
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 12
+
+
+ 500 022d FF1F     		.2byte	0x1fff
+ 501 022f 17       		.uleb128 0x17
+ 502 0230 01       		.uleb128 0x1
+ 503 0231 51       		.byte	0x51
+ 504 0232 01       		.uleb128 0x1
+ 505 0233 30       		.byte	0x30
+ 506 0234 17       		.uleb128 0x17
+ 507 0235 01       		.uleb128 0x1
+ 508 0236 50       		.byte	0x50
+ 509 0237 01       		.uleb128 0x1
+ 510 0238 31       		.byte	0x31
+ 511 0239 00       		.byte	0
+ 512 023a 15       		.uleb128 0x15
+ 513 023b 56000000 		.4byte	.LVL11
+ 514 023f 19040000 		.4byte	0x419
+ 515 0243 16       		.uleb128 0x16
+ 516 0244 64000000 		.4byte	.LVL12
+ 517 0248 24040000 		.4byte	0x424
+ 518 024c 61020000 		.4byte	0x261
+ 519 0250 17       		.uleb128 0x17
+ 520 0251 01       		.uleb128 0x1
+ 521 0252 53       		.byte	0x53
+ 522 0253 01       		.uleb128 0x1
+ 523 0254 30       		.byte	0x30
+ 524 0255 17       		.uleb128 0x17
+ 525 0256 01       		.uleb128 0x1
+ 526 0257 52       		.byte	0x52
+ 527 0258 02       		.uleb128 0x2
+ 528 0259 09       		.byte	0x9
+ 529 025a FF       		.byte	0xff
+ 530 025b 17       		.uleb128 0x17
+ 531 025c 01       		.uleb128 0x1
+ 532 025d 51       		.byte	0x51
+ 533 025e 01       		.uleb128 0x1
+ 534 025f 31       		.byte	0x31
+ 535 0260 00       		.byte	0
+ 536 0261 16       		.uleb128 0x16
+ 537 0262 72000000 		.4byte	.LVL13
+ 538 0266 48040000 		.4byte	0x448
+ 539 026a 7C020000 		.4byte	0x27c
+ 540 026e 17       		.uleb128 0x17
+ 541 026f 01       		.uleb128 0x1
+ 542 0270 52       		.byte	0x52
+ 543 0271 03       		.uleb128 0x3
+ 544 0272 0A       		.byte	0xa
+ 545 0273 2A65     		.2byte	0x652a
+ 546 0275 17       		.uleb128 0x17
+ 547 0276 01       		.uleb128 0x1
+ 548 0277 51       		.byte	0x51
+ 549 0278 02       		.uleb128 0x2
+ 550 0279 74       		.byte	0x74
+ 551 027a 00       		.sleb128 0
+ 552 027b 00       		.byte	0
+ 553 027c 15       		.uleb128 0x15
+ 554 027d 7E000000 		.4byte	.LVL14
+ 555 0281 67040000 		.4byte	0x467
+ 556 0285 16       		.uleb128 0x16
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 13
+
+
+ 557 0286 88000000 		.4byte	.LVL15
+ 558 028a 81040000 		.4byte	0x481
+ 559 028e 98020000 		.4byte	0x298
+ 560 0292 17       		.uleb128 0x17
+ 561 0293 01       		.uleb128 0x1
+ 562 0294 51       		.byte	0x51
+ 563 0295 01       		.uleb128 0x1
+ 564 0296 31       		.byte	0x31
+ 565 0297 00       		.byte	0
+ 566 0298 15       		.uleb128 0x15
+ 567 0299 90000000 		.4byte	.LVL16
+ 568 029d 9B040000 		.4byte	0x49b
+ 569 02a1 16       		.uleb128 0x16
+ 570 02a2 9E000000 		.4byte	.LVL17
+ 571 02a6 B0040000 		.4byte	0x4b0
+ 572 02aa C7020000 		.4byte	0x2c7
+ 573 02ae 17       		.uleb128 0x17
+ 574 02af 01       		.uleb128 0x1
+ 575 02b0 53       		.byte	0x53
+ 576 02b1 03       		.uleb128 0x3
+ 577 02b2 0A       		.byte	0xa
+ 578 02b3 0040     		.2byte	0x4000
+ 579 02b5 17       		.uleb128 0x17
+ 580 02b6 01       		.uleb128 0x1
+ 581 02b7 52       		.byte	0x52
+ 582 02b8 03       		.uleb128 0x3
+ 583 02b9 0A       		.byte	0xa
+ 584 02ba 0040     		.2byte	0x4000
+ 585 02bc 17       		.uleb128 0x17
+ 586 02bd 01       		.uleb128 0x1
+ 587 02be 51       		.byte	0x51
+ 588 02bf 01       		.uleb128 0x1
+ 589 02c0 30       		.byte	0x30
+ 590 02c1 17       		.uleb128 0x17
+ 591 02c2 01       		.uleb128 0x1
+ 592 02c3 50       		.byte	0x50
+ 593 02c4 01       		.uleb128 0x1
+ 594 02c5 31       		.byte	0x31
+ 595 02c6 00       		.byte	0
+ 596 02c7 15       		.uleb128 0x15
+ 597 02c8 A6000000 		.4byte	.LVL18
+ 598 02cc 19040000 		.4byte	0x419
+ 599 02d0 16       		.uleb128 0x16
+ 600 02d1 B4000000 		.4byte	.LVL19
+ 601 02d5 24040000 		.4byte	0x424
+ 602 02d9 EE020000 		.4byte	0x2ee
+ 603 02dd 17       		.uleb128 0x17
+ 604 02de 01       		.uleb128 0x1
+ 605 02df 53       		.byte	0x53
+ 606 02e0 01       		.uleb128 0x1
+ 607 02e1 34       		.byte	0x34
+ 608 02e2 17       		.uleb128 0x17
+ 609 02e3 01       		.uleb128 0x1
+ 610 02e4 52       		.byte	0x52
+ 611 02e5 02       		.uleb128 0x2
+ 612 02e6 09       		.byte	0x9
+ 613 02e7 FF       		.byte	0xff
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 14
+
+
+ 614 02e8 17       		.uleb128 0x17
+ 615 02e9 01       		.uleb128 0x1
+ 616 02ea 51       		.byte	0x51
+ 617 02eb 01       		.uleb128 0x1
+ 618 02ec 31       		.byte	0x31
+ 619 02ed 00       		.byte	0
+ 620 02ee 16       		.uleb128 0x16
+ 621 02ef CC000000 		.4byte	.LVL20
+ 622 02f3 48040000 		.4byte	0x448
+ 623 02f7 03030000 		.4byte	0x303
+ 624 02fb 17       		.uleb128 0x17
+ 625 02fc 01       		.uleb128 0x1
+ 626 02fd 51       		.byte	0x51
+ 627 02fe 03       		.uleb128 0x3
+ 628 02ff 0A       		.byte	0xa
+ 629 0300 A05B     		.2byte	0x5ba0
+ 630 0302 00       		.byte	0
+ 631 0303 15       		.uleb128 0x15
+ 632 0304 D8000000 		.4byte	.LVL21
+ 633 0308 67040000 		.4byte	0x467
+ 634 030c 16       		.uleb128 0x16
+ 635 030d E2000000 		.4byte	.LVL22
+ 636 0311 81040000 		.4byte	0x481
+ 637 0315 1F030000 		.4byte	0x31f
+ 638 0319 17       		.uleb128 0x17
+ 639 031a 01       		.uleb128 0x1
+ 640 031b 51       		.byte	0x51
+ 641 031c 01       		.uleb128 0x1
+ 642 031d 31       		.byte	0x31
+ 643 031e 00       		.byte	0
+ 644 031f 15       		.uleb128 0x15
+ 645 0320 EA000000 		.4byte	.LVL23
+ 646 0324 9B040000 		.4byte	0x49b
+ 647 0328 00       		.byte	0
+ 648 0329 00       		.byte	0
+ 649 032a 11       		.uleb128 0x11
+ 650 032b 81010000 		.4byte	0x181
+ 651 032f EA000000 		.4byte	.LBB10
+ 652 0333 0A000000 		.4byte	.LBE10-.LBB10
+ 653 0337 01       		.byte	0x1
+ 654 0338 58       		.byte	0x58
+ 655 0339 57030000 		.4byte	0x357
+ 656 033d 15       		.uleb128 0x15
+ 657 033e EE000000 		.4byte	.LVL24
+ 658 0342 D4040000 		.4byte	0x4d4
+ 659 0346 18       		.uleb128 0x18
+ 660 0347 F4000000 		.4byte	.LVL25
+ 661 034b DB040000 		.4byte	0x4db
+ 662 034f 17       		.uleb128 0x17
+ 663 0350 01       		.uleb128 0x1
+ 664 0351 50       		.byte	0x50
+ 665 0352 02       		.uleb128 0x2
+ 666 0353 08       		.byte	0x8
+ 667 0354 3C       		.byte	0x3c
+ 668 0355 00       		.byte	0
+ 669 0356 00       		.byte	0
+ 670 0357 15       		.uleb128 0x15
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 15
+
+
+ 671 0358 F8000000 		.4byte	.LVL26
+ 672 035c EC040000 		.4byte	0x4ec
+ 673 0360 00       		.byte	0
+ 674 0361 07       		.uleb128 0x7
+ 675 0362 76000000 		.4byte	0x76
+ 676 0366 71030000 		.4byte	0x371
+ 677 036a 08       		.uleb128 0x8
+ 678 036b DC000000 		.4byte	0xdc
+ 679 036f FF       		.byte	0xff
+ 680 0370 00       		.byte	0
+ 681 0371 19       		.uleb128 0x19
+ 682 0372 F6020000 		.4byte	.LASF30
+ 683 0376 01       		.byte	0x1
+ 684 0377 12       		.byte	0x12
+ 685 0378 61030000 		.4byte	0x361
+ 686 037c 05       		.uleb128 0x5
+ 687 037d 03       		.byte	0x3
+ 688 037e 00000000 		.4byte	boost_coef_table
+ 689 0382 19       		.uleb128 0x19
+ 690 0383 EE000000 		.4byte	.LASF31
+ 691 0387 01       		.byte	0x1
+ 692 0388 13       		.byte	0x13
+ 693 0389 76000000 		.4byte	0x76
+ 694 038d 05       		.uleb128 0x5
+ 695 038e 03       		.byte	0x3
+ 696 038f 05010000 		.4byte	DMA1_Chan
+ 697 0393 19       		.uleb128 0x19
+ 698 0394 9A020000 		.4byte	.LASF32
+ 699 0398 01       		.byte	0x1
+ 700 0399 13       		.byte	0x13
+ 701 039a 76000000 		.4byte	0x76
+ 702 039e 05       		.uleb128 0x5
+ 703 039f 03       		.byte	0x3
+ 704 03a0 00010000 		.4byte	DMA2_Chan
+ 705 03a4 07       		.uleb128 0x7
+ 706 03a5 76000000 		.4byte	0x76
+ 707 03a9 B4030000 		.4byte	0x3b4
+ 708 03ad 08       		.uleb128 0x8
+ 709 03ae DC000000 		.4byte	0xdc
+ 710 03b2 00       		.byte	0
+ 711 03b3 00       		.byte	0
+ 712 03b4 19       		.uleb128 0x19
+ 713 03b5 40020000 		.4byte	.LASF33
+ 714 03b9 01       		.byte	0x1
+ 715 03ba 14       		.byte	0x14
+ 716 03bb A4030000 		.4byte	0x3a4
+ 717 03bf 05       		.uleb128 0x5
+ 718 03c0 03       		.byte	0x3
+ 719 03c1 08010000 		.4byte	DMA1_TD
+ 720 03c5 19       		.uleb128 0x19
+ 721 03c6 DA020000 		.4byte	.LASF34
+ 722 03ca 01       		.byte	0x1
+ 723 03cb 14       		.byte	0x14
+ 724 03cc A4030000 		.4byte	0x3a4
+ 725 03d0 05       		.uleb128 0x5
+ 726 03d1 03       		.byte	0x3
+ 727 03d2 04010000 		.4byte	DMA2_TD
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 16
+
+
+ 728 03d6 1A       		.uleb128 0x1a
+ 729 03d7 AE020000 		.4byte	.LASF35
+ 730 03db 06       		.byte	0x6
+ 731 03dc 92       		.byte	0x92
+ 732 03dd 1B       		.uleb128 0x1b
+ 733 03de 09010000 		.4byte	.LASF45
+ 734 03e2 06       		.byte	0x6
+ 735 03e3 C3       		.byte	0xc3
+ 736 03e4 EE030000 		.4byte	0x3ee
+ 737 03e8 1C       		.uleb128 0x1c
+ 738 03e9 81000000 		.4byte	0x81
+ 739 03ed 00       		.byte	0
+ 740 03ee 1A       		.uleb128 0x1a
+ 741 03ef 25020000 		.4byte	.LASF36
+ 742 03f3 07       		.byte	0x7
+ 743 03f4 34       		.byte	0x34
+ 744 03f5 1D       		.uleb128 0x1d
+ 745 03f6 00000000 		.4byte	.LASF37
+ 746 03fa 08       		.byte	0x8
+ 747 03fb 1E       		.byte	0x1e
+ 748 03fc 81000000 		.4byte	0x81
+ 749 0400 19040000 		.4byte	0x419
+ 750 0404 1C       		.uleb128 0x1c
+ 751 0405 81000000 		.4byte	0x81
+ 752 0409 1C       		.uleb128 0x1c
+ 753 040a 81000000 		.4byte	0x81
+ 754 040e 1C       		.uleb128 0x1c
+ 755 040f 8D000000 		.4byte	0x8d
+ 756 0413 1C       		.uleb128 0x1c
+ 757 0414 8D000000 		.4byte	0x8d
+ 758 0418 00       		.byte	0
+ 759 0419 1E       		.uleb128 0x1e
+ 760 041a 89000000 		.4byte	.LASF54
+ 761 041e 05       		.byte	0x5
+ 762 041f 38       		.byte	0x38
+ 763 0420 81000000 		.4byte	0x81
+ 764 0424 1D       		.uleb128 0x1d
+ 765 0425 B2000000 		.4byte	.LASF38
+ 766 0429 05       		.byte	0x5
+ 767 042a 3B       		.byte	0x3b
+ 768 042b BA000000 		.4byte	0xba
+ 769 042f 48040000 		.4byte	0x448
+ 770 0433 1C       		.uleb128 0x1c
+ 771 0434 81000000 		.4byte	0x81
+ 772 0438 1C       		.uleb128 0x1c
+ 773 0439 8D000000 		.4byte	0x8d
+ 774 043d 1C       		.uleb128 0x1c
+ 775 043e 81000000 		.4byte	0x81
+ 776 0442 1C       		.uleb128 0x1c
+ 777 0443 81000000 		.4byte	0x81
+ 778 0447 00       		.byte	0
+ 779 0448 1D       		.uleb128 0x1d
+ 780 0449 6A020000 		.4byte	.LASF39
+ 781 044d 05       		.byte	0x5
+ 782 044e 3F       		.byte	0x3f
+ 783 044f BA000000 		.4byte	0xba
+ 784 0453 67040000 		.4byte	0x467
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 17
+
+
+ 785 0457 1C       		.uleb128 0x1c
+ 786 0458 81000000 		.4byte	0x81
+ 787 045c 1C       		.uleb128 0x1c
+ 788 045d 8D000000 		.4byte	0x8d
+ 789 0461 1C       		.uleb128 0x1c
+ 790 0462 8D000000 		.4byte	0x8d
+ 791 0466 00       		.byte	0
+ 792 0467 1D       		.uleb128 0x1d
+ 793 0468 68000000 		.4byte	.LASF40
+ 794 046c 05       		.byte	0x5
+ 795 046d 2F       		.byte	0x2f
+ 796 046e BA000000 		.4byte	0xba
+ 797 0472 81040000 		.4byte	0x481
+ 798 0476 1C       		.uleb128 0x1c
+ 799 0477 81000000 		.4byte	0x81
+ 800 047b 1C       		.uleb128 0x1c
+ 801 047c 81000000 		.4byte	0x81
+ 802 0480 00       		.byte	0
+ 803 0481 1D       		.uleb128 0x1d
+ 804 0482 44010000 		.4byte	.LASF41
+ 805 0486 05       		.byte	0x5
+ 806 0487 29       		.byte	0x29
+ 807 0488 BA000000 		.4byte	0xba
+ 808 048c 9B040000 		.4byte	0x49b
+ 809 0490 1C       		.uleb128 0x1c
+ 810 0491 81000000 		.4byte	0x81
+ 811 0495 1C       		.uleb128 0x1c
+ 812 0496 81000000 		.4byte	0x81
+ 813 049a 00       		.byte	0
+ 814 049b 1D       		.uleb128 0x1d
+ 815 049c 1A010000 		.4byte	.LASF42
+ 816 04a0 05       		.byte	0x5
+ 817 04a1 2B       		.byte	0x2b
+ 818 04a2 BA000000 		.4byte	0xba
+ 819 04a6 B0040000 		.4byte	0x4b0
+ 820 04aa 1C       		.uleb128 0x1c
+ 821 04ab 81000000 		.4byte	0x81
+ 822 04af 00       		.byte	0
+ 823 04b0 1D       		.uleb128 0x1d
+ 824 04b1 32000000 		.4byte	.LASF43
+ 825 04b5 09       		.byte	0x9
+ 826 04b6 1E       		.byte	0x1e
+ 827 04b7 81000000 		.4byte	0x81
+ 828 04bb D4040000 		.4byte	0x4d4
+ 829 04bf 1C       		.uleb128 0x1c
+ 830 04c0 81000000 		.4byte	0x81
+ 831 04c4 1C       		.uleb128 0x1c
+ 832 04c5 81000000 		.4byte	0x81
+ 833 04c9 1C       		.uleb128 0x1c
+ 834 04ca 8D000000 		.4byte	0x8d
+ 835 04ce 1C       		.uleb128 0x1c
+ 836 04cf 8D000000 		.4byte	0x8d
+ 837 04d3 00       		.byte	0
+ 838 04d4 1A       		.uleb128 0x1a
+ 839 04d5 F8000000 		.4byte	.LASF44
+ 840 04d9 0A       		.byte	0xa
+ 841 04da 33       		.byte	0x33
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 18
+
+
+ 842 04db 1B       		.uleb128 0x1b
+ 843 04dc 7C000000 		.4byte	.LASF46
+ 844 04e0 0A       		.byte	0xa
+ 845 04e1 37       		.byte	0x37
+ 846 04e2 EC040000 		.4byte	0x4ec
+ 847 04e6 1C       		.uleb128 0x1c
+ 848 04e7 81000000 		.4byte	0x81
+ 849 04eb 00       		.byte	0
+ 850 04ec 1A       		.uleb128 0x1a
+ 851 04ed 26000000 		.4byte	.LASF47
+ 852 04f1 0B       		.byte	0xb
+ 853 04f2 0D       		.byte	0xd
+ 854 04f3 00       		.byte	0
+ 855              		.section	.debug_abbrev,"",%progbits
+ 856              	.Ldebug_abbrev0:
+ 857 0000 01       		.uleb128 0x1
+ 858 0001 11       		.uleb128 0x11
+ 859 0002 01       		.byte	0x1
+ 860 0003 25       		.uleb128 0x25
+ 861 0004 0E       		.uleb128 0xe
+ 862 0005 13       		.uleb128 0x13
+ 863 0006 0B       		.uleb128 0xb
+ 864 0007 03       		.uleb128 0x3
+ 865 0008 0E       		.uleb128 0xe
+ 866 0009 1B       		.uleb128 0x1b
+ 867 000a 0E       		.uleb128 0xe
+ 868 000b 55       		.uleb128 0x55
+ 869 000c 17       		.uleb128 0x17
+ 870 000d 11       		.uleb128 0x11
+ 871 000e 01       		.uleb128 0x1
+ 872 000f 10       		.uleb128 0x10
+ 873 0010 17       		.uleb128 0x17
+ 874 0011 00       		.byte	0
+ 875 0012 00       		.byte	0
+ 876 0013 02       		.uleb128 0x2
+ 877 0014 24       		.uleb128 0x24
+ 878 0015 00       		.byte	0
+ 879 0016 0B       		.uleb128 0xb
+ 880 0017 0B       		.uleb128 0xb
+ 881 0018 3E       		.uleb128 0x3e
+ 882 0019 0B       		.uleb128 0xb
+ 883 001a 03       		.uleb128 0x3
+ 884 001b 0E       		.uleb128 0xe
+ 885 001c 00       		.byte	0
+ 886 001d 00       		.byte	0
+ 887 001e 03       		.uleb128 0x3
+ 888 001f 16       		.uleb128 0x16
+ 889 0020 00       		.byte	0
+ 890 0021 03       		.uleb128 0x3
+ 891 0022 0E       		.uleb128 0xe
+ 892 0023 3A       		.uleb128 0x3a
+ 893 0024 0B       		.uleb128 0xb
+ 894 0025 3B       		.uleb128 0x3b
+ 895 0026 0B       		.uleb128 0xb
+ 896 0027 49       		.uleb128 0x49
+ 897 0028 13       		.uleb128 0x13
+ 898 0029 00       		.byte	0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 19
+
+
+ 899 002a 00       		.byte	0
+ 900 002b 04       		.uleb128 0x4
+ 901 002c 24       		.uleb128 0x24
+ 902 002d 00       		.byte	0
+ 903 002e 0B       		.uleb128 0xb
+ 904 002f 0B       		.uleb128 0xb
+ 905 0030 3E       		.uleb128 0x3e
+ 906 0031 0B       		.uleb128 0xb
+ 907 0032 03       		.uleb128 0x3
+ 908 0033 08       		.uleb128 0x8
+ 909 0034 00       		.byte	0
+ 910 0035 00       		.byte	0
+ 911 0036 05       		.uleb128 0x5
+ 912 0037 16       		.uleb128 0x16
+ 913 0038 00       		.byte	0
+ 914 0039 03       		.uleb128 0x3
+ 915 003a 0E       		.uleb128 0xe
+ 916 003b 3A       		.uleb128 0x3a
+ 917 003c 0B       		.uleb128 0xb
+ 918 003d 3B       		.uleb128 0x3b
+ 919 003e 05       		.uleb128 0x5
+ 920 003f 49       		.uleb128 0x49
+ 921 0040 13       		.uleb128 0x13
+ 922 0041 00       		.byte	0
+ 923 0042 00       		.byte	0
+ 924 0043 06       		.uleb128 0x6
+ 925 0044 35       		.uleb128 0x35
+ 926 0045 00       		.byte	0
+ 927 0046 49       		.uleb128 0x49
+ 928 0047 13       		.uleb128 0x13
+ 929 0048 00       		.byte	0
+ 930 0049 00       		.byte	0
+ 931 004a 07       		.uleb128 0x7
+ 932 004b 01       		.uleb128 0x1
+ 933 004c 01       		.byte	0x1
+ 934 004d 49       		.uleb128 0x49
+ 935 004e 13       		.uleb128 0x13
+ 936 004f 01       		.uleb128 0x1
+ 937 0050 13       		.uleb128 0x13
+ 938 0051 00       		.byte	0
+ 939 0052 00       		.byte	0
+ 940 0053 08       		.uleb128 0x8
+ 941 0054 21       		.uleb128 0x21
+ 942 0055 00       		.byte	0
+ 943 0056 49       		.uleb128 0x49
+ 944 0057 13       		.uleb128 0x13
+ 945 0058 2F       		.uleb128 0x2f
+ 946 0059 0B       		.uleb128 0xb
+ 947 005a 00       		.byte	0
+ 948 005b 00       		.byte	0
+ 949 005c 09       		.uleb128 0x9
+ 950 005d 13       		.uleb128 0x13
+ 951 005e 01       		.byte	0x1
+ 952 005f 03       		.uleb128 0x3
+ 953 0060 0E       		.uleb128 0xe
+ 954 0061 0B       		.uleb128 0xb
+ 955 0062 0B       		.uleb128 0xb
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 20
+
+
+ 956 0063 3A       		.uleb128 0x3a
+ 957 0064 0B       		.uleb128 0xb
+ 958 0065 3B       		.uleb128 0x3b
+ 959 0066 0B       		.uleb128 0xb
+ 960 0067 01       		.uleb128 0x1
+ 961 0068 13       		.uleb128 0x13
+ 962 0069 00       		.byte	0
+ 963 006a 00       		.byte	0
+ 964 006b 0A       		.uleb128 0xa
+ 965 006c 0D       		.uleb128 0xd
+ 966 006d 00       		.byte	0
+ 967 006e 03       		.uleb128 0x3
+ 968 006f 08       		.uleb128 0x8
+ 969 0070 3A       		.uleb128 0x3a
+ 970 0071 0B       		.uleb128 0xb
+ 971 0072 3B       		.uleb128 0x3b
+ 972 0073 0B       		.uleb128 0xb
+ 973 0074 49       		.uleb128 0x49
+ 974 0075 13       		.uleb128 0x13
+ 975 0076 38       		.uleb128 0x38
+ 976 0077 0B       		.uleb128 0xb
+ 977 0078 00       		.byte	0
+ 978 0079 00       		.byte	0
+ 979 007a 0B       		.uleb128 0xb
+ 980 007b 0D       		.uleb128 0xd
+ 981 007c 00       		.byte	0
+ 982 007d 03       		.uleb128 0x3
+ 983 007e 0E       		.uleb128 0xe
+ 984 007f 3A       		.uleb128 0x3a
+ 985 0080 0B       		.uleb128 0xb
+ 986 0081 3B       		.uleb128 0x3b
+ 987 0082 0B       		.uleb128 0xb
+ 988 0083 49       		.uleb128 0x49
+ 989 0084 13       		.uleb128 0x13
+ 990 0085 38       		.uleb128 0x38
+ 991 0086 0B       		.uleb128 0xb
+ 992 0087 00       		.byte	0
+ 993 0088 00       		.byte	0
+ 994 0089 0C       		.uleb128 0xc
+ 995 008a 2E       		.uleb128 0x2e
+ 996 008b 00       		.byte	0
+ 997 008c 03       		.uleb128 0x3
+ 998 008d 0E       		.uleb128 0xe
+ 999 008e 3A       		.uleb128 0x3a
+ 1000 008f 0B       		.uleb128 0xb
+ 1001 0090 3B       		.uleb128 0x3b
+ 1002 0091 0B       		.uleb128 0xb
+ 1003 0092 27       		.uleb128 0x27
+ 1004 0093 19       		.uleb128 0x19
+ 1005 0094 20       		.uleb128 0x20
+ 1006 0095 0B       		.uleb128 0xb
+ 1007 0096 00       		.byte	0
+ 1008 0097 00       		.byte	0
+ 1009 0098 0D       		.uleb128 0xd
+ 1010 0099 2E       		.uleb128 0x2e
+ 1011 009a 01       		.byte	0x1
+ 1012 009b 03       		.uleb128 0x3
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 21
+
+
+ 1013 009c 0E       		.uleb128 0xe
+ 1014 009d 3A       		.uleb128 0x3a
+ 1015 009e 0B       		.uleb128 0xb
+ 1016 009f 3B       		.uleb128 0x3b
+ 1017 00a0 0B       		.uleb128 0xb
+ 1018 00a1 27       		.uleb128 0x27
+ 1019 00a2 19       		.uleb128 0x19
+ 1020 00a3 20       		.uleb128 0x20
+ 1021 00a4 0B       		.uleb128 0xb
+ 1022 00a5 01       		.uleb128 0x1
+ 1023 00a6 13       		.uleb128 0x13
+ 1024 00a7 00       		.byte	0
+ 1025 00a8 00       		.byte	0
+ 1026 00a9 0E       		.uleb128 0xe
+ 1027 00aa 34       		.uleb128 0x34
+ 1028 00ab 00       		.byte	0
+ 1029 00ac 03       		.uleb128 0x3
+ 1030 00ad 08       		.uleb128 0x8
+ 1031 00ae 3A       		.uleb128 0x3a
+ 1032 00af 0B       		.uleb128 0xb
+ 1033 00b0 3B       		.uleb128 0x3b
+ 1034 00b1 0B       		.uleb128 0xb
+ 1035 00b2 49       		.uleb128 0x49
+ 1036 00b3 13       		.uleb128 0x13
+ 1037 00b4 00       		.byte	0
+ 1038 00b5 00       		.byte	0
+ 1039 00b6 0F       		.uleb128 0xf
+ 1040 00b7 34       		.uleb128 0x34
+ 1041 00b8 00       		.byte	0
+ 1042 00b9 03       		.uleb128 0x3
+ 1043 00ba 0E       		.uleb128 0xe
+ 1044 00bb 3A       		.uleb128 0x3a
+ 1045 00bc 0B       		.uleb128 0xb
+ 1046 00bd 3B       		.uleb128 0x3b
+ 1047 00be 0B       		.uleb128 0xb
+ 1048 00bf 49       		.uleb128 0x49
+ 1049 00c0 13       		.uleb128 0x13
+ 1050 00c1 00       		.byte	0
+ 1051 00c2 00       		.byte	0
+ 1052 00c3 10       		.uleb128 0x10
+ 1053 00c4 2E       		.uleb128 0x2e
+ 1054 00c5 01       		.byte	0x1
+ 1055 00c6 3F       		.uleb128 0x3f
+ 1056 00c7 19       		.uleb128 0x19
+ 1057 00c8 03       		.uleb128 0x3
+ 1058 00c9 0E       		.uleb128 0xe
+ 1059 00ca 3A       		.uleb128 0x3a
+ 1060 00cb 0B       		.uleb128 0xb
+ 1061 00cc 3B       		.uleb128 0x3b
+ 1062 00cd 0B       		.uleb128 0xb
+ 1063 00ce 49       		.uleb128 0x49
+ 1064 00cf 13       		.uleb128 0x13
+ 1065 00d0 11       		.uleb128 0x11
+ 1066 00d1 01       		.uleb128 0x1
+ 1067 00d2 12       		.uleb128 0x12
+ 1068 00d3 06       		.uleb128 0x6
+ 1069 00d4 40       		.uleb128 0x40
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 22
+
+
+ 1070 00d5 18       		.uleb128 0x18
+ 1071 00d6 9742     		.uleb128 0x2117
+ 1072 00d8 19       		.uleb128 0x19
+ 1073 00d9 01       		.uleb128 0x1
+ 1074 00da 13       		.uleb128 0x13
+ 1075 00db 00       		.byte	0
+ 1076 00dc 00       		.byte	0
+ 1077 00dd 11       		.uleb128 0x11
+ 1078 00de 1D       		.uleb128 0x1d
+ 1079 00df 01       		.byte	0x1
+ 1080 00e0 31       		.uleb128 0x31
+ 1081 00e1 13       		.uleb128 0x13
+ 1082 00e2 11       		.uleb128 0x11
+ 1083 00e3 01       		.uleb128 0x1
+ 1084 00e4 12       		.uleb128 0x12
+ 1085 00e5 06       		.uleb128 0x6
+ 1086 00e6 58       		.uleb128 0x58
+ 1087 00e7 0B       		.uleb128 0xb
+ 1088 00e8 59       		.uleb128 0x59
+ 1089 00e9 0B       		.uleb128 0xb
+ 1090 00ea 01       		.uleb128 0x1
+ 1091 00eb 13       		.uleb128 0x13
+ 1092 00ec 00       		.byte	0
+ 1093 00ed 00       		.byte	0
+ 1094 00ee 12       		.uleb128 0x12
+ 1095 00ef 0B       		.uleb128 0xb
+ 1096 00f0 01       		.byte	0x1
+ 1097 00f1 11       		.uleb128 0x11
+ 1098 00f2 01       		.uleb128 0x1
+ 1099 00f3 12       		.uleb128 0x12
+ 1100 00f4 06       		.uleb128 0x6
+ 1101 00f5 00       		.byte	0
+ 1102 00f6 00       		.byte	0
+ 1103 00f7 13       		.uleb128 0x13
+ 1104 00f8 34       		.uleb128 0x34
+ 1105 00f9 00       		.byte	0
+ 1106 00fa 31       		.uleb128 0x31
+ 1107 00fb 13       		.uleb128 0x13
+ 1108 00fc 02       		.uleb128 0x2
+ 1109 00fd 17       		.uleb128 0x17
+ 1110 00fe 00       		.byte	0
+ 1111 00ff 00       		.byte	0
+ 1112 0100 14       		.uleb128 0x14
+ 1113 0101 34       		.uleb128 0x34
+ 1114 0102 00       		.byte	0
+ 1115 0103 31       		.uleb128 0x31
+ 1116 0104 13       		.uleb128 0x13
+ 1117 0105 1C       		.uleb128 0x1c
+ 1118 0106 0B       		.uleb128 0xb
+ 1119 0107 00       		.byte	0
+ 1120 0108 00       		.byte	0
+ 1121 0109 15       		.uleb128 0x15
+ 1122 010a 898201   		.uleb128 0x4109
+ 1123 010d 00       		.byte	0
+ 1124 010e 11       		.uleb128 0x11
+ 1125 010f 01       		.uleb128 0x1
+ 1126 0110 31       		.uleb128 0x31
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 23
+
+
+ 1127 0111 13       		.uleb128 0x13
+ 1128 0112 00       		.byte	0
+ 1129 0113 00       		.byte	0
+ 1130 0114 16       		.uleb128 0x16
+ 1131 0115 898201   		.uleb128 0x4109
+ 1132 0118 01       		.byte	0x1
+ 1133 0119 11       		.uleb128 0x11
+ 1134 011a 01       		.uleb128 0x1
+ 1135 011b 31       		.uleb128 0x31
+ 1136 011c 13       		.uleb128 0x13
+ 1137 011d 01       		.uleb128 0x1
+ 1138 011e 13       		.uleb128 0x13
+ 1139 011f 00       		.byte	0
+ 1140 0120 00       		.byte	0
+ 1141 0121 17       		.uleb128 0x17
+ 1142 0122 8A8201   		.uleb128 0x410a
+ 1143 0125 00       		.byte	0
+ 1144 0126 02       		.uleb128 0x2
+ 1145 0127 18       		.uleb128 0x18
+ 1146 0128 9142     		.uleb128 0x2111
+ 1147 012a 18       		.uleb128 0x18
+ 1148 012b 00       		.byte	0
+ 1149 012c 00       		.byte	0
+ 1150 012d 18       		.uleb128 0x18
+ 1151 012e 898201   		.uleb128 0x4109
+ 1152 0131 01       		.byte	0x1
+ 1153 0132 11       		.uleb128 0x11
+ 1154 0133 01       		.uleb128 0x1
+ 1155 0134 31       		.uleb128 0x31
+ 1156 0135 13       		.uleb128 0x13
+ 1157 0136 00       		.byte	0
+ 1158 0137 00       		.byte	0
+ 1159 0138 19       		.uleb128 0x19
+ 1160 0139 34       		.uleb128 0x34
+ 1161 013a 00       		.byte	0
+ 1162 013b 03       		.uleb128 0x3
+ 1163 013c 0E       		.uleb128 0xe
+ 1164 013d 3A       		.uleb128 0x3a
+ 1165 013e 0B       		.uleb128 0xb
+ 1166 013f 3B       		.uleb128 0x3b
+ 1167 0140 0B       		.uleb128 0xb
+ 1168 0141 49       		.uleb128 0x49
+ 1169 0142 13       		.uleb128 0x13
+ 1170 0143 02       		.uleb128 0x2
+ 1171 0144 18       		.uleb128 0x18
+ 1172 0145 00       		.byte	0
+ 1173 0146 00       		.byte	0
+ 1174 0147 1A       		.uleb128 0x1a
+ 1175 0148 2E       		.uleb128 0x2e
+ 1176 0149 00       		.byte	0
+ 1177 014a 3F       		.uleb128 0x3f
+ 1178 014b 19       		.uleb128 0x19
+ 1179 014c 03       		.uleb128 0x3
+ 1180 014d 0E       		.uleb128 0xe
+ 1181 014e 3A       		.uleb128 0x3a
+ 1182 014f 0B       		.uleb128 0xb
+ 1183 0150 3B       		.uleb128 0x3b
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 24
+
+
+ 1184 0151 0B       		.uleb128 0xb
+ 1185 0152 27       		.uleb128 0x27
+ 1186 0153 19       		.uleb128 0x19
+ 1187 0154 3C       		.uleb128 0x3c
+ 1188 0155 19       		.uleb128 0x19
+ 1189 0156 00       		.byte	0
+ 1190 0157 00       		.byte	0
+ 1191 0158 1B       		.uleb128 0x1b
+ 1192 0159 2E       		.uleb128 0x2e
+ 1193 015a 01       		.byte	0x1
+ 1194 015b 3F       		.uleb128 0x3f
+ 1195 015c 19       		.uleb128 0x19
+ 1196 015d 03       		.uleb128 0x3
+ 1197 015e 0E       		.uleb128 0xe
+ 1198 015f 3A       		.uleb128 0x3a
+ 1199 0160 0B       		.uleb128 0xb
+ 1200 0161 3B       		.uleb128 0x3b
+ 1201 0162 0B       		.uleb128 0xb
+ 1202 0163 27       		.uleb128 0x27
+ 1203 0164 19       		.uleb128 0x19
+ 1204 0165 3C       		.uleb128 0x3c
+ 1205 0166 19       		.uleb128 0x19
+ 1206 0167 01       		.uleb128 0x1
+ 1207 0168 13       		.uleb128 0x13
+ 1208 0169 00       		.byte	0
+ 1209 016a 00       		.byte	0
+ 1210 016b 1C       		.uleb128 0x1c
+ 1211 016c 05       		.uleb128 0x5
+ 1212 016d 00       		.byte	0
+ 1213 016e 49       		.uleb128 0x49
+ 1214 016f 13       		.uleb128 0x13
+ 1215 0170 00       		.byte	0
+ 1216 0171 00       		.byte	0
+ 1217 0172 1D       		.uleb128 0x1d
+ 1218 0173 2E       		.uleb128 0x2e
+ 1219 0174 01       		.byte	0x1
+ 1220 0175 3F       		.uleb128 0x3f
+ 1221 0176 19       		.uleb128 0x19
+ 1222 0177 03       		.uleb128 0x3
+ 1223 0178 0E       		.uleb128 0xe
+ 1224 0179 3A       		.uleb128 0x3a
+ 1225 017a 0B       		.uleb128 0xb
+ 1226 017b 3B       		.uleb128 0x3b
+ 1227 017c 0B       		.uleb128 0xb
+ 1228 017d 27       		.uleb128 0x27
+ 1229 017e 19       		.uleb128 0x19
+ 1230 017f 49       		.uleb128 0x49
+ 1231 0180 13       		.uleb128 0x13
+ 1232 0181 3C       		.uleb128 0x3c
+ 1233 0182 19       		.uleb128 0x19
+ 1234 0183 01       		.uleb128 0x1
+ 1235 0184 13       		.uleb128 0x13
+ 1236 0185 00       		.byte	0
+ 1237 0186 00       		.byte	0
+ 1238 0187 1E       		.uleb128 0x1e
+ 1239 0188 2E       		.uleb128 0x2e
+ 1240 0189 00       		.byte	0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 25
+
+
+ 1241 018a 3F       		.uleb128 0x3f
+ 1242 018b 19       		.uleb128 0x19
+ 1243 018c 03       		.uleb128 0x3
+ 1244 018d 0E       		.uleb128 0xe
+ 1245 018e 3A       		.uleb128 0x3a
+ 1246 018f 0B       		.uleb128 0xb
+ 1247 0190 3B       		.uleb128 0x3b
+ 1248 0191 0B       		.uleb128 0xb
+ 1249 0192 27       		.uleb128 0x27
+ 1250 0193 19       		.uleb128 0x19
+ 1251 0194 49       		.uleb128 0x49
+ 1252 0195 13       		.uleb128 0x13
+ 1253 0196 3C       		.uleb128 0x3c
+ 1254 0197 19       		.uleb128 0x19
+ 1255 0198 00       		.byte	0
+ 1256 0199 00       		.byte	0
+ 1257 019a 00       		.byte	0
+ 1258              		.section	.debug_loc,"",%progbits
+ 1259              	.Ldebug_loc0:
+ 1260              	.LLST0:
+ 1261 0000 10000000 		.4byte	.LVL3
+ 1262 0004 14000000 		.4byte	.LVL4
+ 1263 0008 0200     		.2byte	0x2
+ 1264 000a 30       		.byte	0x30
+ 1265 000b 9F       		.byte	0x9f
+ 1266 000c 14000000 		.4byte	.LVL4
+ 1267 0010 1E000000 		.4byte	.LVL6
+ 1268 0014 0100     		.2byte	0x1
+ 1269 0016 53       		.byte	0x53
+ 1270 0017 20000000 		.4byte	.LVL7
+ 1271 001b 48000000 		.4byte	.LVL9
+ 1272 001f 0100     		.2byte	0x1
+ 1273 0021 53       		.byte	0x53
+ 1274 0022 00000000 		.4byte	0
+ 1275 0026 00000000 		.4byte	0
+ 1276              		.section	.debug_aranges,"",%progbits
+ 1277 0000 1C000000 		.4byte	0x1c
+ 1278 0004 0200     		.2byte	0x2
+ 1279 0006 00000000 		.4byte	.Ldebug_info0
+ 1280 000a 04       		.byte	0x4
+ 1281 000b 00       		.byte	0
+ 1282 000c 0000     		.2byte	0
+ 1283 000e 0000     		.2byte	0
+ 1284 0010 00000000 		.4byte	.LFB2
+ 1285 0014 04010000 		.4byte	.LFE2-.LFB2
+ 1286 0018 00000000 		.4byte	0
+ 1287 001c 00000000 		.4byte	0
+ 1288              		.section	.debug_ranges,"",%progbits
+ 1289              	.Ldebug_ranges0:
+ 1290 0000 00000000 		.4byte	.LFB2
+ 1291 0004 04010000 		.4byte	.LFE2
+ 1292 0008 00000000 		.4byte	0
+ 1293 000c 00000000 		.4byte	0
+ 1294              		.section	.debug_line,"",%progbits
+ 1295              	.Ldebug_line0:
+ 1296 0000 CC010000 		.section	.debug_str,"MS",%progbits,1
+ 1296      02009101 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 26
+
+
+ 1296      00000201 
+ 1296      FB0E0D00 
+ 1296      01010101 
+ 1297              	.LASF37:
+ 1298 0000 444D4132 		.ascii	"DMA2_DmaInitialize\000"
+ 1298      5F446D61 
+ 1298      496E6974 
+ 1298      69616C69 
+ 1298      7A6500
+ 1299              	.LASF17:
+ 1300 0013 63797374 		.ascii	"cystatus\000"
+ 1300      61747573 
+ 1300      00
+ 1301              	.LASF9:
+ 1302 001c 5F5F7569 		.ascii	"__uint8_t\000"
+ 1302      6E74385F 
+ 1302      7400
+ 1303              	.LASF47:
+ 1304 0026 636C6F63 		.ascii	"clock_Start\000"
+ 1304      6B5F5374 
+ 1304      61727400 
+ 1305              	.LASF43:
+ 1306 0032 444D4131 		.ascii	"DMA1_DmaInitialize\000"
+ 1306      5F446D61 
+ 1306      496E6974 
+ 1306      69616C69 
+ 1306      7A6500
+ 1307              	.LASF27:
+ 1308 0045 6473745F 		.ascii	"dst_adr\000"
+ 1308      61647200 
+ 1309              	.LASF23:
+ 1310 004d 78666572 		.ascii	"xfercnt\000"
+ 1310      636E7400 
+ 1311              	.LASF3:
+ 1312 0055 73686F72 		.ascii	"short unsigned int\000"
+ 1312      7420756E 
+ 1312      7369676E 
+ 1312      65642069 
+ 1312      6E7400
+ 1313              	.LASF40:
+ 1314 0068 4379446D 		.ascii	"CyDmaChSetInitialTd\000"
+ 1314      61436853 
+ 1314      6574496E 
+ 1314      69746961 
+ 1314      6C546400 
+ 1315              	.LASF46:
+ 1316 007c 4441435F 		.ascii	"DAC_SetValue\000"
+ 1316      53657456 
+ 1316      616C7565 
+ 1316      00
+ 1317              	.LASF54:
+ 1318 0089 4379446D 		.ascii	"CyDmaTdAllocate\000"
+ 1318      61546441 
+ 1318      6C6C6F63 
+ 1318      61746500 
+ 1319              	.LASF14:
+ 1320 0099 666C6F61 		.ascii	"float\000"
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 27
+
+
+ 1320      7400
+ 1321              	.LASF1:
+ 1322 009f 756E7369 		.ascii	"unsigned char\000"
+ 1322      676E6564 
+ 1322      20636861 
+ 1322      7200
+ 1323              	.LASF18:
+ 1324 00ad 72656738 		.ascii	"reg8\000"
+ 1324      00
+ 1325              	.LASF38:
+ 1326 00b2 4379446D 		.ascii	"CyDmaTdSetConfiguration\000"
+ 1326      61546453 
+ 1326      6574436F 
+ 1326      6E666967 
+ 1326      75726174 
+ 1327              	.LASF5:
+ 1328 00ca 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1328      20756E73 
+ 1328      69676E65 
+ 1328      6420696E 
+ 1328      7400
+ 1329              	.LASF11:
+ 1330 00dc 75696E74 		.ascii	"uint8\000"
+ 1330      3800
+ 1331              	.LASF24:
+ 1332 00e2 6E657874 		.ascii	"next_td_ptr\000"
+ 1332      5F74645F 
+ 1332      70747200 
+ 1333              	.LASF31:
+ 1334 00ee 444D4131 		.ascii	"DMA1_Chan\000"
+ 1334      5F436861 
+ 1334      6E00
+ 1335              	.LASF44:
+ 1336 00f8 4441435F 		.ascii	"DAC_Start\000"
+ 1336      53746172 
+ 1336      7400
+ 1337              	.LASF15:
+ 1338 0102 646F7562 		.ascii	"double\000"
+ 1338      6C6500
+ 1339              	.LASF45:
+ 1340 0109 50574D5F 		.ascii	"PWM_WriteCompare\000"
+ 1340      57726974 
+ 1340      65436F6D 
+ 1340      70617265 
+ 1340      00
+ 1341              	.LASF42:
+ 1342 011a 4379446D 		.ascii	"CyDmaClearPendingDrq\000"
+ 1342      61436C65 
+ 1342      61725065 
+ 1342      6E64696E 
+ 1342      67447271 
+ 1343              	.LASF49:
+ 1344 012f 2E5C6D61 		.ascii	".\\main.c\000"
+ 1344      696E2E63 
+ 1344      00
+ 1345              	.LASF52:
+ 1346 0138 626F6F73 		.ascii	"boost_start\000"
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 28
+
+
+ 1346      745F7374 
+ 1346      61727400 
+ 1347              	.LASF41:
+ 1348 0144 4379446D 		.ascii	"CyDmaChEnable\000"
+ 1348      61436845 
+ 1348      6E61626C 
+ 1348      6500
+ 1349              	.LASF12:
+ 1350 0152 75696E74 		.ascii	"uint16\000"
+ 1350      313600
+ 1351              	.LASF13:
+ 1352 0159 75696E74 		.ascii	"uint32\000"
+ 1352      333200
+ 1353              	.LASF48:
+ 1354 0160 474E5520 		.ascii	"GNU C 4.9.3 20150303 (release) [ARM/embedded-4_9-br"
+ 1354      4320342E 
+ 1354      392E3320 
+ 1354      32303135 
+ 1354      30333033 
+ 1355 0193 616E6368 		.ascii	"anch revision 221220] -mcpu=cortex-m3 -mthumb -g -O"
+ 1355      20726576 
+ 1355      6973696F 
+ 1355      6E203232 
+ 1355      31323230 
+ 1356 01c6 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 1356      66756E63 
+ 1356      74696F6E 
+ 1356      2D736563 
+ 1356      74696F6E 
+ 1357              	.LASF8:
+ 1358 01ee 756E7369 		.ascii	"unsigned int\000"
+ 1358      676E6564 
+ 1358      20696E74 
+ 1358      00
+ 1359              	.LASF51:
+ 1360 01fb 76646163 		.ascii	"vdac_start\000"
+ 1360      5F737461 
+ 1360      727400
+ 1361              	.LASF7:
+ 1362 0206 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1362      206C6F6E 
+ 1362      6720756E 
+ 1362      7369676E 
+ 1362      65642069 
+ 1363              	.LASF10:
+ 1364 021d 75696E74 		.ascii	"uint8_t\000"
+ 1364      385F7400 
+ 1365              	.LASF36:
+ 1366 0225 4144435F 		.ascii	"ADC_Start\000"
+ 1366      53746172 
+ 1366      7400
+ 1367              	.LASF53:
+ 1368 022f 6D61696E 		.ascii	"main\000"
+ 1368      00
+ 1369              	.LASF28:
+ 1370 0234 646D6163 		.ascii	"dmac_tdmem2\000"
+ 1370      5F74646D 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 29
+
+
+ 1370      656D3200 
+ 1371              	.LASF33:
+ 1372 0240 444D4131 		.ascii	"DMA1_TD\000"
+ 1372      5F544400 
+ 1373              	.LASF19:
+ 1374 0248 73697A65 		.ascii	"sizetype\000"
+ 1374      74797065 
+ 1374      00
+ 1375              	.LASF20:
+ 1376 0251 646D6163 		.ascii	"dmac_tdmem\000"
+ 1376      5F74646D 
+ 1376      656D00
+ 1377              	.LASF6:
+ 1378 025c 6C6F6E67 		.ascii	"long long int\000"
+ 1378      206C6F6E 
+ 1378      6720696E 
+ 1378      7400
+ 1379              	.LASF39:
+ 1380 026a 4379446D 		.ascii	"CyDmaTdSetAddress\000"
+ 1380      61546453 
+ 1380      65744164 
+ 1380      64726573 
+ 1380      7300
+ 1381              	.LASF16:
+ 1382 027c 63686172 		.ascii	"char\000"
+ 1382      00
+ 1383              	.LASF21:
+ 1384 0281 646D6163 		.ascii	"dmac_tdmem_struct\000"
+ 1384      5F74646D 
+ 1384      656D5F73 
+ 1384      74727563 
+ 1384      7400
+ 1385              	.LASF29:
+ 1386 0293 6F666673 		.ascii	"offset\000"
+ 1386      657400
+ 1387              	.LASF32:
+ 1388 029a 444D4132 		.ascii	"DMA2_Chan\000"
+ 1388      5F436861 
+ 1388      6E00
+ 1389              	.LASF2:
+ 1390 02a4 73686F72 		.ascii	"short int\000"
+ 1390      7420696E 
+ 1390      7400
+ 1391              	.LASF35:
+ 1392 02ae 50574D5F 		.ascii	"PWM_Start\000"
+ 1392      53746172 
+ 1392      7400
+ 1393              	.LASF25:
+ 1394 02b8 666C6167 		.ascii	"flags\000"
+ 1394      7300
+ 1395              	.LASF22:
+ 1396 02be 646D6163 		.ascii	"dmac_tdmem2_struct\000"
+ 1396      5F74646D 
+ 1396      656D325F 
+ 1396      73747275 
+ 1396      637400
+ 1397              	.LASF4:
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccCiq0HG.s 			page 30
+
+
+ 1398 02d1 6C6F6E67 		.ascii	"long int\000"
+ 1398      20696E74 
+ 1398      00
+ 1399              	.LASF34:
+ 1400 02da 444D4132 		.ascii	"DMA2_TD\000"
+ 1400      5F544400 
+ 1401              	.LASF26:
+ 1402 02e2 7372635F 		.ascii	"src_adr\000"
+ 1402      61647200 
+ 1403              	.LASF0:
+ 1404 02ea 7369676E 		.ascii	"signed char\000"
+ 1404      65642063 
+ 1404      68617200 
+ 1405              	.LASF30:
+ 1406 02f6 626F6F73 		.ascii	"boost_coef_table\000"
+ 1406      745F636F 
+ 1406      65665F74 
+ 1406      61626C65 
+ 1406      00
+ 1407              	.LASF50:
+ 1408 0307 433A5C55 		.ascii	"C:\\Users\\suzukihajime\\Documents\\PSoC Creator\\b"
+ 1408      73657273 
+ 1408      5C73757A 
+ 1408      756B6968 
+ 1408      616A696D 
+ 1409 0335 6F6F7374 		.ascii	"oost\\boost.cydsn\000"
+ 1409      5C626F6F 
+ 1409      73742E63 
+ 1409      7964736E 
+ 1409      00
+ 1410              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.9.3 20150303 (release) [ARM/embedded-4_9-br

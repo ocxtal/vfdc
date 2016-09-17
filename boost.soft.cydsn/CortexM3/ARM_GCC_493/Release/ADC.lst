@@ -1,0 +1,3904 @@
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"ADC.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.ADC_Enable,"ax",%progbits
+  19              		.align	1
+  20              		.global	ADC_Enable
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	ADC_Enable, %function
+  24              	ADC_Enable:
+  25              	.LFB2:
+  26              		.file 1 ".\\Generated_Source\\PSoC5\\ADC.c"
+   1:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+   2:.\Generated_Source\PSoC5/ADC.c **** * File Name: ADC.c
+   3:.\Generated_Source\PSoC5/ADC.c **** * Version 3.0
+   4:.\Generated_Source\PSoC5/ADC.c **** *
+   5:.\Generated_Source\PSoC5/ADC.c **** * Description:
+   6:.\Generated_Source\PSoC5/ADC.c **** *  This file provides the source code to the API for the Successive
+   7:.\Generated_Source\PSoC5/ADC.c **** *  approximation ADC Component.
+   8:.\Generated_Source\PSoC5/ADC.c **** *
+   9:.\Generated_Source\PSoC5/ADC.c **** * Note:
+  10:.\Generated_Source\PSoC5/ADC.c **** *
+  11:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+  12:.\Generated_Source\PSoC5/ADC.c **** * Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+  13:.\Generated_Source\PSoC5/ADC.c **** * You may use this file only in accordance with the license, terms, conditions,
+  14:.\Generated_Source\PSoC5/ADC.c **** * disclaimers, and limitations in the end user license agreement accompanying
+  15:.\Generated_Source\PSoC5/ADC.c **** * the software package with which this file was provided.
+  16:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+  17:.\Generated_Source\PSoC5/ADC.c **** 
+  18:.\Generated_Source\PSoC5/ADC.c **** #include "CyLib.h"
+  19:.\Generated_Source\PSoC5/ADC.c **** #include "ADC.h"
+  20:.\Generated_Source\PSoC5/ADC.c **** 
+  21:.\Generated_Source\PSoC5/ADC.c **** #if(ADC_DEFAULT_INTERNAL_CLK)
+  22:.\Generated_Source\PSoC5/ADC.c ****     #include "ADC_theACLK.h"
+  23:.\Generated_Source\PSoC5/ADC.c **** #endif /* End ADC_DEFAULT_INTERNAL_CLK */
+  24:.\Generated_Source\PSoC5/ADC.c **** 
+  25:.\Generated_Source\PSoC5/ADC.c **** 
+  26:.\Generated_Source\PSoC5/ADC.c **** /***************************************
+  27:.\Generated_Source\PSoC5/ADC.c **** * Forward function references
+  28:.\Generated_Source\PSoC5/ADC.c **** ***************************************/
+  29:.\Generated_Source\PSoC5/ADC.c **** static void ADC_CalcGain(uint8 resolution);
+  30:.\Generated_Source\PSoC5/ADC.c **** 
+  31:.\Generated_Source\PSoC5/ADC.c **** 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 2
+
+
+  32:.\Generated_Source\PSoC5/ADC.c **** /***************************************
+  33:.\Generated_Source\PSoC5/ADC.c **** * Global data allocation
+  34:.\Generated_Source\PSoC5/ADC.c **** ***************************************/
+  35:.\Generated_Source\PSoC5/ADC.c **** uint8 ADC_initVar = 0u;
+  36:.\Generated_Source\PSoC5/ADC.c **** volatile int16 ADC_offset;
+  37:.\Generated_Source\PSoC5/ADC.c **** volatile int16 ADC_countsPerVolt;     /* Obsolete Gain compensation */
+  38:.\Generated_Source\PSoC5/ADC.c **** volatile int32 ADC_countsPer10Volt;   /* Gain compensation */
+  39:.\Generated_Source\PSoC5/ADC.c **** volatile int16 ADC_shift;
+  40:.\Generated_Source\PSoC5/ADC.c **** 
+  41:.\Generated_Source\PSoC5/ADC.c **** 
+  42:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+  43:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_Start
+  44:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+  45:.\Generated_Source\PSoC5/ADC.c **** *
+  46:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+  47:.\Generated_Source\PSoC5/ADC.c **** *  This is the preferred method to begin component operation.
+  48:.\Generated_Source\PSoC5/ADC.c **** *  ADC_Start() sets the initVar variable, calls the
+  49:.\Generated_Source\PSoC5/ADC.c **** *  ADC_Init() function, and then calls the
+  50:.\Generated_Source\PSoC5/ADC.c **** *  ADC_Enable() function.
+  51:.\Generated_Source\PSoC5/ADC.c **** *
+  52:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+  53:.\Generated_Source\PSoC5/ADC.c **** *  None.
+  54:.\Generated_Source\PSoC5/ADC.c **** *
+  55:.\Generated_Source\PSoC5/ADC.c **** * Return:
+  56:.\Generated_Source\PSoC5/ADC.c **** *  None.
+  57:.\Generated_Source\PSoC5/ADC.c **** *
+  58:.\Generated_Source\PSoC5/ADC.c **** * Global variables:
+  59:.\Generated_Source\PSoC5/ADC.c **** *  The ADC_initVar variable is used to indicate when/if initial
+  60:.\Generated_Source\PSoC5/ADC.c **** *  configuration of this component has happened. The variable is initialized to
+  61:.\Generated_Source\PSoC5/ADC.c **** *  zero and set to 1 the first time ADC_Start() is called. This allows for
+  62:.\Generated_Source\PSoC5/ADC.c **** *  component Re-Start without re-initialization in all subsequent calls to the
+  63:.\Generated_Source\PSoC5/ADC.c **** *  ADC_Start() routine.
+  64:.\Generated_Source\PSoC5/ADC.c **** *  If re-initialization of the component is required the variable should be set
+  65:.\Generated_Source\PSoC5/ADC.c **** *  to zero before call of ADC_Start() routine, or the user may call
+  66:.\Generated_Source\PSoC5/ADC.c **** *  ADC_Init() and ADC_Enable() as done in the
+  67:.\Generated_Source\PSoC5/ADC.c **** *  ADC_Start() routine.
+  68:.\Generated_Source\PSoC5/ADC.c **** *
+  69:.\Generated_Source\PSoC5/ADC.c **** * Side Effect:
+  70:.\Generated_Source\PSoC5/ADC.c **** *  If the initVar variable is already set, this function only calls the
+  71:.\Generated_Source\PSoC5/ADC.c **** *  ADC_Enable() function.
+  72:.\Generated_Source\PSoC5/ADC.c **** *
+  73:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+  74:.\Generated_Source\PSoC5/ADC.c **** void ADC_Start(void)
+  75:.\Generated_Source\PSoC5/ADC.c **** {
+  76:.\Generated_Source\PSoC5/ADC.c **** 
+  77:.\Generated_Source\PSoC5/ADC.c ****     /* If not Initialized then initialize all required hardware and software */
+  78:.\Generated_Source\PSoC5/ADC.c ****     if(ADC_initVar == 0u)
+  79:.\Generated_Source\PSoC5/ADC.c ****     {
+  80:.\Generated_Source\PSoC5/ADC.c ****         ADC_Init();
+  81:.\Generated_Source\PSoC5/ADC.c ****         ADC_initVar = 1u;
+  82:.\Generated_Source\PSoC5/ADC.c ****     }
+  83:.\Generated_Source\PSoC5/ADC.c ****     ADC_Enable();
+  84:.\Generated_Source\PSoC5/ADC.c **** }
+  85:.\Generated_Source\PSoC5/ADC.c **** 
+  86:.\Generated_Source\PSoC5/ADC.c **** 
+  87:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+  88:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_Init
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 3
+
+
+  89:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+  90:.\Generated_Source\PSoC5/ADC.c **** *
+  91:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+  92:.\Generated_Source\PSoC5/ADC.c **** *  Initialize component's parameters to the parameters set by user in the
+  93:.\Generated_Source\PSoC5/ADC.c **** *  customizer of the component placed onto schematic. Usually called in
+  94:.\Generated_Source\PSoC5/ADC.c **** *  ADC_Start().
+  95:.\Generated_Source\PSoC5/ADC.c **** *
+  96:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+  97:.\Generated_Source\PSoC5/ADC.c **** *  None.
+  98:.\Generated_Source\PSoC5/ADC.c **** *
+  99:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 100:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 101:.\Generated_Source\PSoC5/ADC.c **** *
+ 102:.\Generated_Source\PSoC5/ADC.c **** * Global variables:
+ 103:.\Generated_Source\PSoC5/ADC.c **** *  The ADC_offset variable is initialized to 0.
+ 104:.\Generated_Source\PSoC5/ADC.c **** *
+ 105:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 106:.\Generated_Source\PSoC5/ADC.c **** void ADC_Init(void)
+ 107:.\Generated_Source\PSoC5/ADC.c **** {
+ 108:.\Generated_Source\PSoC5/ADC.c **** 
+ 109:.\Generated_Source\PSoC5/ADC.c ****     /* This is only valid if there is an internal clock */
+ 110:.\Generated_Source\PSoC5/ADC.c ****     #if(ADC_DEFAULT_INTERNAL_CLK)
+ 111:.\Generated_Source\PSoC5/ADC.c ****         ADC_theACLK_SetMode(CYCLK_DUTY);
+ 112:.\Generated_Source\PSoC5/ADC.c ****     #endif /* End ADC_DEFAULT_INTERNAL_CLK */
+ 113:.\Generated_Source\PSoC5/ADC.c **** 
+ 114:.\Generated_Source\PSoC5/ADC.c ****     #if(ADC_IRQ_REMOVE == 0u)
+ 115:.\Generated_Source\PSoC5/ADC.c ****         /* Start and set interrupt vector */
+ 116:.\Generated_Source\PSoC5/ADC.c ****         CyIntSetPriority(ADC_INTC_NUMBER, ADC_INTC_PRIOR_NUMBER);
+ 117:.\Generated_Source\PSoC5/ADC.c ****         (void)CyIntSetVector(ADC_INTC_NUMBER, &ADC_ISR);
+ 118:.\Generated_Source\PSoC5/ADC.c ****     #endif   /* End ADC_IRQ_REMOVE */
+ 119:.\Generated_Source\PSoC5/ADC.c **** 
+ 120:.\Generated_Source\PSoC5/ADC.c ****     /* Enable IRQ mode*/
+ 121:.\Generated_Source\PSoC5/ADC.c ****     ADC_SAR_CSR1_REG |= ADC_SAR_IRQ_MASK_EN | ADC_SAR_IRQ_MODE_EDGE;
+ 122:.\Generated_Source\PSoC5/ADC.c **** 
+ 123:.\Generated_Source\PSoC5/ADC.c ****     /*Set SAR ADC resolution ADC */
+ 124:.\Generated_Source\PSoC5/ADC.c ****     ADC_SetResolution(ADC_DEFAULT_RESOLUTION);
+ 125:.\Generated_Source\PSoC5/ADC.c ****     ADC_offset = 0;
+ 126:.\Generated_Source\PSoC5/ADC.c **** }
+ 127:.\Generated_Source\PSoC5/ADC.c **** 
+ 128:.\Generated_Source\PSoC5/ADC.c **** 
+ 129:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 130:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_Enable
+ 131:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 132:.\Generated_Source\PSoC5/ADC.c **** *
+ 133:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 134:.\Generated_Source\PSoC5/ADC.c **** *  Enables the reference, clock and power for SAR ADC.
+ 135:.\Generated_Source\PSoC5/ADC.c **** *
+ 136:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 137:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 138:.\Generated_Source\PSoC5/ADC.c **** *
+ 139:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 140:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 141:.\Generated_Source\PSoC5/ADC.c **** *
+ 142:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 143:.\Generated_Source\PSoC5/ADC.c **** void ADC_Enable(void)
+ 144:.\Generated_Source\PSoC5/ADC.c **** {
+  27              		.loc 1 144 0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 4
+
+
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 10B5     		push	{r4, lr}
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 4, -8
+  34              		.cfi_offset 14, -4
+ 145:.\Generated_Source\PSoC5/ADC.c ****     uint8 tmpReg;
+ 146:.\Generated_Source\PSoC5/ADC.c ****     uint8 enableInterrupts;
+ 147:.\Generated_Source\PSoC5/ADC.c ****     enableInterrupts = CyEnterCriticalSection();
+  35              		.loc 1 147 0
+  36 0002 FFF7FEFF 		bl	CyEnterCriticalSection
+  37              	.LVL0:
+ 148:.\Generated_Source\PSoC5/ADC.c **** 
+ 149:.\Generated_Source\PSoC5/ADC.c ****     /* Enable the SAR ADC block in Active Power Mode */
+ 150:.\Generated_Source\PSoC5/ADC.c ****     ADC_PWRMGR_SAR_REG |= ADC_ACT_PWR_SAR_EN;
+  38              		.loc 1 150 0
+  39 0006 214A     		ldr	r2, .L2
+ 147:.\Generated_Source\PSoC5/ADC.c **** 
+  40              		.loc 1 147 0
+  41 0008 0446     		mov	r4, r0
+  42              	.LVL1:
+  43              		.loc 1 150 0
+  44 000a 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 151:.\Generated_Source\PSoC5/ADC.c **** 
+ 152:.\Generated_Source\PSoC5/ADC.c ****      /* Enable the SAR ADC in Standby Power Mode*/
+ 153:.\Generated_Source\PSoC5/ADC.c ****     ADC_STBY_PWRMGR_SAR_REG |= ADC_STBY_PWR_SAR_EN;
+ 154:.\Generated_Source\PSoC5/ADC.c **** 
+ 155:.\Generated_Source\PSoC5/ADC.c ****     /* This is only valid if there is an internal clock */
+ 156:.\Generated_Source\PSoC5/ADC.c ****     #if(ADC_DEFAULT_INTERNAL_CLK)
+ 157:.\Generated_Source\PSoC5/ADC.c ****         ADC_PWRMGR_CLK_REG |= ADC_ACT_PWR_CLK_EN;
+ 158:.\Generated_Source\PSoC5/ADC.c ****         ADC_STBY_PWRMGR_CLK_REG |= ADC_STBY_PWR_CLK_EN;
+ 159:.\Generated_Source\PSoC5/ADC.c ****     #endif /* End ADC_DEFAULT_INTERNAL_CLK */
+ 160:.\Generated_Source\PSoC5/ADC.c **** 
+ 161:.\Generated_Source\PSoC5/ADC.c ****     /* Enable VCM buffer and Enable Int Ref Amp */
+ 162:.\Generated_Source\PSoC5/ADC.c ****     tmpReg = ADC_SAR_CSR3_REG;
+ 163:.\Generated_Source\PSoC5/ADC.c ****     tmpReg |= ADC_SAR_EN_BUF_VCM_EN;
+ 164:.\Generated_Source\PSoC5/ADC.c ****     /* PD_BUF_VREF is OFF in External reference or Vdda reference mode */
+ 165:.\Generated_Source\PSoC5/ADC.c ****     #if((ADC_DEFAULT_REFERENCE == ADC__EXT_REF) || \
+ 166:.\Generated_Source\PSoC5/ADC.c ****         (ADC_DEFAULT_RANGE == ADC__VNEG_VDDA_DIFF))
+ 167:.\Generated_Source\PSoC5/ADC.c ****         tmpReg &= (uint8)~ADC_SAR_EN_BUF_VREF_EN;
+ 168:.\Generated_Source\PSoC5/ADC.c ****     #else /* In INTREF or INTREF Bypassed this buffer is ON */
+ 169:.\Generated_Source\PSoC5/ADC.c ****         tmpReg |= ADC_SAR_EN_BUF_VREF_EN;
+ 170:.\Generated_Source\PSoC5/ADC.c ****     #endif /* ADC_DEFAULT_REFERENCE == ADC__EXT_REF */
+ 171:.\Generated_Source\PSoC5/ADC.c ****     ADC_SAR_CSR3_REG = tmpReg;
+ 172:.\Generated_Source\PSoC5/ADC.c **** 
+ 173:.\Generated_Source\PSoC5/ADC.c ****     /* Set reference for ADC */
+ 174:.\Generated_Source\PSoC5/ADC.c ****     #if(ADC_DEFAULT_RANGE == ADC__VNEG_VDDA_DIFF)
+ 175:.\Generated_Source\PSoC5/ADC.c ****         #if(ADC_DEFAULT_REFERENCE == ADC__EXT_REF)
+ 176:.\Generated_Source\PSoC5/ADC.c ****             ADC_SAR_CSR6_REG = ADC_INT_BYPASS_EXT_VREF; /* S2 */
+ 177:.\Generated_Source\PSoC5/ADC.c ****         #else /* Internal Vdda reference or obsolete bypass mode */
+ 178:.\Generated_Source\PSoC5/ADC.c ****             ADC_SAR_CSR6_REG = ADC_VDDA_VREF;           /* S7 */
+ 179:.\Generated_Source\PSoC5/ADC.c ****         #endif /* ADC_DEFAULT_REFERENCE == ADC__EXT_REF */
+ 180:.\Generated_Source\PSoC5/ADC.c ****     #else  /* Reference goes through internal buffer */
+ 181:.\Generated_Source\PSoC5/ADC.c ****         #if(ADC_DEFAULT_REFERENCE == ADC__INT_REF_NOT_BYPASSED)
+ 182:.\Generated_Source\PSoC5/ADC.c ****             ADC_SAR_CSR6_REG = ADC_INT_VREF;            /* S3 + S4 */
+ 183:.\Generated_Source\PSoC5/ADC.c ****         #else /* INTREF Bypassed of External */
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 5
+
+
+ 184:.\Generated_Source\PSoC5/ADC.c ****             ADC_SAR_CSR6_REG = ADC_INT_BYPASS_EXT_VREF; /* S2 */
+ 185:.\Generated_Source\PSoC5/ADC.c ****         #endif /* ADC_DEFAULT_REFERENCE == ADC__INT_REF_NOT_BYPASSED */
+ 186:.\Generated_Source\PSoC5/ADC.c ****     #endif /* VNEG_VDDA_DIFF */
+ 187:.\Generated_Source\PSoC5/ADC.c **** 
+ 188:.\Generated_Source\PSoC5/ADC.c ****     /* Low non-overlap delay for sampling clock signals (for 1MSPS) */
+ 189:.\Generated_Source\PSoC5/ADC.c ****     #if(ADC_HIGH_POWER_PULSE == 0u) /* MinPulseWidth <= 50 ns */
+ 190:.\Generated_Source\PSoC5/ADC.c ****         ADC_SAR_CSR5_REG &= (uint8)~ADC_SAR_DLY_INC;
+ 191:.\Generated_Source\PSoC5/ADC.c ****     #else /* Set High non-overlap delay for sampling clock signals (for <500KSPS)*/
+ 192:.\Generated_Source\PSoC5/ADC.c ****         ADC_SAR_CSR5_REG |= ADC_SAR_DLY_INC;
+ 193:.\Generated_Source\PSoC5/ADC.c ****     #endif /* ADC_HIGH_POWER_PULSE == 0u */
+ 194:.\Generated_Source\PSoC5/ADC.c **** 
+ 195:.\Generated_Source\PSoC5/ADC.c ****     /* Increase comparator latch enable delay by 20%, 
+ 196:.\Generated_Source\PSoC5/ADC.c ****     *  Increase comparator bias current by 30% without impacting delaysDelay 
+ 197:.\Generated_Source\PSoC5/ADC.c ****     *  Default for 1MSPS) 
+ 198:.\Generated_Source\PSoC5/ADC.c ****     */
+ 199:.\Generated_Source\PSoC5/ADC.c ****     #if(ADC_HIGH_POWER_PULSE == 0u)    /* MinPulseWidth <= 50 ns */
+ 200:.\Generated_Source\PSoC5/ADC.c ****         ADC_SAR_CSR5_REG |= ADC_SAR_SEL_CSEL_DFT_CHAR;
+ 201:.\Generated_Source\PSoC5/ADC.c ****     #else /* for <500ksps */
+ 202:.\Generated_Source\PSoC5/ADC.c ****         ADC_SAR_CSR5_REG &= (uint8)~ADC_SAR_SEL_CSEL_DFT_CHAR;
+ 203:.\Generated_Source\PSoC5/ADC.c ****     #endif /* ADC_HIGH_POWER_PULSE == 0u */
+ 204:.\Generated_Source\PSoC5/ADC.c **** 
+ 205:.\Generated_Source\PSoC5/ADC.c ****     /* Set default power and other configurations for control register 0 in multiple lines */
+ 206:.\Generated_Source\PSoC5/ADC.c ****     ADC_SAR_CSR0_REG = (uint8)((uint8)ADC_DEFAULT_POWER << ADC_SAR_POWER_SHIFT)
+ 207:.\Generated_Source\PSoC5/ADC.c ****     /* SAR_HIZ_CLEAR:   Should not be used for LP */
+ 208:.\Generated_Source\PSoC5/ADC.c ****     #if ((CY_PSOC5LP) || (ADC_DEFAULT_REFERENCE != ADC__EXT_REF))
+ 209:.\Generated_Source\PSoC5/ADC.c ****         | ADC_SAR_HIZ_CLEAR
+ 210:.\Generated_Source\PSoC5/ADC.c ****     #endif /* SAR_HIZ_CLEAR */
+ 211:.\Generated_Source\PSoC5/ADC.c ****     /*Set Convertion mode */
+ 212:.\Generated_Source\PSoC5/ADC.c ****     #if(ADC_DEFAULT_CONV_MODE != ADC__FREE_RUNNING)      /* If triggered mode */
+ 213:.\Generated_Source\PSoC5/ADC.c ****         | ADC_SAR_MX_SOF_UDB           /* source: UDB */
+ 214:.\Generated_Source\PSoC5/ADC.c ****         | ADC_SAR_SOF_MODE_EDGE        /* Set edge-sensitive sof source */
+ 215:.\Generated_Source\PSoC5/ADC.c ****     #endif /* ADC_DEFAULT_CONV_MODE */
+ 216:.\Generated_Source\PSoC5/ADC.c ****     ; /* end of multiple line initialization */
+ 217:.\Generated_Source\PSoC5/ADC.c **** 
+ 218:.\Generated_Source\PSoC5/ADC.c ****     ADC_SAR_TR0_REG = ADC_SAR_CAP_TRIM_2;
+ 219:.\Generated_Source\PSoC5/ADC.c **** 
+ 220:.\Generated_Source\PSoC5/ADC.c ****     /* Enable clock for SAR ADC*/
+ 221:.\Generated_Source\PSoC5/ADC.c ****     ADC_SAR_CLK_REG |= ADC_SAR_MX_CLK_EN;
+ 222:.\Generated_Source\PSoC5/ADC.c **** 
+ 223:.\Generated_Source\PSoC5/ADC.c ****     CyDelayUs(10u); /* The block is ready to use 10 us after the enable signal is set high. */
+  45              		.loc 1 223 0
+  46 000c 0A20     		movs	r0, #10
+ 150:.\Generated_Source\PSoC5/ADC.c **** 
+  47              		.loc 1 150 0
+  48 000e 43F00103 		orr	r3, r3, #1
+  49 0012 1370     		strb	r3, [r2]
+ 153:.\Generated_Source\PSoC5/ADC.c **** 
+  50              		.loc 1 153 0
+  51 0014 137C     		ldrb	r3, [r2, #16]	@ zero_extendqisi2
+  52 0016 43F00103 		orr	r3, r3, #1
+  53 001a 1374     		strb	r3, [r2, #16]
+ 157:.\Generated_Source\PSoC5/ADC.c ****         ADC_STBY_PWRMGR_CLK_REG |= ADC_STBY_PWR_CLK_EN;
+  54              		.loc 1 157 0
+  55 001c 12F8093C 		ldrb	r3, [r2, #-9]	@ zero_extendqisi2
+  56 0020 43F00203 		orr	r3, r3, #2
+  57 0024 02F8093C 		strb	r3, [r2, #-9]
+ 158:.\Generated_Source\PSoC5/ADC.c ****     #endif /* End ADC_DEFAULT_INTERNAL_CLK */
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 6
+
+
+  58              		.loc 1 158 0
+  59 0028 D379     		ldrb	r3, [r2, #7]	@ zero_extendqisi2
+  60 002a 43F00203 		orr	r3, r3, #2
+  61 002e D371     		strb	r3, [r2, #7]
+ 162:.\Generated_Source\PSoC5/ADC.c ****     tmpReg |= ADC_SAR_EN_BUF_VCM_EN;
+  62              		.loc 1 162 0
+  63 0030 02F5AA52 		add	r2, r2, #5440
+  64 0034 1832     		adds	r2, r2, #24
+  65 0036 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+  66              	.LVL2:
+ 169:.\Generated_Source\PSoC5/ADC.c ****     #endif /* ADC_DEFAULT_REFERENCE == ADC__EXT_REF */
+  67              		.loc 1 169 0
+  68 0038 43F00303 		orr	r3, r3, #3
+  69              	.LVL3:
+ 171:.\Generated_Source\PSoC5/ADC.c **** 
+  70              		.loc 1 171 0
+  71 003c 1370     		strb	r3, [r2]
+ 182:.\Generated_Source\PSoC5/ADC.c ****         #else /* INTREF Bypassed of External */
+  72              		.loc 1 182 0
+  73 003e 144B     		ldr	r3, .L2+4
+  74              	.LVL4:
+  75 0040 1822     		movs	r2, #24
+  76              	.LVL5:
+  77 0042 1A70     		strb	r2, [r3]
+  78              	.LVL6:
+ 192:.\Generated_Source\PSoC5/ADC.c ****     #endif /* ADC_HIGH_POWER_PULSE == 0u */
+  79              		.loc 1 192 0
+  80 0044 13F8012C 		ldrb	r2, [r3, #-1]	@ zero_extendqisi2
+  81 0048 42F04002 		orr	r2, r2, #64
+  82 004c 03F8012C 		strb	r2, [r3, #-1]
+ 202:.\Generated_Source\PSoC5/ADC.c ****     #endif /* ADC_HIGH_POWER_PULSE == 0u */
+  83              		.loc 1 202 0
+  84 0050 13F8012C 		ldrb	r2, [r3, #-1]	@ zero_extendqisi2
+  85 0054 02F0FC02 		and	r2, r2, #252
+  86 0058 03F8012C 		strb	r2, [r3, #-1]
+ 206:.\Generated_Source\PSoC5/ADC.c ****     /* SAR_HIZ_CLEAR:   Should not be used for LP */
+  87              		.loc 1 206 0
+  88 005c CE22     		movs	r2, #206
+  89 005e 03F8062C 		strb	r2, [r3, #-6]
+ 218:.\Generated_Source\PSoC5/ADC.c **** 
+  90              		.loc 1 218 0
+  91 0062 A3F59753 		sub	r3, r3, #4832
+  92 0066 0222     		movs	r2, #2
+  93 0068 123B     		subs	r3, r3, #18
+  94 006a 1A70     		strb	r2, [r3]
+ 221:.\Generated_Source\PSoC5/ADC.c **** 
+  95              		.loc 1 221 0
+  96 006c 094A     		ldr	r2, .L2+8
+  97 006e 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+  98 0070 43F00803 		orr	r3, r3, #8
+  99 0074 1370     		strb	r3, [r2]
+ 100              		.loc 1 223 0
+ 101 0076 FFF7FEFF 		bl	CyDelayUs
+ 102              	.LVL7:
+ 224:.\Generated_Source\PSoC5/ADC.c **** 
+ 225:.\Generated_Source\PSoC5/ADC.c ****     #if(ADC_IRQ_REMOVE == 0u)
+ 226:.\Generated_Source\PSoC5/ADC.c ****         /* Clear a pending interrupt */
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 7
+
+
+ 227:.\Generated_Source\PSoC5/ADC.c ****         CyIntClearPending(ADC_INTC_NUMBER);
+ 103              		.loc 1 227 0
+ 104 007a 074B     		ldr	r3, .L2+12
+ 105 007c 0122     		movs	r2, #1
+ 228:.\Generated_Source\PSoC5/ADC.c ****     #endif   /* End ADC_IRQ_REMOVE */
+ 229:.\Generated_Source\PSoC5/ADC.c **** 
+ 230:.\Generated_Source\PSoC5/ADC.c ****     CyExitCriticalSection(enableInterrupts);
+ 106              		.loc 1 230 0
+ 107 007e 2046     		mov	r0, r4
+ 231:.\Generated_Source\PSoC5/ADC.c **** }
+ 108              		.loc 1 231 0
+ 109 0080 BDE81040 		pop	{r4, lr}
+ 110              		.cfi_restore 14
+ 111              		.cfi_restore 4
+ 112              		.cfi_def_cfa_offset 0
+ 113              	.LVL8:
+ 227:.\Generated_Source\PSoC5/ADC.c ****     #endif   /* End ADC_IRQ_REMOVE */
+ 114              		.loc 1 227 0
+ 115 0084 1A60     		str	r2, [r3]
+ 230:.\Generated_Source\PSoC5/ADC.c **** }
+ 116              		.loc 1 230 0
+ 117 0086 FFF7FEBF 		b	CyExitCriticalSection
+ 118              	.LVL9:
+ 119              	.L3:
+ 120 008a 00BF     		.align	2
+ 121              	.L2:
+ 122 008c AB430040 		.word	1073759147
+ 123 0090 06590040 		.word	1073764614
+ 124 0094 275B0040 		.word	1073765159
+ 125 0098 80E200E0 		.word	-536812928
+ 126              		.cfi_endproc
+ 127              	.LFE2:
+ 128              		.size	ADC_Enable, .-ADC_Enable
+ 129              		.section	.text.ADC_Stop,"ax",%progbits
+ 130              		.align	1
+ 131              		.global	ADC_Stop
+ 132              		.thumb
+ 133              		.thumb_func
+ 134              		.type	ADC_Stop, %function
+ 135              	ADC_Stop:
+ 136              	.LFB3:
+ 232:.\Generated_Source\PSoC5/ADC.c **** 
+ 233:.\Generated_Source\PSoC5/ADC.c **** 
+ 234:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 235:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_Stop
+ 236:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 237:.\Generated_Source\PSoC5/ADC.c **** *
+ 238:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 239:.\Generated_Source\PSoC5/ADC.c **** *  Stops ADC conversions and puts the ADC into its lowest power mode.
+ 240:.\Generated_Source\PSoC5/ADC.c **** *
+ 241:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 242:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 243:.\Generated_Source\PSoC5/ADC.c **** *
+ 244:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 245:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 246:.\Generated_Source\PSoC5/ADC.c **** *
+ 247:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 8
+
+
+ 248:.\Generated_Source\PSoC5/ADC.c **** void ADC_Stop(void)
+ 249:.\Generated_Source\PSoC5/ADC.c **** {
+ 137              		.loc 1 249 0
+ 138              		.cfi_startproc
+ 139              		@ args = 0, pretend = 0, frame = 0
+ 140              		@ frame_needed = 0, uses_anonymous_args = 0
+ 141 0000 08B5     		push	{r3, lr}
+ 142              		.cfi_def_cfa_offset 8
+ 143              		.cfi_offset 3, -8
+ 144              		.cfi_offset 14, -4
+ 250:.\Generated_Source\PSoC5/ADC.c ****     uint8 enableInterrupts;
+ 251:.\Generated_Source\PSoC5/ADC.c ****     enableInterrupts = CyEnterCriticalSection();
+ 145              		.loc 1 251 0
+ 146 0002 FFF7FEFF 		bl	CyEnterCriticalSection
+ 147              	.LVL10:
+ 252:.\Generated_Source\PSoC5/ADC.c **** 
+ 253:.\Generated_Source\PSoC5/ADC.c ****     /* Stop all conversions */
+ 254:.\Generated_Source\PSoC5/ADC.c ****     ADC_SAR_CSR0_REG &= (uint8)~ADC_SAR_SOF_START_CONV;
+ 148              		.loc 1 254 0
+ 149 0006 0F4A     		ldr	r2, .L5
+ 150 0008 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 151 000a 03F0FE03 		and	r3, r3, #254
+ 152 000e 1370     		strb	r3, [r2]
+ 255:.\Generated_Source\PSoC5/ADC.c ****     /* Disable the SAR ADC block in Active Power Mode */
+ 256:.\Generated_Source\PSoC5/ADC.c ****     ADC_PWRMGR_SAR_REG &= (uint8)~ADC_ACT_PWR_SAR_EN;
+ 153              		.loc 1 256 0
+ 154 0010 A2F5AA52 		sub	r2, r2, #5440
+ 155 0014 153A     		subs	r2, r2, #21
+ 156 0016 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 157 0018 03F0FE03 		and	r3, r3, #254
+ 158 001c 1370     		strb	r3, [r2]
+ 257:.\Generated_Source\PSoC5/ADC.c ****     /* Disable the SAR ADC in Standby Power Mode */
+ 258:.\Generated_Source\PSoC5/ADC.c ****     ADC_STBY_PWRMGR_SAR_REG &= (uint8)~ADC_STBY_PWR_SAR_EN;
+ 159              		.loc 1 258 0
+ 160 001e 137C     		ldrb	r3, [r2, #16]	@ zero_extendqisi2
+ 161 0020 03F0FE03 		and	r3, r3, #254
+ 162 0024 1374     		strb	r3, [r2, #16]
+ 259:.\Generated_Source\PSoC5/ADC.c **** 
+ 260:.\Generated_Source\PSoC5/ADC.c ****     /* This is only valid if there is an internal clock */
+ 261:.\Generated_Source\PSoC5/ADC.c ****     #if(ADC_DEFAULT_INTERNAL_CLK)
+ 262:.\Generated_Source\PSoC5/ADC.c ****         ADC_PWRMGR_CLK_REG &= (uint8)~ADC_ACT_PWR_CLK_EN;
+ 163              		.loc 1 262 0
+ 164 0026 12F8093C 		ldrb	r3, [r2, #-9]	@ zero_extendqisi2
+ 165 002a 03F0FD03 		and	r3, r3, #253
+ 166 002e 02F8093C 		strb	r3, [r2, #-9]
+ 263:.\Generated_Source\PSoC5/ADC.c ****         ADC_STBY_PWRMGR_CLK_REG &= (uint8)~ADC_STBY_PWR_CLK_EN;
+ 167              		.loc 1 263 0
+ 168 0032 D379     		ldrb	r3, [r2, #7]	@ zero_extendqisi2
+ 169 0034 03F0FD03 		and	r3, r3, #253
+ 170 0038 D371     		strb	r3, [r2, #7]
+ 264:.\Generated_Source\PSoC5/ADC.c ****     #endif /* End ADC_DEFAULT_INTERNAL_CLK */
+ 265:.\Generated_Source\PSoC5/ADC.c **** 
+ 266:.\Generated_Source\PSoC5/ADC.c ****     CyExitCriticalSection(enableInterrupts);
+ 267:.\Generated_Source\PSoC5/ADC.c **** 
+ 268:.\Generated_Source\PSoC5/ADC.c **** }
+ 171              		.loc 1 268 0
+ 172 003a BDE80840 		pop	{r3, lr}
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 9
+
+
+ 173              		.cfi_restore 14
+ 174              		.cfi_restore 3
+ 175              		.cfi_def_cfa_offset 0
+ 266:.\Generated_Source\PSoC5/ADC.c **** 
+ 176              		.loc 1 266 0
+ 177 003e FFF7FEBF 		b	CyExitCriticalSection
+ 178              	.LVL11:
+ 179              	.L6:
+ 180 0042 00BF     		.align	2
+ 181              	.L5:
+ 182 0044 00590040 		.word	1073764608
+ 183              		.cfi_endproc
+ 184              	.LFE3:
+ 185              		.size	ADC_Stop, .-ADC_Stop
+ 186              		.section	.text.ADC_SetPower,"ax",%progbits
+ 187              		.align	1
+ 188              		.global	ADC_SetPower
+ 189              		.thumb
+ 190              		.thumb_func
+ 191              		.type	ADC_SetPower, %function
+ 192              	ADC_SetPower:
+ 193              	.LFB4:
+ 269:.\Generated_Source\PSoC5/ADC.c **** 
+ 270:.\Generated_Source\PSoC5/ADC.c **** 
+ 271:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 272:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_SetPower
+ 273:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 274:.\Generated_Source\PSoC5/ADC.c **** *
+ 275:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 276:.\Generated_Source\PSoC5/ADC.c **** *  Sets the operational power of the ADC. You should use the higher power
+ 277:.\Generated_Source\PSoC5/ADC.c **** *  settings with faster clock speeds.
+ 278:.\Generated_Source\PSoC5/ADC.c **** *
+ 279:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 280:.\Generated_Source\PSoC5/ADC.c **** *  power:  Power setting for ADC
+ 281:.\Generated_Source\PSoC5/ADC.c **** *  0 ->    Normal
+ 282:.\Generated_Source\PSoC5/ADC.c **** *  1 ->    Medium power
+ 283:.\Generated_Source\PSoC5/ADC.c **** *  2 ->    1.25 power
+ 284:.\Generated_Source\PSoC5/ADC.c **** *  3 ->    Minimum power.
+ 285:.\Generated_Source\PSoC5/ADC.c **** *
+ 286:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 287:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 288:.\Generated_Source\PSoC5/ADC.c **** *
+ 289:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 290:.\Generated_Source\PSoC5/ADC.c **** void ADC_SetPower(uint8 power)
+ 291:.\Generated_Source\PSoC5/ADC.c **** {
+ 194              		.loc 1 291 0
+ 195              		.cfi_startproc
+ 196              		@ args = 0, pretend = 0, frame = 0
+ 197              		@ frame_needed = 0, uses_anonymous_args = 0
+ 198              		@ link register save eliminated.
+ 199              	.LVL12:
+ 292:.\Generated_Source\PSoC5/ADC.c ****     uint8 tmpReg;
+ 293:.\Generated_Source\PSoC5/ADC.c **** 
+ 294:.\Generated_Source\PSoC5/ADC.c ****     /* mask off invalid power settings */
+ 295:.\Generated_Source\PSoC5/ADC.c ****     power &= ADC_SAR_API_POWER_MASK;
+ 296:.\Generated_Source\PSoC5/ADC.c **** 
+ 297:.\Generated_Source\PSoC5/ADC.c ****     /* Set Power parameter  */
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 10
+
+
+ 298:.\Generated_Source\PSoC5/ADC.c ****     tmpReg = ADC_SAR_CSR0_REG & (uint8)~ADC_SAR_POWER_MASK;
+ 200              		.loc 1 298 0
+ 201 0000 044A     		ldr	r2, .L8
+ 295:.\Generated_Source\PSoC5/ADC.c **** 
+ 202              		.loc 1 295 0
+ 203 0002 00F00300 		and	r0, r0, #3
+ 204              	.LVL13:
+ 205              		.loc 1 298 0
+ 206 0006 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 207 0008 03F03F03 		and	r3, r3, #63
+ 208              	.LVL14:
+ 299:.\Generated_Source\PSoC5/ADC.c ****     tmpReg |= (uint8)(power << ADC_SAR_POWER_SHIFT);
+ 209              		.loc 1 299 0
+ 210 000c 43EA8013 		orr	r3, r3, r0, lsl #6
+ 211              	.LVL15:
+ 300:.\Generated_Source\PSoC5/ADC.c ****     ADC_SAR_CSR0_REG = tmpReg;
+ 212              		.loc 1 300 0
+ 213 0010 1370     		strb	r3, [r2]
+ 214 0012 7047     		bx	lr
+ 215              	.L9:
+ 216              		.align	2
+ 217              	.L8:
+ 218 0014 00590040 		.word	1073764608
+ 219              		.cfi_endproc
+ 220              	.LFE4:
+ 221              		.size	ADC_SetPower, .-ADC_SetPower
+ 222              		.section	.text.ADC_SetResolution,"ax",%progbits
+ 223              		.align	1
+ 224              		.global	ADC_SetResolution
+ 225              		.thumb
+ 226              		.thumb_func
+ 227              		.type	ADC_SetResolution, %function
+ 228              	ADC_SetResolution:
+ 229              	.LFB5:
+ 301:.\Generated_Source\PSoC5/ADC.c **** }
+ 302:.\Generated_Source\PSoC5/ADC.c **** 
+ 303:.\Generated_Source\PSoC5/ADC.c **** 
+ 304:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 305:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_SetResolution
+ 306:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 307:.\Generated_Source\PSoC5/ADC.c **** *
+ 308:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 309:.\Generated_Source\PSoC5/ADC.c **** *  Sets the Relution of the SAR.
+ 310:.\Generated_Source\PSoC5/ADC.c **** *
+ 311:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 312:.\Generated_Source\PSoC5/ADC.c **** *  resolution:
+ 313:.\Generated_Source\PSoC5/ADC.c **** *  12 ->    RES12
+ 314:.\Generated_Source\PSoC5/ADC.c **** *  10 ->    RES10
+ 315:.\Generated_Source\PSoC5/ADC.c **** *  8  ->    RES8
+ 316:.\Generated_Source\PSoC5/ADC.c **** *
+ 317:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 318:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 319:.\Generated_Source\PSoC5/ADC.c **** *
+ 320:.\Generated_Source\PSoC5/ADC.c **** * Side Effects:
+ 321:.\Generated_Source\PSoC5/ADC.c **** *  The ADC resolution cannot be changed during a conversion cycle. The
+ 322:.\Generated_Source\PSoC5/ADC.c **** *  recommended best practice is to stop conversions with
+ 323:.\Generated_Source\PSoC5/ADC.c **** *  ADC_StopConvert(), change the resolution, then restart the
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 11
+
+
+ 324:.\Generated_Source\PSoC5/ADC.c **** *  conversions with ADC_StartConvert().
+ 325:.\Generated_Source\PSoC5/ADC.c **** *  If you decide not to stop conversions before calling this API, you
+ 326:.\Generated_Source\PSoC5/ADC.c **** *  should use ADC_IsEndConversion() to wait until conversion is complete
+ 327:.\Generated_Source\PSoC5/ADC.c **** *  before changing the resolution.
+ 328:.\Generated_Source\PSoC5/ADC.c **** *  If you call ADC_SetResolution() during a conversion, the resolution will
+ 329:.\Generated_Source\PSoC5/ADC.c **** *  not be changed until the current conversion is complete. Data will not be
+ 330:.\Generated_Source\PSoC5/ADC.c **** *  available in the new resolution for another 6 + "New Resolution(in bits)"
+ 331:.\Generated_Source\PSoC5/ADC.c **** *  clock cycles.
+ 332:.\Generated_Source\PSoC5/ADC.c **** *  You may need add a delay of this number of clock cycles after
+ 333:.\Generated_Source\PSoC5/ADC.c **** *  ADC_SetResolution() is called before data is valid again.
+ 334:.\Generated_Source\PSoC5/ADC.c **** *  Affects ADC_CountsTo_Volts(), ADC_CountsTo_mVolts(), and
+ 335:.\Generated_Source\PSoC5/ADC.c **** *  ADC_CountsTo_uVolts() by calculating the correct conversion between ADC
+ 336:.\Generated_Source\PSoC5/ADC.c **** *  counts and the applied input voltage. Calculation depends on resolution,
+ 337:.\Generated_Source\PSoC5/ADC.c **** *  input range, and voltage reference.
+ 338:.\Generated_Source\PSoC5/ADC.c **** *
+ 339:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 340:.\Generated_Source\PSoC5/ADC.c **** void ADC_SetResolution(uint8 resolution)
+ 341:.\Generated_Source\PSoC5/ADC.c **** {
+ 230              		.loc 1 341 0
+ 231              		.cfi_startproc
+ 232              		@ args = 0, pretend = 0, frame = 0
+ 233              		@ frame_needed = 0, uses_anonymous_args = 0
+ 234              		@ link register save eliminated.
+ 235              	.LVL16:
+ 342:.\Generated_Source\PSoC5/ADC.c ****     uint8 tmpReg;
+ 343:.\Generated_Source\PSoC5/ADC.c **** 
+ 344:.\Generated_Source\PSoC5/ADC.c ****     /* Set SAR ADC resolution and sample width: 18 conversion cycles at 12bits + 1 gap */
+ 345:.\Generated_Source\PSoC5/ADC.c ****     switch (resolution)
+ 236              		.loc 1 345 0
+ 237 0000 0828     		cmp	r0, #8
+ 238 0002 04D0     		beq	.L12
+ 239 0004 0A28     		cmp	r0, #10
+ 346:.\Generated_Source\PSoC5/ADC.c ****     {
+ 347:.\Generated_Source\PSoC5/ADC.c ****         case (uint8)ADC__BITS_12:
+ 348:.\Generated_Source\PSoC5/ADC.c ****             tmpReg = ADC_SAR_RESOLUTION_12BIT | ADC_SAR_SAMPLE_WIDTH;
+ 240              		.loc 1 348 0
+ 241 0006 0CBF     		ite	eq
+ 242 0008 8223     		moveq	r3, #130
+ 243 000a C223     		movne	r3, #194
+ 244 000c 00E0     		b	.L13
+ 245              	.L12:
+ 246              	.LVL17:
+ 349:.\Generated_Source\PSoC5/ADC.c ****             break;
+ 350:.\Generated_Source\PSoC5/ADC.c ****         case (uint8)ADC__BITS_10:
+ 351:.\Generated_Source\PSoC5/ADC.c ****             tmpReg = ADC_SAR_RESOLUTION_10BIT | ADC_SAR_SAMPLE_WIDTH;
+ 352:.\Generated_Source\PSoC5/ADC.c ****             break;
+ 353:.\Generated_Source\PSoC5/ADC.c ****         case (uint8)ADC__BITS_8:
+ 354:.\Generated_Source\PSoC5/ADC.c ****             tmpReg = ADC_SAR_RESOLUTION_8BIT | ADC_SAR_SAMPLE_WIDTH;
+ 247              		.loc 1 354 0
+ 248 000e 4223     		movs	r3, #66
+ 249              	.LVL18:
+ 250              	.L13:
+ 251 0010 0838     		subs	r0, r0, #8
+ 252              	.LVL19:
+ 355:.\Generated_Source\PSoC5/ADC.c ****             break;
+ 356:.\Generated_Source\PSoC5/ADC.c ****         default:
+ 357:.\Generated_Source\PSoC5/ADC.c ****             tmpReg = ADC_SAR_RESOLUTION_12BIT | ADC_SAR_SAMPLE_WIDTH;
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 12
+
+
+ 358:.\Generated_Source\PSoC5/ADC.c ****             /* Halt CPU in debug mode if resolution is out of valid range */
+ 359:.\Generated_Source\PSoC5/ADC.c ****             CYASSERT(0u != 0u);
+ 360:.\Generated_Source\PSoC5/ADC.c ****             break;
+ 361:.\Generated_Source\PSoC5/ADC.c ****     }
+ 362:.\Generated_Source\PSoC5/ADC.c ****     ADC_SAR_CSR2_REG = tmpReg;
+ 253              		.loc 1 362 0
+ 254 0012 0E4A     		ldr	r2, .L18
+ 255 0014 C0B2     		uxtb	r0, r0
+ 256 0016 0428     		cmp	r0, #4
+ 257 0018 1370     		strb	r3, [r2]
+ 258              	.LVL20:
+ 259 001a 98BF     		it	ls
+ 260 001c 0C4B     		ldrls	r3, .L18+4
+ 261 001e 4FF00002 		mov	r2, #0
+ 262 0022 98BF     		it	ls
+ 263 0024 33F91010 		ldrshls	r1, [r3, r0, lsl #1]
+ 264              	.LBB4:
+ 265              	.LBB5:
+ 363:.\Generated_Source\PSoC5/ADC.c **** 
+ 364:.\Generated_Source\PSoC5/ADC.c ****      /* Calculate gain for convert counts to volts */
+ 365:.\Generated_Source\PSoC5/ADC.c ****     ADC_CalcGain(resolution);
+ 366:.\Generated_Source\PSoC5/ADC.c **** }
+ 367:.\Generated_Source\PSoC5/ADC.c **** 
+ 368:.\Generated_Source\PSoC5/ADC.c **** 
+ 369:.\Generated_Source\PSoC5/ADC.c **** #if(ADC_DEFAULT_CONV_MODE != ADC__HARDWARE_TRIGGER)
+ 370:.\Generated_Source\PSoC5/ADC.c **** 
+ 371:.\Generated_Source\PSoC5/ADC.c **** 
+ 372:.\Generated_Source\PSoC5/ADC.c ****     /*******************************************************************************
+ 373:.\Generated_Source\PSoC5/ADC.c ****     * Function Name: ADC_StartConvert
+ 374:.\Generated_Source\PSoC5/ADC.c ****     ********************************************************************************
+ 375:.\Generated_Source\PSoC5/ADC.c ****     *
+ 376:.\Generated_Source\PSoC5/ADC.c ****     * Summary:
+ 377:.\Generated_Source\PSoC5/ADC.c ****     *  Forces the ADC to initiate a conversion. In free-running mode, the ADC runs
+ 378:.\Generated_Source\PSoC5/ADC.c ****     *  continuously. In software trigger mode, the function also acts as a software
+ 379:.\Generated_Source\PSoC5/ADC.c ****     *  version of the SOC and every conversion must be triggered by
+ 380:.\Generated_Source\PSoC5/ADC.c ****     *  ADC_StartConvert(). This function is not available when the
+ 381:.\Generated_Source\PSoC5/ADC.c ****     *  Hardware Trigger sample mode is selected.
+ 382:.\Generated_Source\PSoC5/ADC.c ****     *
+ 383:.\Generated_Source\PSoC5/ADC.c ****     * Parameters:
+ 384:.\Generated_Source\PSoC5/ADC.c ****     *  None.
+ 385:.\Generated_Source\PSoC5/ADC.c ****     *
+ 386:.\Generated_Source\PSoC5/ADC.c ****     * Return:
+ 387:.\Generated_Source\PSoC5/ADC.c ****     *  None.
+ 388:.\Generated_Source\PSoC5/ADC.c ****     *
+ 389:.\Generated_Source\PSoC5/ADC.c ****     * Theory:
+ 390:.\Generated_Source\PSoC5/ADC.c ****     *  Forces the ADC to initiate a conversion. In Free Running mode, the ADC will
+ 391:.\Generated_Source\PSoC5/ADC.c ****     *  run continuously. In a software trigger mode the function also acts as a
+ 392:.\Generated_Source\PSoC5/ADC.c ****     *  software version of the SOC. Here every conversion has to be triggered by
+ 393:.\Generated_Source\PSoC5/ADC.c ****     *  the routine. This writes into the SOC bit in SAR_CTRL reg.
+ 394:.\Generated_Source\PSoC5/ADC.c ****     *
+ 395:.\Generated_Source\PSoC5/ADC.c ****     * Side Effects:
+ 396:.\Generated_Source\PSoC5/ADC.c ****     *  In a software trigger mode the function switches source for SOF from the
+ 397:.\Generated_Source\PSoC5/ADC.c ****     *  external pin to the internal SOF generation. Application should not call
+ 398:.\Generated_Source\PSoC5/ADC.c ****     *  StartConvert if external source used for SOF.
+ 399:.\Generated_Source\PSoC5/ADC.c ****     *
+ 400:.\Generated_Source\PSoC5/ADC.c ****     *******************************************************************************/
+ 401:.\Generated_Source\PSoC5/ADC.c ****     void ADC_StartConvert(void)
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 13
+
+
+ 402:.\Generated_Source\PSoC5/ADC.c ****     {
+ 403:.\Generated_Source\PSoC5/ADC.c ****         #if(ADC_DEFAULT_CONV_MODE != ADC__FREE_RUNNING)  /* If software triggered mode */
+ 404:.\Generated_Source\PSoC5/ADC.c ****             ADC_SAR_CSR0_REG &= (uint8)~ADC_SAR_MX_SOF_UDB;   /* source: SOF bit */
+ 405:.\Generated_Source\PSoC5/ADC.c ****         #endif /* End ADC_DEFAULT_CONV_MODE */
+ 406:.\Generated_Source\PSoC5/ADC.c **** 
+ 407:.\Generated_Source\PSoC5/ADC.c ****         /* Start the conversion */
+ 408:.\Generated_Source\PSoC5/ADC.c ****         ADC_SAR_CSR0_REG |= ADC_SAR_SOF_START_CONV;
+ 409:.\Generated_Source\PSoC5/ADC.c ****     }
+ 410:.\Generated_Source\PSoC5/ADC.c **** 
+ 411:.\Generated_Source\PSoC5/ADC.c **** 
+ 412:.\Generated_Source\PSoC5/ADC.c ****     /*******************************************************************************
+ 413:.\Generated_Source\PSoC5/ADC.c ****     * Function Name: ADC_StopConvert
+ 414:.\Generated_Source\PSoC5/ADC.c ****     ********************************************************************************
+ 415:.\Generated_Source\PSoC5/ADC.c ****     *
+ 416:.\Generated_Source\PSoC5/ADC.c ****     * Summary:
+ 417:.\Generated_Source\PSoC5/ADC.c ****     *  Forces the ADC to stop conversions. If a conversion is currently executing,
+ 418:.\Generated_Source\PSoC5/ADC.c ****     *  that conversion will complete, but no further conversions will occur. This
+ 419:.\Generated_Source\PSoC5/ADC.c ****     *  function is not available when the Hardware Trigger sample mode is selected.
+ 420:.\Generated_Source\PSoC5/ADC.c ****     *
+ 421:.\Generated_Source\PSoC5/ADC.c ****     * Parameters:
+ 422:.\Generated_Source\PSoC5/ADC.c ****     *  None.
+ 423:.\Generated_Source\PSoC5/ADC.c ****     *
+ 424:.\Generated_Source\PSoC5/ADC.c ****     * Return:
+ 425:.\Generated_Source\PSoC5/ADC.c ****     *  None.
+ 426:.\Generated_Source\PSoC5/ADC.c ****     *
+ 427:.\Generated_Source\PSoC5/ADC.c ****     * Theory:
+ 428:.\Generated_Source\PSoC5/ADC.c ****     *  Stops ADC conversion in Free Running mode.
+ 429:.\Generated_Source\PSoC5/ADC.c ****     *
+ 430:.\Generated_Source\PSoC5/ADC.c ****     * Side Effects:
+ 431:.\Generated_Source\PSoC5/ADC.c ****     *  In Software Trigger sample mode, this function sets a software version of the
+ 432:.\Generated_Source\PSoC5/ADC.c ****     *  SOC to low level and switches the SOC source to hardware SOC input.
+ 433:.\Generated_Source\PSoC5/ADC.c ****     *
+ 434:.\Generated_Source\PSoC5/ADC.c ****     *******************************************************************************/
+ 435:.\Generated_Source\PSoC5/ADC.c ****     void ADC_StopConvert(void)
+ 436:.\Generated_Source\PSoC5/ADC.c ****     {
+ 437:.\Generated_Source\PSoC5/ADC.c ****         /* Stop all conversions */
+ 438:.\Generated_Source\PSoC5/ADC.c ****         ADC_SAR_CSR0_REG &= (uint8)~ADC_SAR_SOF_START_CONV;
+ 439:.\Generated_Source\PSoC5/ADC.c **** 
+ 440:.\Generated_Source\PSoC5/ADC.c ****         #if(ADC_DEFAULT_CONV_MODE != ADC__FREE_RUNNING)  /* If software triggered mode */
+ 441:.\Generated_Source\PSoC5/ADC.c ****             /* Return source to UDB for hardware SOF signal */
+ 442:.\Generated_Source\PSoC5/ADC.c ****             ADC_SAR_CSR0_REG |= ADC_SAR_MX_SOF_UDB;    /* source: UDB */
+ 443:.\Generated_Source\PSoC5/ADC.c ****         #endif /* End ADC_DEFAULT_CONV_MODE */
+ 444:.\Generated_Source\PSoC5/ADC.c **** 
+ 445:.\Generated_Source\PSoC5/ADC.c ****     }
+ 446:.\Generated_Source\PSoC5/ADC.c **** 
+ 447:.\Generated_Source\PSoC5/ADC.c **** #endif /* End ADC_DEFAULT_CONV_MODE != ADC__HARDWARE_TRIGGER */
+ 448:.\Generated_Source\PSoC5/ADC.c **** 
+ 449:.\Generated_Source\PSoC5/ADC.c **** 
+ 450:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 451:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_IsEndConversion
+ 452:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 453:.\Generated_Source\PSoC5/ADC.c **** *
+ 454:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 455:.\Generated_Source\PSoC5/ADC.c **** *  Immediately returns the status of the conversion or does not return
+ 456:.\Generated_Source\PSoC5/ADC.c **** *  (blocking) until the conversion completes, depending on the retMode
+ 457:.\Generated_Source\PSoC5/ADC.c **** *  parameter.
+ 458:.\Generated_Source\PSoC5/ADC.c **** *
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 14
+
+
+ 459:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 460:.\Generated_Source\PSoC5/ADC.c **** *  retMode:  Check conversion return mode.
+ 461:.\Generated_Source\PSoC5/ADC.c **** *   ADC_RETURN_STATUS: Immediately returns the status. If the
+ 462:.\Generated_Source\PSoC5/ADC.c **** *     value returned is zero, the conversion is not complete, and this function
+ 463:.\Generated_Source\PSoC5/ADC.c **** *     should be retried until a nonzero result is returned.
+ 464:.\Generated_Source\PSoC5/ADC.c **** *   ADC_WAIT_FOR_RESULT: Does not return a result until the ADC
+ 465:.\Generated_Source\PSoC5/ADC.c **** *     conversion is complete.
+ 466:.\Generated_Source\PSoC5/ADC.c **** *
+ 467:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 468:.\Generated_Source\PSoC5/ADC.c **** *  (uint8)  0 =>  The ADC is still calculating the last result.
+ 469:.\Generated_Source\PSoC5/ADC.c **** *           1 =>  The last conversion is complete.
+ 470:.\Generated_Source\PSoC5/ADC.c **** *
+ 471:.\Generated_Source\PSoC5/ADC.c **** * Side Effects:
+ 472:.\Generated_Source\PSoC5/ADC.c **** *  This function reads the end of conversion status, which is cleared on read.
+ 473:.\Generated_Source\PSoC5/ADC.c **** *
+ 474:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 475:.\Generated_Source\PSoC5/ADC.c **** uint8 ADC_IsEndConversion(uint8 retMode)
+ 476:.\Generated_Source\PSoC5/ADC.c **** {
+ 477:.\Generated_Source\PSoC5/ADC.c ****     uint8 status;
+ 478:.\Generated_Source\PSoC5/ADC.c **** 
+ 479:.\Generated_Source\PSoC5/ADC.c ****     do
+ 480:.\Generated_Source\PSoC5/ADC.c ****     {
+ 481:.\Generated_Source\PSoC5/ADC.c ****         status = ADC_SAR_CSR1_REG & ADC_SAR_EOF_1;
+ 482:.\Generated_Source\PSoC5/ADC.c ****     } while ((status != ADC_SAR_EOF_1) && (retMode == ADC_WAIT_FOR_RESULT));
+ 483:.\Generated_Source\PSoC5/ADC.c ****     /* If convertion complete, wait until EOF bit released */
+ 484:.\Generated_Source\PSoC5/ADC.c ****     if(status == ADC_SAR_EOF_1)
+ 485:.\Generated_Source\PSoC5/ADC.c ****     {
+ 486:.\Generated_Source\PSoC5/ADC.c ****         /* wait one ADC clock to let the EOC status bit release */
+ 487:.\Generated_Source\PSoC5/ADC.c ****         CyDelayUs(1u);
+ 488:.\Generated_Source\PSoC5/ADC.c ****         /* Do the unconditional read operation of the CSR1 register to make sure the EOC bit has be
+ 489:.\Generated_Source\PSoC5/ADC.c ****         CY_GET_REG8(ADC_SAR_CSR1_PTR);
+ 490:.\Generated_Source\PSoC5/ADC.c ****     }
+ 491:.\Generated_Source\PSoC5/ADC.c **** 
+ 492:.\Generated_Source\PSoC5/ADC.c ****     return(status);
+ 493:.\Generated_Source\PSoC5/ADC.c **** }
+ 494:.\Generated_Source\PSoC5/ADC.c **** 
+ 495:.\Generated_Source\PSoC5/ADC.c **** 
+ 496:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 497:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_GetResult8
+ 498:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 499:.\Generated_Source\PSoC5/ADC.c **** *
+ 500:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 501:.\Generated_Source\PSoC5/ADC.c **** *  Returns the result of an 8-bit conversion. If the resolution is set greater
+ 502:.\Generated_Source\PSoC5/ADC.c **** *  than 8 bits, the function returns the LSB of the result.
+ 503:.\Generated_Source\PSoC5/ADC.c **** *  ADC_IsEndConversion() should be called to verify that the data
+ 504:.\Generated_Source\PSoC5/ADC.c **** *   sample is ready.
+ 505:.\Generated_Source\PSoC5/ADC.c **** *
+ 506:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 507:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 508:.\Generated_Source\PSoC5/ADC.c **** *
+ 509:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 510:.\Generated_Source\PSoC5/ADC.c **** *  The LSB of the last ADC conversion.
+ 511:.\Generated_Source\PSoC5/ADC.c **** *
+ 512:.\Generated_Source\PSoC5/ADC.c **** * Global Variables:
+ 513:.\Generated_Source\PSoC5/ADC.c **** *  ADC_shift - used to convert the ADC counts to the 2s
+ 514:.\Generated_Source\PSoC5/ADC.c **** *  compliment form.
+ 515:.\Generated_Source\PSoC5/ADC.c **** *
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 15
+
+
+ 516:.\Generated_Source\PSoC5/ADC.c **** * Side Effects:
+ 517:.\Generated_Source\PSoC5/ADC.c **** *  Converts the ADC counts to the 2s complement form.
+ 518:.\Generated_Source\PSoC5/ADC.c **** *
+ 519:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 520:.\Generated_Source\PSoC5/ADC.c **** int8 ADC_GetResult8( void )
+ 521:.\Generated_Source\PSoC5/ADC.c **** {
+ 522:.\Generated_Source\PSoC5/ADC.c ****     return( (int8)ADC_SAR_WRK0_REG - (int8)ADC_shift);
+ 523:.\Generated_Source\PSoC5/ADC.c **** }
+ 524:.\Generated_Source\PSoC5/ADC.c **** 
+ 525:.\Generated_Source\PSoC5/ADC.c **** 
+ 526:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 527:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_GetResult16
+ 528:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 529:.\Generated_Source\PSoC5/ADC.c **** *
+ 530:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 531:.\Generated_Source\PSoC5/ADC.c **** *  Returns a 16-bit result for a conversion with a result that has a resolution
+ 532:.\Generated_Source\PSoC5/ADC.c **** *  of 8 to 12 bits.
+ 533:.\Generated_Source\PSoC5/ADC.c **** *  ADC_IsEndConversion() should be called to verify that the data
+ 534:.\Generated_Source\PSoC5/ADC.c **** *   sample is ready
+ 535:.\Generated_Source\PSoC5/ADC.c **** *
+ 536:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 537:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 538:.\Generated_Source\PSoC5/ADC.c **** *
+ 539:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 540:.\Generated_Source\PSoC5/ADC.c **** *  The 16-bit result of the last ADC conversion
+ 541:.\Generated_Source\PSoC5/ADC.c **** *
+ 542:.\Generated_Source\PSoC5/ADC.c **** * Global Variables:
+ 543:.\Generated_Source\PSoC5/ADC.c **** *  ADC_shift - used to convert the ADC counts to the 2s
+ 544:.\Generated_Source\PSoC5/ADC.c **** *  compliment form.
+ 545:.\Generated_Source\PSoC5/ADC.c **** *
+ 546:.\Generated_Source\PSoC5/ADC.c **** * Side Effects:
+ 547:.\Generated_Source\PSoC5/ADC.c **** *  Converts the ADC counts to the 2s complement form.
+ 548:.\Generated_Source\PSoC5/ADC.c **** *
+ 549:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 550:.\Generated_Source\PSoC5/ADC.c **** int16 ADC_GetResult16( void )
+ 551:.\Generated_Source\PSoC5/ADC.c **** {
+ 552:.\Generated_Source\PSoC5/ADC.c ****     uint16 res;
+ 553:.\Generated_Source\PSoC5/ADC.c **** 
+ 554:.\Generated_Source\PSoC5/ADC.c ****     res = CY_GET_REG16(ADC_SAR_WRK_PTR);
+ 555:.\Generated_Source\PSoC5/ADC.c **** 
+ 556:.\Generated_Source\PSoC5/ADC.c ****     return( (int16)res - ADC_shift );
+ 557:.\Generated_Source\PSoC5/ADC.c **** }
+ 558:.\Generated_Source\PSoC5/ADC.c **** 
+ 559:.\Generated_Source\PSoC5/ADC.c **** 
+ 560:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 561:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_SetOffset
+ 562:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 563:.\Generated_Source\PSoC5/ADC.c **** *
+ 564:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 565:.\Generated_Source\PSoC5/ADC.c **** *  Sets the ADC offset, which is used by ADC_CountsTo_Volts(),
+ 566:.\Generated_Source\PSoC5/ADC.c **** *  ADC_CountsTo_mVolts(), and ADC_CountsTo_uVolts()
+ 567:.\Generated_Source\PSoC5/ADC.c **** *  to subtract the offset from the given reading before calculating the voltage
+ 568:.\Generated_Source\PSoC5/ADC.c **** *  conversion.
+ 569:.\Generated_Source\PSoC5/ADC.c **** *
+ 570:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 571:.\Generated_Source\PSoC5/ADC.c **** *  int16: This value is measured when the inputs are shorted or connected to
+ 572:.\Generated_Source\PSoC5/ADC.c ****    the same input voltage.
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 16
+
+
+ 573:.\Generated_Source\PSoC5/ADC.c **** *
+ 574:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 575:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 576:.\Generated_Source\PSoC5/ADC.c **** *
+ 577:.\Generated_Source\PSoC5/ADC.c **** * Global Variables:
+ 578:.\Generated_Source\PSoC5/ADC.c **** *  The ADC_offset variable modified. This variable is used for
+ 579:.\Generated_Source\PSoC5/ADC.c **** *  offset calibration purpose.
+ 580:.\Generated_Source\PSoC5/ADC.c **** *  Affects the ADC_CountsTo_Volts,
+ 581:.\Generated_Source\PSoC5/ADC.c **** *  ADC_CountsTo_mVolts, ADC_CountsTo_uVolts functions
+ 582:.\Generated_Source\PSoC5/ADC.c **** *  by subtracting the given offset.
+ 583:.\Generated_Source\PSoC5/ADC.c **** *
+ 584:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 585:.\Generated_Source\PSoC5/ADC.c **** void ADC_SetOffset(int16 offset)
+ 586:.\Generated_Source\PSoC5/ADC.c **** {
+ 587:.\Generated_Source\PSoC5/ADC.c ****     ADC_offset = offset;
+ 588:.\Generated_Source\PSoC5/ADC.c **** }
+ 589:.\Generated_Source\PSoC5/ADC.c **** 
+ 590:.\Generated_Source\PSoC5/ADC.c **** 
+ 591:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 592:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_CalcGain
+ 593:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 594:.\Generated_Source\PSoC5/ADC.c **** *
+ 595:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 596:.\Generated_Source\PSoC5/ADC.c **** *  This function calculates the ADC gain in counts per 10 volt.
+ 597:.\Generated_Source\PSoC5/ADC.c **** *
+ 598:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 599:.\Generated_Source\PSoC5/ADC.c **** *  uint8: resolution
+ 600:.\Generated_Source\PSoC5/ADC.c **** *
+ 601:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 602:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 603:.\Generated_Source\PSoC5/ADC.c **** *
+ 604:.\Generated_Source\PSoC5/ADC.c **** * Global Variables:
+ 605:.\Generated_Source\PSoC5/ADC.c **** *  ADC_shift variable initialized. This variable is used to
+ 606:.\Generated_Source\PSoC5/ADC.c **** *  convert the ADC counts to the 2s compliment form.
+ 607:.\Generated_Source\PSoC5/ADC.c **** *  ADC_countsPer10Volt variable initialized. This variable is used
+ 608:.\Generated_Source\PSoC5/ADC.c **** *  for gain calibration purpose.
+ 609:.\Generated_Source\PSoC5/ADC.c **** *
+ 610:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 611:.\Generated_Source\PSoC5/ADC.c **** static void ADC_CalcGain( uint8 resolution )
+ 612:.\Generated_Source\PSoC5/ADC.c **** {
+ 613:.\Generated_Source\PSoC5/ADC.c ****     int32 counts;
+ 614:.\Generated_Source\PSoC5/ADC.c ****     #if(!((ADC_DEFAULT_RANGE == ADC__VSS_TO_VREF) || \
+ 615:.\Generated_Source\PSoC5/ADC.c ****          (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDDA) || \
+ 616:.\Generated_Source\PSoC5/ADC.c ****          (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDAC)) )
+ 617:.\Generated_Source\PSoC5/ADC.c ****         uint16 diff_zero;
+ 618:.\Generated_Source\PSoC5/ADC.c ****     #endif /* End ADC_DEFAULT_RANGE */
+ 619:.\Generated_Source\PSoC5/ADC.c **** 
+ 620:.\Generated_Source\PSoC5/ADC.c ****     switch (resolution)
+ 621:.\Generated_Source\PSoC5/ADC.c ****     {
+ 622:.\Generated_Source\PSoC5/ADC.c ****         case (uint8)ADC__BITS_12:
+ 623:.\Generated_Source\PSoC5/ADC.c ****             counts = (int32)ADC_SAR_WRK_MAX_12BIT;
+ 624:.\Generated_Source\PSoC5/ADC.c ****             #if(!((ADC_DEFAULT_RANGE == ADC__VSS_TO_VREF) || \
+ 625:.\Generated_Source\PSoC5/ADC.c ****                  (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDDA) || \
+ 626:.\Generated_Source\PSoC5/ADC.c ****                  (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDAC)) )
+ 627:.\Generated_Source\PSoC5/ADC.c ****                 diff_zero = ADC_SAR_DIFF_SHIFT;
+ 628:.\Generated_Source\PSoC5/ADC.c ****             #endif /* End ADC_DEFAULT_RANGE */
+ 629:.\Generated_Source\PSoC5/ADC.c ****             break;
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 17
+
+
+ 630:.\Generated_Source\PSoC5/ADC.c ****         case (uint8)ADC__BITS_10:
+ 631:.\Generated_Source\PSoC5/ADC.c ****             counts = (int32)ADC_SAR_WRK_MAX_10BIT;
+ 632:.\Generated_Source\PSoC5/ADC.c ****             #if(!((ADC_DEFAULT_RANGE == ADC__VSS_TO_VREF) || \
+ 633:.\Generated_Source\PSoC5/ADC.c ****                  (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDDA) || \
+ 634:.\Generated_Source\PSoC5/ADC.c ****                  (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDAC)) )
+ 635:.\Generated_Source\PSoC5/ADC.c ****                 diff_zero = ADC_SAR_DIFF_SHIFT >> 2u;
+ 636:.\Generated_Source\PSoC5/ADC.c ****             #endif /* End ADC_DEFAULT_RANGE */
+ 637:.\Generated_Source\PSoC5/ADC.c ****             break;
+ 638:.\Generated_Source\PSoC5/ADC.c ****         case (uint8)ADC__BITS_8:
+ 639:.\Generated_Source\PSoC5/ADC.c ****             counts = (int32)ADC_SAR_WRK_MAX_8BIT;
+ 640:.\Generated_Source\PSoC5/ADC.c ****             #if(!((ADC_DEFAULT_RANGE == ADC__VSS_TO_VREF) || \
+ 641:.\Generated_Source\PSoC5/ADC.c ****                  (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDDA) || \
+ 642:.\Generated_Source\PSoC5/ADC.c ****                  (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDAC)) )
+ 643:.\Generated_Source\PSoC5/ADC.c ****                 diff_zero = ADC_SAR_DIFF_SHIFT >> 4u;
+ 644:.\Generated_Source\PSoC5/ADC.c ****             #endif /* End ADC_DEFAULT_RANGE */
+ 645:.\Generated_Source\PSoC5/ADC.c ****             break;
+ 646:.\Generated_Source\PSoC5/ADC.c ****         default: /* Halt CPU in debug mode if resolution is out of valid range */
+ 647:.\Generated_Source\PSoC5/ADC.c ****             counts = 0;
+ 648:.\Generated_Source\PSoC5/ADC.c ****             #if(!((ADC_DEFAULT_RANGE == ADC__VSS_TO_VREF) || \
+ 649:.\Generated_Source\PSoC5/ADC.c ****                  (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDDA) || \
+ 650:.\Generated_Source\PSoC5/ADC.c ****                  (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDAC)) )
+ 651:.\Generated_Source\PSoC5/ADC.c ****                 diff_zero = 0u;
+ 652:.\Generated_Source\PSoC5/ADC.c ****             #endif /* End ADC_DEFAULT_RANGE */
+ 653:.\Generated_Source\PSoC5/ADC.c ****             CYASSERT(0u != 0u);
+ 654:.\Generated_Source\PSoC5/ADC.c ****             break;
+ 655:.\Generated_Source\PSoC5/ADC.c ****     }
+ 656:.\Generated_Source\PSoC5/ADC.c ****     ADC_countsPerVolt = 0; /* Clear obsolete variable */
+ 266              		.loc 1 656 0
+ 267 0028 0A4B     		ldr	r3, .L18+8
+ 268              	.LBE5:
+ 269              	.LBE4:
+ 362:.\Generated_Source\PSoC5/ADC.c **** 
+ 270              		.loc 1 362 0
+ 271 002a 88BF     		it	hi
+ 272 002c 1146     		movhi	r1, r2
+ 273              	.LVL21:
+ 274              	.LBB7:
+ 275              	.LBB6:
+ 276              		.loc 1 656 0
+ 277 002e 1A80     		strh	r2, [r3]	@ movhi
+ 657:.\Generated_Source\PSoC5/ADC.c ****     /* Calculate gain in counts per 10 volts with rounding */
+ 658:.\Generated_Source\PSoC5/ADC.c ****     ADC_countsPer10Volt = (((counts * ADC_10MV_COUNTS) +
+ 278              		.loc 1 658 0
+ 279 0030 42F21073 		movw	r3, #10000
+ 280 0034 4B43     		muls	r3, r1, r3
+ 659:.\Generated_Source\PSoC5/ADC.c ****                         ADC_DEFAULT_REF_VOLTAGE_MV) / (ADC_DEFAULT_REF_VOLTAGE_MV * 2));
+ 281              		.loc 1 659 0
+ 282 0036 41F28831 		movw	r1, #5000
+ 283              	.LVL22:
+ 658:.\Generated_Source\PSoC5/ADC.c ****                         ADC_DEFAULT_REF_VOLTAGE_MV) / (ADC_DEFAULT_REF_VOLTAGE_MV * 2));
+ 284              		.loc 1 658 0
+ 285 003a 03F6C413 		addw	r3, r3, #2500
+ 286              		.loc 1 659 0
+ 287 003e 93FBF1F3 		sdiv	r3, r3, r1
+ 658:.\Generated_Source\PSoC5/ADC.c ****                         ADC_DEFAULT_REF_VOLTAGE_MV) / (ADC_DEFAULT_REF_VOLTAGE_MV * 2));
+ 288              		.loc 1 658 0
+ 289 0042 0549     		ldr	r1, .L18+12
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 18
+
+
+ 290 0044 0B60     		str	r3, [r1]
+ 660:.\Generated_Source\PSoC5/ADC.c **** 
+ 661:.\Generated_Source\PSoC5/ADC.c ****     #if( (ADC_DEFAULT_RANGE == ADC__VSS_TO_VREF) || \
+ 662:.\Generated_Source\PSoC5/ADC.c ****          (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDDA) || \
+ 663:.\Generated_Source\PSoC5/ADC.c ****          (ADC_DEFAULT_RANGE == ADC__VSSA_TO_VDAC) )
+ 664:.\Generated_Source\PSoC5/ADC.c ****         ADC_shift = 0;
+ 291              		.loc 1 664 0
+ 292 0046 054B     		ldr	r3, .L18+16
+ 293 0048 1A80     		strh	r2, [r3]	@ movhi
+ 294 004a 7047     		bx	lr
+ 295              	.L19:
+ 296              		.align	2
+ 297              	.L18:
+ 298 004c 02590040 		.word	1073764610
+ 299 0050 00000000 		.word	.LANCHOR0
+ 300 0054 00000000 		.word	ADC_countsPerVolt
+ 301 0058 00000000 		.word	ADC_countsPer10Volt
+ 302 005c 00000000 		.word	ADC_shift
+ 303              	.LBE6:
+ 304              	.LBE7:
+ 305              		.cfi_endproc
+ 306              	.LFE5:
+ 307              		.size	ADC_SetResolution, .-ADC_SetResolution
+ 308              		.section	.text.ADC_Init,"ax",%progbits
+ 309              		.align	1
+ 310              		.global	ADC_Init
+ 311              		.thumb
+ 312              		.thumb_func
+ 313              		.type	ADC_Init, %function
+ 314              	ADC_Init:
+ 315              	.LFB1:
+ 107:.\Generated_Source\PSoC5/ADC.c **** 
+ 316              		.loc 1 107 0
+ 317              		.cfi_startproc
+ 318              		@ args = 0, pretend = 0, frame = 0
+ 319              		@ frame_needed = 0, uses_anonymous_args = 0
+ 320 0000 08B5     		push	{r3, lr}
+ 321              		.cfi_def_cfa_offset 8
+ 322              		.cfi_offset 3, -8
+ 323              		.cfi_offset 14, -4
+ 111:.\Generated_Source\PSoC5/ADC.c ****     #endif /* End ADC_DEFAULT_INTERNAL_CLK */
+ 324              		.loc 1 111 0
+ 325 0002 1020     		movs	r0, #16
+ 326 0004 FFF7FEFF 		bl	ADC_theACLK_SetModeRegister
+ 327              	.LVL23:
+ 116:.\Generated_Source\PSoC5/ADC.c ****         (void)CyIntSetVector(ADC_INTC_NUMBER, &ADC_ISR);
+ 328              		.loc 1 116 0
+ 329 0008 0020     		movs	r0, #0
+ 330 000a 0721     		movs	r1, #7
+ 331 000c FFF7FEFF 		bl	CyIntSetPriority
+ 332              	.LVL24:
+ 117:.\Generated_Source\PSoC5/ADC.c ****     #endif   /* End ADC_IRQ_REMOVE */
+ 333              		.loc 1 117 0
+ 334 0010 0749     		ldr	r1, .L21
+ 335 0012 0020     		movs	r0, #0
+ 336 0014 FFF7FEFF 		bl	CyIntSetVector
+ 337              	.LVL25:
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 19
+
+
+ 121:.\Generated_Source\PSoC5/ADC.c **** 
+ 338              		.loc 1 121 0
+ 339 0018 064A     		ldr	r2, .L21+4
+ 124:.\Generated_Source\PSoC5/ADC.c ****     ADC_offset = 0;
+ 340              		.loc 1 124 0
+ 341 001a 0820     		movs	r0, #8
+ 121:.\Generated_Source\PSoC5/ADC.c **** 
+ 342              		.loc 1 121 0
+ 343 001c 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 344 001e 43F00603 		orr	r3, r3, #6
+ 345 0022 1370     		strb	r3, [r2]
+ 124:.\Generated_Source\PSoC5/ADC.c ****     ADC_offset = 0;
+ 346              		.loc 1 124 0
+ 347 0024 FFF7FEFF 		bl	ADC_SetResolution
+ 348              	.LVL26:
+ 125:.\Generated_Source\PSoC5/ADC.c **** }
+ 349              		.loc 1 125 0
+ 350 0028 034B     		ldr	r3, .L21+8
+ 351 002a 0022     		movs	r2, #0
+ 352 002c 1A80     		strh	r2, [r3]	@ movhi
+ 353 002e 08BD     		pop	{r3, pc}
+ 354              	.L22:
+ 355              		.align	2
+ 356              	.L21:
+ 357 0030 00000000 		.word	ADC_ISR
+ 358 0034 01590040 		.word	1073764609
+ 359 0038 00000000 		.word	ADC_offset
+ 360              		.cfi_endproc
+ 361              	.LFE1:
+ 362              		.size	ADC_Init, .-ADC_Init
+ 363              		.section	.text.ADC_Start,"ax",%progbits
+ 364              		.align	1
+ 365              		.global	ADC_Start
+ 366              		.thumb
+ 367              		.thumb_func
+ 368              		.type	ADC_Start, %function
+ 369              	ADC_Start:
+ 370              	.LFB0:
+  75:.\Generated_Source\PSoC5/ADC.c **** 
+ 371              		.loc 1 75 0
+ 372              		.cfi_startproc
+ 373              		@ args = 0, pretend = 0, frame = 0
+ 374              		@ frame_needed = 0, uses_anonymous_args = 0
+ 375 0000 10B5     		push	{r4, lr}
+ 376              		.cfi_def_cfa_offset 8
+ 377              		.cfi_offset 4, -8
+ 378              		.cfi_offset 14, -4
+  78:.\Generated_Source\PSoC5/ADC.c ****     {
+ 379              		.loc 1 78 0
+ 380 0002 054C     		ldr	r4, .L25
+ 381 0004 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 382 0006 1BB9     		cbnz	r3, .L24
+  80:.\Generated_Source\PSoC5/ADC.c ****         ADC_initVar = 1u;
+ 383              		.loc 1 80 0
+ 384 0008 FFF7FEFF 		bl	ADC_Init
+ 385              	.LVL27:
+  81:.\Generated_Source\PSoC5/ADC.c ****     }
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 20
+
+
+ 386              		.loc 1 81 0
+ 387 000c 0123     		movs	r3, #1
+ 388 000e 2370     		strb	r3, [r4]
+ 389              	.L24:
+  84:.\Generated_Source\PSoC5/ADC.c **** 
+ 390              		.loc 1 84 0
+ 391 0010 BDE81040 		pop	{r4, lr}
+ 392              		.cfi_restore 14
+ 393              		.cfi_restore 4
+ 394              		.cfi_def_cfa_offset 0
+  83:.\Generated_Source\PSoC5/ADC.c **** }
+ 395              		.loc 1 83 0
+ 396 0014 FFF7FEBF 		b	ADC_Enable
+ 397              	.LVL28:
+ 398              	.L26:
+ 399              		.align	2
+ 400              	.L25:
+ 401 0018 00000000 		.word	.LANCHOR1
+ 402              		.cfi_endproc
+ 403              	.LFE0:
+ 404              		.size	ADC_Start, .-ADC_Start
+ 405              		.section	.text.ADC_StartConvert,"ax",%progbits
+ 406              		.align	1
+ 407              		.global	ADC_StartConvert
+ 408              		.thumb
+ 409              		.thumb_func
+ 410              		.type	ADC_StartConvert, %function
+ 411              	ADC_StartConvert:
+ 412              	.LFB6:
+ 402:.\Generated_Source\PSoC5/ADC.c ****         #if(ADC_DEFAULT_CONV_MODE != ADC__FREE_RUNNING)  /* If software triggered mode */
+ 413              		.loc 1 402 0
+ 414              		.cfi_startproc
+ 415              		@ args = 0, pretend = 0, frame = 0
+ 416              		@ frame_needed = 0, uses_anonymous_args = 0
+ 417              		@ link register save eliminated.
+ 404:.\Generated_Source\PSoC5/ADC.c ****         #endif /* End ADC_DEFAULT_CONV_MODE */
+ 418              		.loc 1 404 0
+ 419 0000 044B     		ldr	r3, .L28
+ 420 0002 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 421 0004 02F0FB02 		and	r2, r2, #251
+ 422 0008 1A70     		strb	r2, [r3]
+ 408:.\Generated_Source\PSoC5/ADC.c ****     }
+ 423              		.loc 1 408 0
+ 424 000a 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 425 000c 42F00102 		orr	r2, r2, #1
+ 426 0010 1A70     		strb	r2, [r3]
+ 427 0012 7047     		bx	lr
+ 428              	.L29:
+ 429              		.align	2
+ 430              	.L28:
+ 431 0014 00590040 		.word	1073764608
+ 432              		.cfi_endproc
+ 433              	.LFE6:
+ 434              		.size	ADC_StartConvert, .-ADC_StartConvert
+ 435              		.section	.text.ADC_StopConvert,"ax",%progbits
+ 436              		.align	1
+ 437              		.global	ADC_StopConvert
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 21
+
+
+ 438              		.thumb
+ 439              		.thumb_func
+ 440              		.type	ADC_StopConvert, %function
+ 441              	ADC_StopConvert:
+ 442              	.LFB7:
+ 436:.\Generated_Source\PSoC5/ADC.c ****         /* Stop all conversions */
+ 443              		.loc 1 436 0
+ 444              		.cfi_startproc
+ 445              		@ args = 0, pretend = 0, frame = 0
+ 446              		@ frame_needed = 0, uses_anonymous_args = 0
+ 447              		@ link register save eliminated.
+ 438:.\Generated_Source\PSoC5/ADC.c **** 
+ 448              		.loc 1 438 0
+ 449 0000 044B     		ldr	r3, .L31
+ 450 0002 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 451 0004 02F0FE02 		and	r2, r2, #254
+ 452 0008 1A70     		strb	r2, [r3]
+ 442:.\Generated_Source\PSoC5/ADC.c ****         #endif /* End ADC_DEFAULT_CONV_MODE */
+ 453              		.loc 1 442 0
+ 454 000a 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 455 000c 42F00402 		orr	r2, r2, #4
+ 456 0010 1A70     		strb	r2, [r3]
+ 457 0012 7047     		bx	lr
+ 458              	.L32:
+ 459              		.align	2
+ 460              	.L31:
+ 461 0014 00590040 		.word	1073764608
+ 462              		.cfi_endproc
+ 463              	.LFE7:
+ 464              		.size	ADC_StopConvert, .-ADC_StopConvert
+ 465              		.section	.text.ADC_IsEndConversion,"ax",%progbits
+ 466              		.align	1
+ 467              		.global	ADC_IsEndConversion
+ 468              		.thumb
+ 469              		.thumb_func
+ 470              		.type	ADC_IsEndConversion, %function
+ 471              	ADC_IsEndConversion:
+ 472              	.LFB8:
+ 476:.\Generated_Source\PSoC5/ADC.c ****     uint8 status;
+ 473              		.loc 1 476 0
+ 474              		.cfi_startproc
+ 475              		@ args = 0, pretend = 0, frame = 0
+ 476              		@ frame_needed = 0, uses_anonymous_args = 0
+ 477              	.LVL29:
+ 478 0000 38B5     		push	{r3, r4, r5, lr}
+ 479              		.cfi_def_cfa_offset 16
+ 480              		.cfi_offset 3, -16
+ 481              		.cfi_offset 4, -12
+ 482              		.cfi_offset 5, -8
+ 483              		.cfi_offset 14, -4
+ 484              	.L35:
+ 481:.\Generated_Source\PSoC5/ADC.c ****     } while ((status != ADC_SAR_EOF_1) && (retMode == ADC_WAIT_FOR_RESULT));
+ 485              		.loc 1 481 0 discriminator 2
+ 486 0002 074D     		ldr	r5, .L40
+ 487 0004 2C78     		ldrb	r4, [r5]	@ zero_extendqisi2
+ 488              	.LVL30:
+ 482:.\Generated_Source\PSoC5/ADC.c ****     /* If convertion complete, wait until EOF bit released */
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 22
+
+
+ 489              		.loc 1 482 0 discriminator 2
+ 490 0006 14F00104 		ands	r4, r4, #1
+ 491              	.LVL31:
+ 492 000a 03D1     		bne	.L34
+ 482:.\Generated_Source\PSoC5/ADC.c ****     /* If convertion complete, wait until EOF bit released */
+ 493              		.loc 1 482 0 is_stmt 0 discriminator 1
+ 494 000c 0028     		cmp	r0, #0
+ 495 000e F8D0     		beq	.L35
+ 496 0010 0024     		movs	r4, #0
+ 497 0012 03E0     		b	.L39
+ 498              	.L34:
+ 487:.\Generated_Source\PSoC5/ADC.c ****         /* Do the unconditional read operation of the CSR1 register to make sure the EOC bit has be
+ 499              		.loc 1 487 0 is_stmt 1
+ 500 0014 2046     		mov	r0, r4
+ 501              	.LVL32:
+ 502 0016 FFF7FEFF 		bl	CyDelayUs
+ 503              	.LVL33:
+ 489:.\Generated_Source\PSoC5/ADC.c ****     }
+ 504              		.loc 1 489 0
+ 505 001a 2B78     		ldrb	r3, [r5]	@ zero_extendqisi2
+ 506              	.L39:
+ 493:.\Generated_Source\PSoC5/ADC.c **** 
+ 507              		.loc 1 493 0
+ 508 001c 2046     		mov	r0, r4
+ 509 001e 38BD     		pop	{r3, r4, r5, pc}
+ 510              	.L41:
+ 511              		.align	2
+ 512              	.L40:
+ 513 0020 01590040 		.word	1073764609
+ 514              		.cfi_endproc
+ 515              	.LFE8:
+ 516              		.size	ADC_IsEndConversion, .-ADC_IsEndConversion
+ 517              		.section	.text.ADC_GetResult8,"ax",%progbits
+ 518              		.align	1
+ 519              		.global	ADC_GetResult8
+ 520              		.thumb
+ 521              		.thumb_func
+ 522              		.type	ADC_GetResult8, %function
+ 523              	ADC_GetResult8:
+ 524              	.LFB9:
+ 521:.\Generated_Source\PSoC5/ADC.c ****     return( (int8)ADC_SAR_WRK0_REG - (int8)ADC_shift);
+ 525              		.loc 1 521 0
+ 526              		.cfi_startproc
+ 527              		@ args = 0, pretend = 0, frame = 0
+ 528              		@ frame_needed = 0, uses_anonymous_args = 0
+ 529              		@ link register save eliminated.
+ 522:.\Generated_Source\PSoC5/ADC.c **** }
+ 530              		.loc 1 522 0
+ 531 0000 034A     		ldr	r2, .L43
+ 532 0002 044B     		ldr	r3, .L43+4
+ 533 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 534 0006 1088     		ldrh	r0, [r2]
+ 535 0008 181A     		subs	r0, r3, r0
+ 523:.\Generated_Source\PSoC5/ADC.c **** 
+ 536              		.loc 1 523 0
+ 537 000a 40B2     		sxtb	r0, r0
+ 538 000c 7047     		bx	lr
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 23
+
+
+ 539              	.L44:
+ 540 000e 00BF     		.align	2
+ 541              	.L43:
+ 542 0010 00000000 		.word	ADC_shift
+ 543 0014 A05B0040 		.word	1073765280
+ 544              		.cfi_endproc
+ 545              	.LFE9:
+ 546              		.size	ADC_GetResult8, .-ADC_GetResult8
+ 547              		.section	.text.ADC_GetResult16,"ax",%progbits
+ 548              		.align	1
+ 549              		.global	ADC_GetResult16
+ 550              		.thumb
+ 551              		.thumb_func
+ 552              		.type	ADC_GetResult16, %function
+ 553              	ADC_GetResult16:
+ 554              	.LFB10:
+ 551:.\Generated_Source\PSoC5/ADC.c ****     uint16 res;
+ 555              		.loc 1 551 0
+ 556              		.cfi_startproc
+ 557              		@ args = 0, pretend = 0, frame = 0
+ 558              		@ frame_needed = 0, uses_anonymous_args = 0
+ 559              		@ link register save eliminated.
+ 556:.\Generated_Source\PSoC5/ADC.c **** }
+ 560              		.loc 1 556 0
+ 561 0000 034A     		ldr	r2, .L46
+ 554:.\Generated_Source\PSoC5/ADC.c **** 
+ 562              		.loc 1 554 0
+ 563 0002 044B     		ldr	r3, .L46+4
+ 564 0004 1B88     		ldrh	r3, [r3]
+ 565              	.LVL34:
+ 556:.\Generated_Source\PSoC5/ADC.c **** }
+ 566              		.loc 1 556 0
+ 567 0006 1088     		ldrh	r0, [r2]
+ 568 0008 181A     		subs	r0, r3, r0
+ 557:.\Generated_Source\PSoC5/ADC.c **** 
+ 569              		.loc 1 557 0
+ 570 000a 00B2     		sxth	r0, r0
+ 571 000c 7047     		bx	lr
+ 572              	.L47:
+ 573 000e 00BF     		.align	2
+ 574              	.L46:
+ 575 0010 00000000 		.word	ADC_shift
+ 576 0014 A05B0040 		.word	1073765280
+ 577              		.cfi_endproc
+ 578              	.LFE10:
+ 579              		.size	ADC_GetResult16, .-ADC_GetResult16
+ 580              		.section	.text.ADC_SetOffset,"ax",%progbits
+ 581              		.align	1
+ 582              		.global	ADC_SetOffset
+ 583              		.thumb
+ 584              		.thumb_func
+ 585              		.type	ADC_SetOffset, %function
+ 586              	ADC_SetOffset:
+ 587              	.LFB11:
+ 586:.\Generated_Source\PSoC5/ADC.c ****     ADC_offset = offset;
+ 588              		.loc 1 586 0
+ 589              		.cfi_startproc
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 24
+
+
+ 590              		@ args = 0, pretend = 0, frame = 0
+ 591              		@ frame_needed = 0, uses_anonymous_args = 0
+ 592              		@ link register save eliminated.
+ 593              	.LVL35:
+ 587:.\Generated_Source\PSoC5/ADC.c **** }
+ 594              		.loc 1 587 0
+ 595 0000 014B     		ldr	r3, .L49
+ 596 0002 1880     		strh	r0, [r3]	@ movhi
+ 597 0004 7047     		bx	lr
+ 598              	.L50:
+ 599 0006 00BF     		.align	2
+ 600              	.L49:
+ 601 0008 00000000 		.word	ADC_offset
+ 602              		.cfi_endproc
+ 603              	.LFE11:
+ 604              		.size	ADC_SetOffset, .-ADC_SetOffset
+ 605              		.section	.text.ADC_SetGain,"ax",%progbits
+ 606              		.align	1
+ 607              		.global	ADC_SetGain
+ 608              		.thumb
+ 609              		.thumb_func
+ 610              		.type	ADC_SetGain, %function
+ 611              	ADC_SetGain:
+ 612              	.LFB13:
+ 665:.\Generated_Source\PSoC5/ADC.c ****     #else
+ 666:.\Generated_Source\PSoC5/ADC.c ****         ADC_shift = diff_zero;
+ 667:.\Generated_Source\PSoC5/ADC.c ****     #endif /* End ADC_DEFAULT_RANGE */
+ 668:.\Generated_Source\PSoC5/ADC.c **** }
+ 669:.\Generated_Source\PSoC5/ADC.c **** 
+ 670:.\Generated_Source\PSoC5/ADC.c **** 
+ 671:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 672:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_SetGain
+ 673:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 674:.\Generated_Source\PSoC5/ADC.c **** *
+ 675:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 676:.\Generated_Source\PSoC5/ADC.c **** *  Sets the ADC gain in counts per volt for the voltage conversion functions
+ 677:.\Generated_Source\PSoC5/ADC.c **** *  that follow. This value is set by default by the reference and input range
+ 678:.\Generated_Source\PSoC5/ADC.c **** *  settings. It should only be used to further calibrate the ADC with a known
+ 679:.\Generated_Source\PSoC5/ADC.c **** *  input or if the ADC is using an external reference.
+ 680:.\Generated_Source\PSoC5/ADC.c **** *
+ 681:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 682:.\Generated_Source\PSoC5/ADC.c **** *  int16 adcGain counts per volt
+ 683:.\Generated_Source\PSoC5/ADC.c **** *
+ 684:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 685:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 686:.\Generated_Source\PSoC5/ADC.c **** *
+ 687:.\Generated_Source\PSoC5/ADC.c **** * Global Variables:
+ 688:.\Generated_Source\PSoC5/ADC.c **** *  ADC_countsPer10Volt variable modified. This variable is used
+ 689:.\Generated_Source\PSoC5/ADC.c **** *  for gain calibration purpose.
+ 690:.\Generated_Source\PSoC5/ADC.c **** *
+ 691:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 692:.\Generated_Source\PSoC5/ADC.c **** void ADC_SetGain(int16 adcGain)
+ 693:.\Generated_Source\PSoC5/ADC.c **** {
+ 613              		.loc 1 693 0
+ 614              		.cfi_startproc
+ 615              		@ args = 0, pretend = 0, frame = 0
+ 616              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 25
+
+
+ 617              		@ link register save eliminated.
+ 618              	.LVL36:
+ 694:.\Generated_Source\PSoC5/ADC.c ****     ADC_countsPer10Volt = (int32)adcGain * 10;
+ 619              		.loc 1 694 0
+ 620 0000 0A23     		movs	r3, #10
+ 621 0002 5843     		muls	r0, r3, r0
+ 622              	.LVL37:
+ 623 0004 014B     		ldr	r3, .L52
+ 624 0006 1860     		str	r0, [r3]
+ 625 0008 7047     		bx	lr
+ 626              	.L53:
+ 627 000a 00BF     		.align	2
+ 628              	.L52:
+ 629 000c 00000000 		.word	ADC_countsPer10Volt
+ 630              		.cfi_endproc
+ 631              	.LFE13:
+ 632              		.size	ADC_SetGain, .-ADC_SetGain
+ 633              		.section	.text.ADC_SetScaledGain,"ax",%progbits
+ 634              		.align	1
+ 635              		.global	ADC_SetScaledGain
+ 636              		.thumb
+ 637              		.thumb_func
+ 638              		.type	ADC_SetScaledGain, %function
+ 639              	ADC_SetScaledGain:
+ 640              	.LFB14:
+ 695:.\Generated_Source\PSoC5/ADC.c **** }
+ 696:.\Generated_Source\PSoC5/ADC.c **** 
+ 697:.\Generated_Source\PSoC5/ADC.c **** 
+ 698:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 699:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_SetScaledGain
+ 700:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 701:.\Generated_Source\PSoC5/ADC.c **** *
+ 702:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 703:.\Generated_Source\PSoC5/ADC.c **** *  Sets the ADC gain in counts per 10 volt for the voltage conversion functions
+ 704:.\Generated_Source\PSoC5/ADC.c **** *  that follow. This value is set by default by the reference and input range
+ 705:.\Generated_Source\PSoC5/ADC.c **** *  settings. It should only be used to further calibrate the ADC with a known
+ 706:.\Generated_Source\PSoC5/ADC.c **** *  input or if the ADC is using an external reference.
+ 707:.\Generated_Source\PSoC5/ADC.c **** *
+ 708:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 709:.\Generated_Source\PSoC5/ADC.c **** *  int32 adcGain  counts per 10 volt
+ 710:.\Generated_Source\PSoC5/ADC.c **** *
+ 711:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 712:.\Generated_Source\PSoC5/ADC.c **** *  None.
+ 713:.\Generated_Source\PSoC5/ADC.c **** *
+ 714:.\Generated_Source\PSoC5/ADC.c **** * Global Variables:
+ 715:.\Generated_Source\PSoC5/ADC.c **** *  ADC_countsPer10Volt variable modified. This variable is used
+ 716:.\Generated_Source\PSoC5/ADC.c **** *  for gain calibration purpose.
+ 717:.\Generated_Source\PSoC5/ADC.c **** *
+ 718:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 719:.\Generated_Source\PSoC5/ADC.c **** void ADC_SetScaledGain(int32 adcGain)
+ 720:.\Generated_Source\PSoC5/ADC.c **** {
+ 641              		.loc 1 720 0
+ 642              		.cfi_startproc
+ 643              		@ args = 0, pretend = 0, frame = 0
+ 644              		@ frame_needed = 0, uses_anonymous_args = 0
+ 645              		@ link register save eliminated.
+ 646              	.LVL38:
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 26
+
+
+ 721:.\Generated_Source\PSoC5/ADC.c ****     ADC_countsPer10Volt = adcGain;
+ 647              		.loc 1 721 0
+ 648 0000 014B     		ldr	r3, .L55
+ 649 0002 1860     		str	r0, [r3]
+ 650 0004 7047     		bx	lr
+ 651              	.L56:
+ 652 0006 00BF     		.align	2
+ 653              	.L55:
+ 654 0008 00000000 		.word	ADC_countsPer10Volt
+ 655              		.cfi_endproc
+ 656              	.LFE14:
+ 657              		.size	ADC_SetScaledGain, .-ADC_SetScaledGain
+ 658              		.section	.text.ADC_CountsTo_mVolts,"ax",%progbits
+ 659              		.align	1
+ 660              		.global	ADC_CountsTo_mVolts
+ 661              		.thumb
+ 662              		.thumb_func
+ 663              		.type	ADC_CountsTo_mVolts, %function
+ 664              	ADC_CountsTo_mVolts:
+ 665              	.LFB15:
+ 722:.\Generated_Source\PSoC5/ADC.c **** }
+ 723:.\Generated_Source\PSoC5/ADC.c **** 
+ 724:.\Generated_Source\PSoC5/ADC.c **** 
+ 725:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 726:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_CountsTo_mVolts
+ 727:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 728:.\Generated_Source\PSoC5/ADC.c **** *
+ 729:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 730:.\Generated_Source\PSoC5/ADC.c **** *  Converts the ADC output to millivolts as a 16-bit integer.
+ 731:.\Generated_Source\PSoC5/ADC.c **** *
+ 732:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 733:.\Generated_Source\PSoC5/ADC.c **** *  int16 adcCounts:  Result from the ADC conversion
+ 734:.\Generated_Source\PSoC5/ADC.c **** *
+ 735:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 736:.\Generated_Source\PSoC5/ADC.c **** *  int16 Result in mVolts
+ 737:.\Generated_Source\PSoC5/ADC.c **** *
+ 738:.\Generated_Source\PSoC5/ADC.c **** * Global Variables:
+ 739:.\Generated_Source\PSoC5/ADC.c **** *  ADC_offset variable used.
+ 740:.\Generated_Source\PSoC5/ADC.c **** *  ADC_countsPer10Volt variable used.
+ 741:.\Generated_Source\PSoC5/ADC.c **** *
+ 742:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 743:.\Generated_Source\PSoC5/ADC.c **** int16 ADC_CountsTo_mVolts(int16 adcCounts)
+ 744:.\Generated_Source\PSoC5/ADC.c **** {
+ 666              		.loc 1 744 0
+ 667              		.cfi_startproc
+ 668              		@ args = 0, pretend = 0, frame = 0
+ 669              		@ frame_needed = 0, uses_anonymous_args = 0
+ 670              		@ link register save eliminated.
+ 671              	.LVL39:
+ 745:.\Generated_Source\PSoC5/ADC.c ****     int16 mVolts;
+ 746:.\Generated_Source\PSoC5/ADC.c ****     int32 countsPer10Volt;
+ 747:.\Generated_Source\PSoC5/ADC.c **** 
+ 748:.\Generated_Source\PSoC5/ADC.c ****     if(ADC_countsPerVolt != 0)
+ 672              		.loc 1 748 0
+ 673 0000 0E4A     		ldr	r2, .L62
+ 674 0002 1388     		ldrh	r3, [r2]
+ 675 0004 9BB2     		uxth	r3, r3
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 27
+
+
+ 676 0006 23B1     		cbz	r3, .L58
+ 749:.\Generated_Source\PSoC5/ADC.c ****     {   /* Support obsolete method */
+ 750:.\Generated_Source\PSoC5/ADC.c ****         countsPer10Volt = (int32)ADC_countsPerVolt * 10;
+ 677              		.loc 1 750 0
+ 678 0008 1288     		ldrh	r2, [r2]
+ 679 000a 0A23     		movs	r3, #10
+ 680 000c 12B2     		sxth	r2, r2
+ 681 000e 5A43     		muls	r2, r3, r2
+ 682              	.LVL40:
+ 683 0010 01E0     		b	.L59
+ 684              	.LVL41:
+ 685              	.L58:
+ 751:.\Generated_Source\PSoC5/ADC.c ****     }
+ 752:.\Generated_Source\PSoC5/ADC.c ****     else
+ 753:.\Generated_Source\PSoC5/ADC.c ****     {
+ 754:.\Generated_Source\PSoC5/ADC.c ****         countsPer10Volt = ADC_countsPer10Volt;
+ 686              		.loc 1 754 0
+ 687 0012 0B4B     		ldr	r3, .L62+4
+ 688 0014 1A68     		ldr	r2, [r3]
+ 689              	.LVL42:
+ 690              	.L59:
+ 755:.\Generated_Source\PSoC5/ADC.c ****     }
+ 756:.\Generated_Source\PSoC5/ADC.c **** 
+ 757:.\Generated_Source\PSoC5/ADC.c ****     /* Subtract ADC offset */
+ 758:.\Generated_Source\PSoC5/ADC.c ****     adcCounts -= ADC_offset;
+ 691              		.loc 1 758 0
+ 692 0016 0B4B     		ldr	r3, .L62+8
+ 693 0018 1988     		ldrh	r1, [r3]
+ 694 001a 0223     		movs	r3, #2
+ 695 001c 411A     		subs	r1, r0, r1
+ 759:.\Generated_Source\PSoC5/ADC.c ****     /* Convert to millivolts with rounding */
+ 760:.\Generated_Source\PSoC5/ADC.c ****     mVolts = (int16)( (( (int32)adcCounts * ADC_10MV_COUNTS ) + ( (adcCounts > 0) ?
+ 696              		.loc 1 760 0
+ 697 001e 42F21070 		movw	r0, #10000
+ 698              	.LVL43:
+ 761:.\Generated_Source\PSoC5/ADC.c ****                        (countsPer10Volt / 2) : (-(countsPer10Volt / 2)) )) / countsPer10Volt);
+ 699              		.loc 1 761 0
+ 700 0022 92FBF3F3 		sdiv	r3, r2, r3
+ 758:.\Generated_Source\PSoC5/ADC.c ****     /* Convert to millivolts with rounding */
+ 701              		.loc 1 758 0
+ 702 0026 09B2     		sxth	r1, r1
+ 703              	.LVL44:
+ 760:.\Generated_Source\PSoC5/ADC.c ****                        (countsPer10Volt / 2) : (-(countsPer10Volt / 2)) )) / countsPer10Volt);
+ 704              		.loc 1 760 0
+ 705 0028 4843     		muls	r0, r1, r0
+ 706              		.loc 1 761 0
+ 707 002a 0029     		cmp	r1, #0
+ 708 002c D8BF     		it	le
+ 709 002e 5B42     		rsble	r3, r3, #0
+ 710              	.LVL45:
+ 760:.\Generated_Source\PSoC5/ADC.c ****                        (countsPer10Volt / 2) : (-(countsPer10Volt / 2)) )) / countsPer10Volt);
+ 711              		.loc 1 760 0
+ 712 0030 0344     		add	r3, r3, r0
+ 713              	.LVL46:
+ 714              		.loc 1 761 0
+ 715 0032 93FBF2F0 		sdiv	r0, r3, r2
+ 716              	.LVL47:
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 28
+
+
+ 762:.\Generated_Source\PSoC5/ADC.c **** 
+ 763:.\Generated_Source\PSoC5/ADC.c ****     return( mVolts );
+ 764:.\Generated_Source\PSoC5/ADC.c **** }
+ 717              		.loc 1 764 0
+ 718 0036 00B2     		sxth	r0, r0
+ 719 0038 7047     		bx	lr
+ 720              	.L63:
+ 721 003a 00BF     		.align	2
+ 722              	.L62:
+ 723 003c 00000000 		.word	ADC_countsPerVolt
+ 724 0040 00000000 		.word	ADC_countsPer10Volt
+ 725 0044 00000000 		.word	ADC_offset
+ 726              		.cfi_endproc
+ 727              	.LFE15:
+ 728              		.size	ADC_CountsTo_mVolts, .-ADC_CountsTo_mVolts
+ 729              		.global	__aeabi_ldivmod
+ 730              		.section	.text.ADC_CountsTo_uVolts,"ax",%progbits
+ 731              		.align	1
+ 732              		.global	ADC_CountsTo_uVolts
+ 733              		.thumb
+ 734              		.thumb_func
+ 735              		.type	ADC_CountsTo_uVolts, %function
+ 736              	ADC_CountsTo_uVolts:
+ 737              	.LFB16:
+ 765:.\Generated_Source\PSoC5/ADC.c **** 
+ 766:.\Generated_Source\PSoC5/ADC.c **** 
+ 767:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 768:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_CountsTo_uVolts
+ 769:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 770:.\Generated_Source\PSoC5/ADC.c **** *
+ 771:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 772:.\Generated_Source\PSoC5/ADC.c **** *  Converts the ADC output to microvolts as a 32-bit integer.
+ 773:.\Generated_Source\PSoC5/ADC.c **** *
+ 774:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 775:.\Generated_Source\PSoC5/ADC.c **** *  int16 adcCounts: Result from the ADC conversion
+ 776:.\Generated_Source\PSoC5/ADC.c **** *
+ 777:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 778:.\Generated_Source\PSoC5/ADC.c **** *  int32 Result in micro Volts
+ 779:.\Generated_Source\PSoC5/ADC.c **** *
+ 780:.\Generated_Source\PSoC5/ADC.c **** * Global Variables:
+ 781:.\Generated_Source\PSoC5/ADC.c **** *  ADC_offset variable used.
+ 782:.\Generated_Source\PSoC5/ADC.c **** *  ADC_countsPer10Volt used to convert ADC counts to uVolts.
+ 783:.\Generated_Source\PSoC5/ADC.c **** *
+ 784:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 785:.\Generated_Source\PSoC5/ADC.c **** int32 ADC_CountsTo_uVolts(int16 adcCounts)
+ 786:.\Generated_Source\PSoC5/ADC.c **** {
+ 738              		.loc 1 786 0
+ 739              		.cfi_startproc
+ 740              		@ args = 0, pretend = 0, frame = 0
+ 741              		@ frame_needed = 0, uses_anonymous_args = 0
+ 742              	.LVL48:
+ 787:.\Generated_Source\PSoC5/ADC.c **** 
+ 788:.\Generated_Source\PSoC5/ADC.c ****     int64 uVolts;
+ 789:.\Generated_Source\PSoC5/ADC.c ****     int32 countsPer10Volt;
+ 790:.\Generated_Source\PSoC5/ADC.c **** 
+ 791:.\Generated_Source\PSoC5/ADC.c ****     if(ADC_countsPerVolt != 0)
+ 743              		.loc 1 791 0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 29
+
+
+ 744 0000 0C4A     		ldr	r2, .L67
+ 786:.\Generated_Source\PSoC5/ADC.c **** 
+ 745              		.loc 1 786 0
+ 746 0002 38B5     		push	{r3, r4, r5, lr}
+ 747              		.cfi_def_cfa_offset 16
+ 748              		.cfi_offset 3, -16
+ 749              		.cfi_offset 4, -12
+ 750              		.cfi_offset 5, -8
+ 751              		.cfi_offset 14, -4
+ 752              		.loc 1 791 0
+ 753 0004 1388     		ldrh	r3, [r2]
+ 754 0006 9BB2     		uxth	r3, r3
+ 755 0008 23B1     		cbz	r3, .L65
+ 792:.\Generated_Source\PSoC5/ADC.c ****     {   /* Support obsolete method */
+ 793:.\Generated_Source\PSoC5/ADC.c ****         countsPer10Volt = (int32)ADC_countsPerVolt * 10;
+ 756              		.loc 1 793 0
+ 757 000a 1288     		ldrh	r2, [r2]
+ 758 000c 0A23     		movs	r3, #10
+ 759 000e 12B2     		sxth	r2, r2
+ 760 0010 5A43     		muls	r2, r3, r2
+ 761              	.LVL49:
+ 762 0012 01E0     		b	.L66
+ 763              	.LVL50:
+ 764              	.L65:
+ 794:.\Generated_Source\PSoC5/ADC.c ****     }
+ 795:.\Generated_Source\PSoC5/ADC.c ****     else
+ 796:.\Generated_Source\PSoC5/ADC.c ****     {
+ 797:.\Generated_Source\PSoC5/ADC.c ****         countsPer10Volt = ADC_countsPer10Volt;
+ 765              		.loc 1 797 0
+ 766 0014 084B     		ldr	r3, .L67+4
+ 767 0016 1A68     		ldr	r2, [r3]
+ 768              	.LVL51:
+ 769              	.L66:
+ 798:.\Generated_Source\PSoC5/ADC.c ****     }
+ 799:.\Generated_Source\PSoC5/ADC.c **** 
+ 800:.\Generated_Source\PSoC5/ADC.c ****     /* Subtract ADC offset */
+ 801:.\Generated_Source\PSoC5/ADC.c ****     adcCounts -= ADC_offset;
+ 770              		.loc 1 801 0
+ 771 0018 084B     		ldr	r3, .L67+8
+ 772 001a 1C88     		ldrh	r4, [r3]
+ 773              	.LVL52:
+ 802:.\Generated_Source\PSoC5/ADC.c ****     /* To convert adcCounts to microVolts it is required to be multiplied
+ 803:.\Generated_Source\PSoC5/ADC.c ****     *  on 10 million and later divide on gain in counts per 10V.
+ 804:.\Generated_Source\PSoC5/ADC.c ****     */
+ 805:.\Generated_Source\PSoC5/ADC.c ****     uVolts = (( (int64)adcCounts * ADC_10UV_COUNTS ) / countsPer10Volt);
+ 774              		.loc 1 805 0
+ 775 001c 084B     		ldr	r3, .L67+12
+ 776 001e 041B     		subs	r4, r0, r4
+ 777              	.LVL53:
+ 778 0020 24B2     		sxth	r4, r4
+ 779 0022 A4FB0301 		umull	r0, r1, r4, r3
+ 780 0026 E517     		asrs	r5, r4, #31
+ 781 0028 03FB0511 		mla	r1, r3, r5, r1
+ 782 002c D317     		asrs	r3, r2, #31
+ 783 002e FFF7FEFF 		bl	__aeabi_ldivmod
+ 784              	.LVL54:
+ 806:.\Generated_Source\PSoC5/ADC.c **** 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 30
+
+
+ 807:.\Generated_Source\PSoC5/ADC.c ****     return( uVolts );
+ 808:.\Generated_Source\PSoC5/ADC.c **** }
+ 785              		.loc 1 808 0
+ 786 0032 38BD     		pop	{r3, r4, r5, pc}
+ 787              	.L68:
+ 788              		.align	2
+ 789              	.L67:
+ 790 0034 00000000 		.word	ADC_countsPerVolt
+ 791 0038 00000000 		.word	ADC_countsPer10Volt
+ 792 003c 00000000 		.word	ADC_offset
+ 793 0040 80969800 		.word	10000000
+ 794              		.cfi_endproc
+ 795              	.LFE16:
+ 796              		.size	ADC_CountsTo_uVolts, .-ADC_CountsTo_uVolts
+ 797              		.global	__aeabi_i2f
+ 798              		.global	__aeabi_fmul
+ 799              		.global	__aeabi_fdiv
+ 800              		.section	.text.ADC_CountsTo_Volts,"ax",%progbits
+ 801              		.align	1
+ 802              		.global	ADC_CountsTo_Volts
+ 803              		.thumb
+ 804              		.thumb_func
+ 805              		.type	ADC_CountsTo_Volts, %function
+ 806              	ADC_CountsTo_Volts:
+ 807              	.LFB17:
+ 809:.\Generated_Source\PSoC5/ADC.c **** 
+ 810:.\Generated_Source\PSoC5/ADC.c **** 
+ 811:.\Generated_Source\PSoC5/ADC.c **** /*******************************************************************************
+ 812:.\Generated_Source\PSoC5/ADC.c **** * Function Name: ADC_CountsTo_Volts
+ 813:.\Generated_Source\PSoC5/ADC.c **** ********************************************************************************
+ 814:.\Generated_Source\PSoC5/ADC.c **** *
+ 815:.\Generated_Source\PSoC5/ADC.c **** * Summary:
+ 816:.\Generated_Source\PSoC5/ADC.c **** *  Converts the ADC output to volts as a floating-point number.
+ 817:.\Generated_Source\PSoC5/ADC.c **** *
+ 818:.\Generated_Source\PSoC5/ADC.c **** * Parameters:
+ 819:.\Generated_Source\PSoC5/ADC.c **** *  int16 adcCounts: Result from the ADC conversion
+ 820:.\Generated_Source\PSoC5/ADC.c **** *
+ 821:.\Generated_Source\PSoC5/ADC.c **** * Return:
+ 822:.\Generated_Source\PSoC5/ADC.c **** *  float Result in Volts
+ 823:.\Generated_Source\PSoC5/ADC.c **** *
+ 824:.\Generated_Source\PSoC5/ADC.c **** * Global Variables:
+ 825:.\Generated_Source\PSoC5/ADC.c **** *  ADC_offset variable used.
+ 826:.\Generated_Source\PSoC5/ADC.c **** *  ADC_countsPer10Volt used to convert ADC counts to Volts.
+ 827:.\Generated_Source\PSoC5/ADC.c **** *
+ 828:.\Generated_Source\PSoC5/ADC.c **** *******************************************************************************/
+ 829:.\Generated_Source\PSoC5/ADC.c **** float32 ADC_CountsTo_Volts(int16 adcCounts)
+ 830:.\Generated_Source\PSoC5/ADC.c **** {
+ 808              		.loc 1 830 0
+ 809              		.cfi_startproc
+ 810              		@ args = 0, pretend = 0, frame = 0
+ 811              		@ frame_needed = 0, uses_anonymous_args = 0
+ 812              	.LVL55:
+ 831:.\Generated_Source\PSoC5/ADC.c ****     float32 volts;
+ 832:.\Generated_Source\PSoC5/ADC.c ****     int32 countsPer10Volt;
+ 833:.\Generated_Source\PSoC5/ADC.c **** 
+ 834:.\Generated_Source\PSoC5/ADC.c ****     if(ADC_countsPerVolt != 0)
+ 813              		.loc 1 834 0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 31
+
+
+ 814 0000 0E4A     		ldr	r2, .L72
+ 830:.\Generated_Source\PSoC5/ADC.c ****     float32 volts;
+ 815              		.loc 1 830 0
+ 816 0002 38B5     		push	{r3, r4, r5, lr}
+ 817              		.cfi_def_cfa_offset 16
+ 818              		.cfi_offset 3, -16
+ 819              		.cfi_offset 4, -12
+ 820              		.cfi_offset 5, -8
+ 821              		.cfi_offset 14, -4
+ 822              		.loc 1 834 0
+ 823 0004 1388     		ldrh	r3, [r2]
+ 824 0006 9BB2     		uxth	r3, r3
+ 825 0008 23B1     		cbz	r3, .L70
+ 835:.\Generated_Source\PSoC5/ADC.c ****     {   /* Support obsolete method */
+ 836:.\Generated_Source\PSoC5/ADC.c ****         countsPer10Volt = (int32)ADC_countsPerVolt * 10;
+ 826              		.loc 1 836 0
+ 827 000a 1488     		ldrh	r4, [r2]
+ 828 000c 0A23     		movs	r3, #10
+ 829 000e 24B2     		sxth	r4, r4
+ 830 0010 5C43     		muls	r4, r3, r4
+ 831              	.LVL56:
+ 832 0012 01E0     		b	.L71
+ 833              	.LVL57:
+ 834              	.L70:
+ 837:.\Generated_Source\PSoC5/ADC.c ****     }
+ 838:.\Generated_Source\PSoC5/ADC.c ****     else
+ 839:.\Generated_Source\PSoC5/ADC.c ****     {
+ 840:.\Generated_Source\PSoC5/ADC.c ****         countsPer10Volt = ADC_countsPer10Volt;
+ 835              		.loc 1 840 0
+ 836 0014 0A4B     		ldr	r3, .L72+4
+ 837 0016 1C68     		ldr	r4, [r3]
+ 838              	.LVL58:
+ 839              	.L71:
+ 841:.\Generated_Source\PSoC5/ADC.c ****     }
+ 842:.\Generated_Source\PSoC5/ADC.c **** 
+ 843:.\Generated_Source\PSoC5/ADC.c ****     /* Subtract ADC offset */
+ 844:.\Generated_Source\PSoC5/ADC.c ****     adcCounts -= ADC_offset;
+ 840              		.loc 1 844 0
+ 841 0018 0A4B     		ldr	r3, .L72+8
+ 842 001a 1B88     		ldrh	r3, [r3]
+ 843 001c C01A     		subs	r0, r0, r3
+ 844              	.LVL59:
+ 845:.\Generated_Source\PSoC5/ADC.c **** 
+ 846:.\Generated_Source\PSoC5/ADC.c ****     volts = ((float32)adcCounts * ADC_10V_COUNTS) / (float32)countsPer10Volt;
+ 845              		.loc 1 846 0
+ 846 001e 00B2     		sxth	r0, r0
+ 847 0020 FFF7FEFF 		bl	__aeabi_i2f
+ 848              	.LVL60:
+ 849 0024 0849     		ldr	r1, .L72+12
+ 850 0026 FFF7FEFF 		bl	__aeabi_fmul
+ 851              	.LVL61:
+ 852 002a 0546     		mov	r5, r0
+ 853 002c 2046     		mov	r0, r4
+ 854 002e FFF7FEFF 		bl	__aeabi_i2f
+ 855              	.LVL62:
+ 856 0032 0146     		mov	r1, r0
+ 857 0034 2846     		mov	r0, r5
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 32
+
+
+ 858 0036 FFF7FEFF 		bl	__aeabi_fdiv
+ 859              	.LVL63:
+ 847:.\Generated_Source\PSoC5/ADC.c **** 
+ 848:.\Generated_Source\PSoC5/ADC.c ****     return( volts );
+ 849:.\Generated_Source\PSoC5/ADC.c **** }
+ 860              		.loc 1 849 0
+ 861 003a 38BD     		pop	{r3, r4, r5, pc}
+ 862              	.LVL64:
+ 863              	.L73:
+ 864              		.align	2
+ 865              	.L72:
+ 866 003c 00000000 		.word	ADC_countsPerVolt
+ 867 0040 00000000 		.word	ADC_countsPer10Volt
+ 868 0044 00000000 		.word	ADC_offset
+ 869 0048 00002041 		.word	1092616192
+ 870              		.cfi_endproc
+ 871              	.LFE17:
+ 872              		.size	ADC_CountsTo_Volts, .-ADC_CountsTo_Volts
+ 873              		.comm	ADC_shift,2,2
+ 874              		.comm	ADC_countsPer10Volt,4,4
+ 875              		.comm	ADC_countsPerVolt,2,2
+ 876              		.comm	ADC_offset,2,2
+ 877              		.global	ADC_initVar
+ 878              		.section	.rodata
+ 879              		.align	1
+ 880              		.set	.LANCHOR0,. + 0
+ 881              		.type	CSWTCH.24, %object
+ 882              		.size	CSWTCH.24, 10
+ 883              	CSWTCH.24:
+ 884 0000 0001     		.short	256
+ 885 0002 0000     		.short	0
+ 886 0004 0004     		.short	1024
+ 887 0006 0000     		.short	0
+ 888 0008 0010     		.short	4096
+ 889              		.bss
+ 890              		.set	.LANCHOR1,. + 0
+ 891              		.type	ADC_initVar, %object
+ 892              		.size	ADC_initVar, 1
+ 893              	ADC_initVar:
+ 894 0000 00       		.space	1
+ 895              		.text
+ 896              	.Letext0:
+ 897              		.file 2 ".\\Generated_Source\\PSoC5\\cytypes.h"
+ 898              		.file 3 ".\\Generated_Source\\PSoC5\\CyLib.h"
+ 899              		.file 4 ".\\Generated_Source\\PSoC5\\ADC_theACLK.h"
+ 900              		.section	.debug_info,"",%progbits
+ 901              	.Ldebug_info0:
+ 902 0000 C5050000 		.4byte	0x5c5
+ 903 0004 0400     		.2byte	0x4
+ 904 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 905 000a 04       		.byte	0x4
+ 906 000b 01       		.uleb128 0x1
+ 907 000c B8010000 		.4byte	.LASF64
+ 908 0010 01       		.byte	0x1
+ 909 0011 D5000000 		.4byte	.LASF65
+ 910 0015 70000000 		.4byte	.LASF66
+ 911 0019 18000000 		.4byte	.Ldebug_ranges0+0x18
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 33
+
+
+ 912 001d 00000000 		.4byte	0
+ 913 0021 00000000 		.4byte	.Ldebug_line0
+ 914 0025 02       		.uleb128 0x2
+ 915 0026 08       		.byte	0x8
+ 916 0027 07       		.byte	0x7
+ 917 0028 48000000 		.4byte	.LASF0
+ 918 002c 02       		.uleb128 0x2
+ 919 002d 04       		.byte	0x4
+ 920 002e 04       		.byte	0x4
+ 921 002f 4D030000 		.4byte	.LASF1
+ 922 0033 02       		.uleb128 0x2
+ 923 0034 08       		.byte	0x8
+ 924 0035 05       		.byte	0x5
+ 925 0036 B4000000 		.4byte	.LASF2
+ 926 003a 03       		.uleb128 0x3
+ 927 003b 04       		.byte	0x4
+ 928 003c 05       		.byte	0x5
+ 929 003d 696E7400 		.ascii	"int\000"
+ 930 0041 02       		.uleb128 0x2
+ 931 0042 02       		.byte	0x2
+ 932 0043 05       		.byte	0x5
+ 933 0044 8B030000 		.4byte	.LASF3
+ 934 0048 02       		.uleb128 0x2
+ 935 0049 04       		.byte	0x4
+ 936 004a 07       		.byte	0x7
+ 937 004b AB010000 		.4byte	.LASF4
+ 938 004f 02       		.uleb128 0x2
+ 939 0050 01       		.byte	0x1
+ 940 0051 06       		.byte	0x6
+ 941 0052 C2000000 		.4byte	.LASF5
+ 942 0056 02       		.uleb128 0x2
+ 943 0057 01       		.byte	0x1
+ 944 0058 08       		.byte	0x8
+ 945 0059 72030000 		.4byte	.LASF6
+ 946 005d 02       		.uleb128 0x2
+ 947 005e 02       		.byte	0x2
+ 948 005f 07       		.byte	0x7
+ 949 0060 7C020000 		.4byte	.LASF7
+ 950 0064 02       		.uleb128 0x2
+ 951 0065 04       		.byte	0x4
+ 952 0066 05       		.byte	0x5
+ 953 0067 04010000 		.4byte	.LASF8
+ 954 006b 02       		.uleb128 0x2
+ 955 006c 04       		.byte	0x4
+ 956 006d 07       		.byte	0x7
+ 957 006e 4D020000 		.4byte	.LASF9
+ 958 0072 02       		.uleb128 0x2
+ 959 0073 04       		.byte	0x4
+ 960 0074 07       		.byte	0x7
+ 961 0075 D0020000 		.4byte	.LASF10
+ 962 0079 04       		.uleb128 0x4
+ 963 007a 04       		.byte	0x4
+ 964 007b 7F000000 		.4byte	0x7f
+ 965 007f 05       		.uleb128 0x5
+ 966 0080 02       		.uleb128 0x2
+ 967 0081 01       		.byte	0x1
+ 968 0082 08       		.byte	0x8
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 34
+
+
+ 969 0083 BB030000 		.4byte	.LASF11
+ 970 0087 06       		.uleb128 0x6
+ 971 0088 4D010000 		.4byte	.LASF12
+ 972 008c 02       		.byte	0x2
+ 973 008d 9201     		.2byte	0x192
+ 974 008f 56000000 		.4byte	0x56
+ 975 0093 06       		.uleb128 0x6
+ 976 0094 00000000 		.4byte	.LASF13
+ 977 0098 02       		.byte	0x2
+ 978 0099 9301     		.2byte	0x193
+ 979 009b 5D000000 		.4byte	0x5d
+ 980 009f 06       		.uleb128 0x6
+ 981 00a0 64010000 		.4byte	.LASF14
+ 982 00a4 02       		.byte	0x2
+ 983 00a5 9401     		.2byte	0x194
+ 984 00a7 6B000000 		.4byte	0x6b
+ 985 00ab 06       		.uleb128 0x6
+ 986 00ac 8F020000 		.4byte	.LASF15
+ 987 00b0 02       		.byte	0x2
+ 988 00b1 9501     		.2byte	0x195
+ 989 00b3 4F000000 		.4byte	0x4f
+ 990 00b7 06       		.uleb128 0x6
+ 991 00b8 FA030000 		.4byte	.LASF16
+ 992 00bc 02       		.byte	0x2
+ 993 00bd 9601     		.2byte	0x196
+ 994 00bf 41000000 		.4byte	0x41
+ 995 00c3 06       		.uleb128 0x6
+ 996 00c4 F4000000 		.4byte	.LASF17
+ 997 00c8 02       		.byte	0x2
+ 998 00c9 9701     		.2byte	0x197
+ 999 00cb 64000000 		.4byte	0x64
+ 1000 00cf 06       		.uleb128 0x6
+ 1001 00d0 C8020000 		.4byte	.LASF18
+ 1002 00d4 02       		.byte	0x2
+ 1003 00d5 9801     		.2byte	0x198
+ 1004 00d7 2C000000 		.4byte	0x2c
+ 1005 00db 02       		.uleb128 0x2
+ 1006 00dc 08       		.byte	0x8
+ 1007 00dd 04       		.byte	0x4
+ 1008 00de 5D010000 		.4byte	.LASF19
+ 1009 00e2 06       		.uleb128 0x6
+ 1010 00e3 2A030000 		.4byte	.LASF20
+ 1011 00e7 02       		.byte	0x2
+ 1012 00e8 9D01     		.2byte	0x19d
+ 1013 00ea 33000000 		.4byte	0x33
+ 1014 00ee 06       		.uleb128 0x6
+ 1015 00ef 6D030000 		.4byte	.LASF21
+ 1016 00f3 02       		.byte	0x2
+ 1017 00f4 3C02     		.2byte	0x23c
+ 1018 00f6 FA000000 		.4byte	0xfa
+ 1019 00fa 07       		.uleb128 0x7
+ 1020 00fb 87000000 		.4byte	0x87
+ 1021 00ff 06       		.uleb128 0x6
+ 1022 0100 47010000 		.4byte	.LASF22
+ 1023 0104 02       		.byte	0x2
+ 1024 0105 3D02     		.2byte	0x23d
+ 1025 0107 0B010000 		.4byte	0x10b
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 35
+
+
+ 1026 010b 07       		.uleb128 0x7
+ 1027 010c 93000000 		.4byte	0x93
+ 1028 0110 06       		.uleb128 0x6
+ 1029 0111 B8020000 		.4byte	.LASF23
+ 1030 0115 02       		.byte	0x2
+ 1031 0116 3E02     		.2byte	0x23e
+ 1032 0118 1C010000 		.4byte	0x11c
+ 1033 011c 07       		.uleb128 0x7
+ 1034 011d 9F000000 		.4byte	0x9f
+ 1035 0121 06       		.uleb128 0x6
+ 1036 0122 C0030000 		.4byte	.LASF24
+ 1037 0126 02       		.byte	0x2
+ 1038 0127 4E02     		.2byte	0x24e
+ 1039 0129 79000000 		.4byte	0x79
+ 1040 012d 08       		.uleb128 0x8
+ 1041 012e EF030000 		.4byte	.LASF27
+ 1042 0132 01       		.byte	0x1
+ 1043 0133 8F       		.byte	0x8f
+ 1044 0134 00000000 		.4byte	.LFB2
+ 1045 0138 9C000000 		.4byte	.LFE2-.LFB2
+ 1046 013c 01       		.uleb128 0x1
+ 1047 013d 9C       		.byte	0x9c
+ 1048 013e 86010000 		.4byte	0x186
+ 1049 0142 09       		.uleb128 0x9
+ 1050 0143 0E040000 		.4byte	.LASF25
+ 1051 0147 01       		.byte	0x1
+ 1052 0148 91       		.byte	0x91
+ 1053 0149 87000000 		.4byte	0x87
+ 1054 014d 00000000 		.4byte	.LLST0
+ 1055 0151 09       		.uleb128 0x9
+ 1056 0152 DE030000 		.4byte	.LASF26
+ 1057 0156 01       		.byte	0x1
+ 1058 0157 92       		.byte	0x92
+ 1059 0158 87000000 		.4byte	0x87
+ 1060 015c 3D000000 		.4byte	.LLST1
+ 1061 0160 0A       		.uleb128 0xa
+ 1062 0161 06000000 		.4byte	.LVL0
+ 1063 0165 5E050000 		.4byte	0x55e
+ 1064 0169 0B       		.uleb128 0xb
+ 1065 016a 7A000000 		.4byte	.LVL7
+ 1066 016e 69050000 		.4byte	0x569
+ 1067 0172 7C010000 		.4byte	0x17c
+ 1068 0176 0C       		.uleb128 0xc
+ 1069 0177 01       		.uleb128 0x1
+ 1070 0178 50       		.byte	0x50
+ 1071 0179 01       		.uleb128 0x1
+ 1072 017a 3A       		.byte	0x3a
+ 1073 017b 00       		.byte	0
+ 1074 017c 0D       		.uleb128 0xd
+ 1075 017d 8A000000 		.4byte	.LVL9
+ 1076 0181 7A050000 		.4byte	0x57a
+ 1077 0185 00       		.byte	0
+ 1078 0186 08       		.uleb128 0x8
+ 1079 0187 95030000 		.4byte	.LASF28
+ 1080 018b 01       		.byte	0x1
+ 1081 018c F8       		.byte	0xf8
+ 1082 018d 00000000 		.4byte	.LFB3
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 36
+
+
+ 1083 0191 48000000 		.4byte	.LFE3-.LFB3
+ 1084 0195 01       		.uleb128 0x1
+ 1085 0196 9C       		.byte	0x9c
+ 1086 0197 BD010000 		.4byte	0x1bd
+ 1087 019b 09       		.uleb128 0x9
+ 1088 019c DE030000 		.4byte	.LASF26
+ 1089 01a0 01       		.byte	0x1
+ 1090 01a1 FA       		.byte	0xfa
+ 1091 01a2 87000000 		.4byte	0x87
+ 1092 01a6 50000000 		.4byte	.LLST2
+ 1093 01aa 0A       		.uleb128 0xa
+ 1094 01ab 06000000 		.4byte	.LVL10
+ 1095 01af 5E050000 		.4byte	0x55e
+ 1096 01b3 0D       		.uleb128 0xd
+ 1097 01b4 42000000 		.4byte	.LVL11
+ 1098 01b8 7A050000 		.4byte	0x57a
+ 1099 01bc 00       		.byte	0
+ 1100 01bd 0E       		.uleb128 0xe
+ 1101 01be 96010000 		.4byte	.LASF29
+ 1102 01c2 01       		.byte	0x1
+ 1103 01c3 2201     		.2byte	0x122
+ 1104 01c5 00000000 		.4byte	.LFB4
+ 1105 01c9 18000000 		.4byte	.LFE4-.LFB4
+ 1106 01cd 01       		.uleb128 0x1
+ 1107 01ce 9C       		.byte	0x9c
+ 1108 01cf F2010000 		.4byte	0x1f2
+ 1109 01d3 0F       		.uleb128 0xf
+ 1110 01d4 67030000 		.4byte	.LASF31
+ 1111 01d8 01       		.byte	0x1
+ 1112 01d9 2201     		.2byte	0x122
+ 1113 01db 87000000 		.4byte	0x87
+ 1114 01df 63000000 		.4byte	.LLST3
+ 1115 01e3 10       		.uleb128 0x10
+ 1116 01e4 0E040000 		.4byte	.LASF25
+ 1117 01e8 01       		.byte	0x1
+ 1118 01e9 2401     		.2byte	0x124
+ 1119 01eb 87000000 		.4byte	0x87
+ 1120 01ef 01       		.uleb128 0x1
+ 1121 01f0 53       		.byte	0x53
+ 1122 01f1 00       		.byte	0
+ 1123 01f2 11       		.uleb128 0x11
+ 1124 01f3 A4020000 		.4byte	.LASF67
+ 1125 01f7 01       		.byte	0x1
+ 1126 01f8 6302     		.2byte	0x263
+ 1127 01fa 01       		.byte	0x1
+ 1128 01fb 18020000 		.4byte	0x218
+ 1129 01ff 12       		.uleb128 0x12
+ 1130 0200 9E030000 		.4byte	.LASF32
+ 1131 0204 01       		.byte	0x1
+ 1132 0205 6302     		.2byte	0x263
+ 1133 0207 87000000 		.4byte	0x87
+ 1134 020b 13       		.uleb128 0x13
+ 1135 020c 25000000 		.4byte	.LASF68
+ 1136 0210 01       		.byte	0x1
+ 1137 0211 6502     		.2byte	0x265
+ 1138 0213 C3000000 		.4byte	0xc3
+ 1139 0217 00       		.byte	0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 37
+
+
+ 1140 0218 0E       		.uleb128 0xe
+ 1141 0219 18030000 		.4byte	.LASF30
+ 1142 021d 01       		.byte	0x1
+ 1143 021e 5401     		.2byte	0x154
+ 1144 0220 00000000 		.4byte	.LFB5
+ 1145 0224 60000000 		.4byte	.LFE5-.LFB5
+ 1146 0228 01       		.uleb128 0x1
+ 1147 0229 9C       		.byte	0x9c
+ 1148 022a 74020000 		.4byte	0x274
+ 1149 022e 0F       		.uleb128 0xf
+ 1150 022f 9E030000 		.4byte	.LASF32
+ 1151 0233 01       		.byte	0x1
+ 1152 0234 5401     		.2byte	0x154
+ 1153 0236 87000000 		.4byte	0x87
+ 1154 023a 95000000 		.4byte	.LLST4
+ 1155 023e 14       		.uleb128 0x14
+ 1156 023f 0E040000 		.4byte	.LASF25
+ 1157 0243 01       		.byte	0x1
+ 1158 0244 5601     		.2byte	0x156
+ 1159 0246 87000000 		.4byte	0x87
+ 1160 024a B6000000 		.4byte	.LLST5
+ 1161 024e 15       		.uleb128 0x15
+ 1162 024f F2010000 		.4byte	0x1f2
+ 1163 0253 28000000 		.4byte	.LBB4
+ 1164 0257 00000000 		.4byte	.Ldebug_ranges0+0
+ 1165 025b 01       		.byte	0x1
+ 1166 025c 6D01     		.2byte	0x16d
+ 1167 025e 16       		.uleb128 0x16
+ 1168 025f FF010000 		.4byte	0x1ff
+ 1169 0263 17       		.uleb128 0x17
+ 1170 0264 00000000 		.4byte	.Ldebug_ranges0+0
+ 1171 0268 18       		.uleb128 0x18
+ 1172 0269 0B020000 		.4byte	0x20b
+ 1173 026d CB000000 		.4byte	.LLST6
+ 1174 0271 00       		.byte	0
+ 1175 0272 00       		.byte	0
+ 1176 0273 00       		.byte	0
+ 1177 0274 08       		.uleb128 0x8
+ 1178 0275 3F000000 		.4byte	.LASF33
+ 1179 0279 01       		.byte	0x1
+ 1180 027a 6A       		.byte	0x6a
+ 1181 027b 00000000 		.4byte	.LFB1
+ 1182 027f 3C000000 		.4byte	.LFE1-.LFB1
+ 1183 0283 01       		.uleb128 0x1
+ 1184 0284 9C       		.byte	0x9c
+ 1185 0285 D7020000 		.4byte	0x2d7
+ 1186 0289 0B       		.uleb128 0xb
+ 1187 028a 08000000 		.4byte	.LVL23
+ 1188 028e 8B050000 		.4byte	0x58b
+ 1189 0292 9C020000 		.4byte	0x29c
+ 1190 0296 0C       		.uleb128 0xc
+ 1191 0297 01       		.uleb128 0x1
+ 1192 0298 50       		.byte	0x50
+ 1193 0299 01       		.uleb128 0x1
+ 1194 029a 40       		.byte	0x40
+ 1195 029b 00       		.byte	0
+ 1196 029c 0B       		.uleb128 0xb
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 38
+
+
+ 1197 029d 10000000 		.4byte	.LVL24
+ 1198 02a1 9C050000 		.4byte	0x59c
+ 1199 02a5 B4020000 		.4byte	0x2b4
+ 1200 02a9 0C       		.uleb128 0xc
+ 1201 02aa 01       		.uleb128 0x1
+ 1202 02ab 51       		.byte	0x51
+ 1203 02ac 01       		.uleb128 0x1
+ 1204 02ad 37       		.byte	0x37
+ 1205 02ae 0C       		.uleb128 0xc
+ 1206 02af 01       		.uleb128 0x1
+ 1207 02b0 50       		.byte	0x50
+ 1208 02b1 01       		.uleb128 0x1
+ 1209 02b2 30       		.byte	0x30
+ 1210 02b3 00       		.byte	0
+ 1211 02b4 0B       		.uleb128 0xb
+ 1212 02b5 18000000 		.4byte	.LVL25
+ 1213 02b9 B2050000 		.4byte	0x5b2
+ 1214 02bd C7020000 		.4byte	0x2c7
+ 1215 02c1 0C       		.uleb128 0xc
+ 1216 02c2 01       		.uleb128 0x1
+ 1217 02c3 50       		.byte	0x50
+ 1218 02c4 01       		.uleb128 0x1
+ 1219 02c5 30       		.byte	0x30
+ 1220 02c6 00       		.byte	0
+ 1221 02c7 19       		.uleb128 0x19
+ 1222 02c8 28000000 		.4byte	.LVL26
+ 1223 02cc 18020000 		.4byte	0x218
+ 1224 02d0 0C       		.uleb128 0xc
+ 1225 02d1 01       		.uleb128 0x1
+ 1226 02d2 50       		.byte	0x50
+ 1227 02d3 01       		.uleb128 0x1
+ 1228 02d4 38       		.byte	0x38
+ 1229 02d5 00       		.byte	0
+ 1230 02d6 00       		.byte	0
+ 1231 02d7 08       		.uleb128 0x8
+ 1232 02d8 FA000000 		.4byte	.LASF34
+ 1233 02dc 01       		.byte	0x1
+ 1234 02dd 4A       		.byte	0x4a
+ 1235 02de 00000000 		.4byte	.LFB0
+ 1236 02e2 1C000000 		.4byte	.LFE0-.LFB0
+ 1237 02e6 01       		.uleb128 0x1
+ 1238 02e7 9C       		.byte	0x9c
+ 1239 02e8 FF020000 		.4byte	0x2ff
+ 1240 02ec 0A       		.uleb128 0xa
+ 1241 02ed 0C000000 		.4byte	.LVL27
+ 1242 02f1 74020000 		.4byte	0x274
+ 1243 02f5 0D       		.uleb128 0xd
+ 1244 02f6 18000000 		.4byte	.LVL28
+ 1245 02fa 2D010000 		.4byte	0x12d
+ 1246 02fe 00       		.byte	0
+ 1247 02ff 1A       		.uleb128 0x1a
+ 1248 0300 5F000000 		.4byte	.LASF35
+ 1249 0304 01       		.byte	0x1
+ 1250 0305 9101     		.2byte	0x191
+ 1251 0307 00000000 		.4byte	.LFB6
+ 1252 030b 18000000 		.4byte	.LFE6-.LFB6
+ 1253 030f 01       		.uleb128 0x1
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 39
+
+
+ 1254 0310 9C       		.byte	0x9c
+ 1255 0311 1A       		.uleb128 0x1a
+ 1256 0312 94020000 		.4byte	.LASF36
+ 1257 0316 01       		.byte	0x1
+ 1258 0317 B301     		.2byte	0x1b3
+ 1259 0319 00000000 		.4byte	.LFB7
+ 1260 031d 18000000 		.4byte	.LFE7-.LFB7
+ 1261 0321 01       		.uleb128 0x1
+ 1262 0322 9C       		.byte	0x9c
+ 1263 0323 1B       		.uleb128 0x1b
+ 1264 0324 D9020000 		.4byte	.LASF39
+ 1265 0328 01       		.byte	0x1
+ 1266 0329 DB01     		.2byte	0x1db
+ 1267 032b 87000000 		.4byte	0x87
+ 1268 032f 00000000 		.4byte	.LFB8
+ 1269 0333 24000000 		.4byte	.LFE8-.LFB8
+ 1270 0337 01       		.uleb128 0x1
+ 1271 0338 9C       		.byte	0x9c
+ 1272 0339 6E030000 		.4byte	0x36e
+ 1273 033d 0F       		.uleb128 0xf
+ 1274 033e A3010000 		.4byte	.LASF37
+ 1275 0342 01       		.byte	0x1
+ 1276 0343 DB01     		.2byte	0x1db
+ 1277 0345 87000000 		.4byte	0x87
+ 1278 0349 DE000000 		.4byte	.LLST7
+ 1279 034d 14       		.uleb128 0x14
+ 1280 034e CE000000 		.4byte	.LASF38
+ 1281 0352 01       		.byte	0x1
+ 1282 0353 DD01     		.2byte	0x1dd
+ 1283 0355 87000000 		.4byte	0x87
+ 1284 0359 FF000000 		.4byte	.LLST8
+ 1285 035d 19       		.uleb128 0x19
+ 1286 035e 1A000000 		.4byte	.LVL33
+ 1287 0362 69050000 		.4byte	0x569
+ 1288 0366 0C       		.uleb128 0xc
+ 1289 0367 01       		.uleb128 0x1
+ 1290 0368 50       		.byte	0x50
+ 1291 0369 02       		.uleb128 0x2
+ 1292 036a 74       		.byte	0x74
+ 1293 036b 00       		.sleb128 0
+ 1294 036c 00       		.byte	0
+ 1295 036d 00       		.byte	0
+ 1296 036e 1C       		.uleb128 0x1c
+ 1297 036f ED020000 		.4byte	.LASF69
+ 1298 0373 01       		.byte	0x1
+ 1299 0374 0802     		.2byte	0x208
+ 1300 0376 AB000000 		.4byte	0xab
+ 1301 037a 00000000 		.4byte	.LFB9
+ 1302 037e 18000000 		.4byte	.LFE9-.LFB9
+ 1303 0382 01       		.uleb128 0x1
+ 1304 0383 9C       		.byte	0x9c
+ 1305 0384 1B       		.uleb128 0x1b
+ 1306 0385 15040000 		.4byte	.LASF40
+ 1307 0389 01       		.byte	0x1
+ 1308 038a 2602     		.2byte	0x226
+ 1309 038c B7000000 		.4byte	0xb7
+ 1310 0390 00000000 		.4byte	.LFB10
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 40
+
+
+ 1311 0394 18000000 		.4byte	.LFE10-.LFB10
+ 1312 0398 01       		.uleb128 0x1
+ 1313 0399 9C       		.byte	0x9c
+ 1314 039a AD030000 		.4byte	0x3ad
+ 1315 039e 1D       		.uleb128 0x1d
+ 1316 039f 72657300 		.ascii	"res\000"
+ 1317 03a3 01       		.byte	0x1
+ 1318 03a4 2802     		.2byte	0x228
+ 1319 03a6 93000000 		.4byte	0x93
+ 1320 03aa 01       		.uleb128 0x1
+ 1321 03ab 53       		.byte	0x53
+ 1322 03ac 00       		.byte	0
+ 1323 03ad 0E       		.uleb128 0xe
+ 1324 03ae 00040000 		.4byte	.LASF41
+ 1325 03b2 01       		.byte	0x1
+ 1326 03b3 4902     		.2byte	0x249
+ 1327 03b5 00000000 		.4byte	.LFB11
+ 1328 03b9 0C000000 		.4byte	.LFE11-.LFB11
+ 1329 03bd 01       		.uleb128 0x1
+ 1330 03be 9C       		.byte	0x9c
+ 1331 03bf D2030000 		.4byte	0x3d2
+ 1332 03c3 1E       		.uleb128 0x1e
+ 1333 03c4 CD030000 		.4byte	.LASF42
+ 1334 03c8 01       		.byte	0x1
+ 1335 03c9 4902     		.2byte	0x249
+ 1336 03cb B7000000 		.4byte	0xb7
+ 1337 03cf 01       		.uleb128 0x1
+ 1338 03d0 50       		.byte	0x50
+ 1339 03d1 00       		.byte	0
+ 1340 03d2 0E       		.uleb128 0xe
+ 1341 03d3 41030000 		.4byte	.LASF43
+ 1342 03d7 01       		.byte	0x1
+ 1343 03d8 B402     		.2byte	0x2b4
+ 1344 03da 00000000 		.4byte	.LFB13
+ 1345 03de 10000000 		.4byte	.LFE13-.LFB13
+ 1346 03e2 01       		.uleb128 0x1
+ 1347 03e3 9C       		.byte	0x9c
+ 1348 03e4 F9030000 		.4byte	0x3f9
+ 1349 03e8 0F       		.uleb128 0xf
+ 1350 03e9 07000000 		.4byte	.LASF44
+ 1351 03ed 01       		.byte	0x1
+ 1352 03ee B402     		.2byte	0x2b4
+ 1353 03f0 B7000000 		.4byte	0xb7
+ 1354 03f4 16010000 		.4byte	.LLST9
+ 1355 03f8 00       		.byte	0
+ 1356 03f9 0E       		.uleb128 0xe
+ 1357 03fa A9030000 		.4byte	.LASF45
+ 1358 03fe 01       		.byte	0x1
+ 1359 03ff CF02     		.2byte	0x2cf
+ 1360 0401 00000000 		.4byte	.LFB14
+ 1361 0405 0C000000 		.4byte	.LFE14-.LFB14
+ 1362 0409 01       		.uleb128 0x1
+ 1363 040a 9C       		.byte	0x9c
+ 1364 040b 1E040000 		.4byte	0x41e
+ 1365 040f 1E       		.uleb128 0x1e
+ 1366 0410 07000000 		.4byte	.LASF44
+ 1367 0414 01       		.byte	0x1
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 41
+
+
+ 1368 0415 CF02     		.2byte	0x2cf
+ 1369 0417 C3000000 		.4byte	0xc3
+ 1370 041b 01       		.uleb128 0x1
+ 1371 041c 50       		.byte	0x50
+ 1372 041d 00       		.byte	0
+ 1373 041e 1B       		.uleb128 0x1b
+ 1374 041f 53030000 		.4byte	.LASF46
+ 1375 0423 01       		.byte	0x1
+ 1376 0424 E702     		.2byte	0x2e7
+ 1377 0426 B7000000 		.4byte	0xb7
+ 1378 042a 00000000 		.4byte	.LFB15
+ 1379 042e 48000000 		.4byte	.LFE15-.LFB15
+ 1380 0432 01       		.uleb128 0x1
+ 1381 0433 9C       		.byte	0x9c
+ 1382 0434 69040000 		.4byte	0x469
+ 1383 0438 0F       		.uleb128 0xf
+ 1384 0439 D4030000 		.4byte	.LASF47
+ 1385 043d 01       		.byte	0x1
+ 1386 043e E702     		.2byte	0x2e7
+ 1387 0440 B7000000 		.4byte	0xb7
+ 1388 0444 37010000 		.4byte	.LLST10
+ 1389 0448 14       		.uleb128 0x14
+ 1390 0449 B1020000 		.4byte	.LASF48
+ 1391 044d 01       		.byte	0x1
+ 1392 044e E902     		.2byte	0x2e9
+ 1393 0450 B7000000 		.4byte	0xb7
+ 1394 0454 63010000 		.4byte	.LLST11
+ 1395 0458 14       		.uleb128 0x14
+ 1396 0459 6B010000 		.4byte	.LASF49
+ 1397 045d 01       		.byte	0x1
+ 1398 045e EA02     		.2byte	0x2ea
+ 1399 0460 C3000000 		.4byte	0xc3
+ 1400 0464 7E010000 		.4byte	.LLST12
+ 1401 0468 00       		.byte	0
+ 1402 0469 1F       		.uleb128 0x1f
+ 1403 046a 0D010000 		.4byte	.LASF50
+ 1404 046e 01       		.byte	0x1
+ 1405 046f 1103     		.2byte	0x311
+ 1406 0471 C3000000 		.4byte	0xc3
+ 1407 0475 00000000 		.4byte	.LFB16
+ 1408 0479 44000000 		.4byte	.LFE16-.LFB16
+ 1409 047d 01       		.uleb128 0x1
+ 1410 047e 9C       		.byte	0x9c
+ 1411 047f B4040000 		.4byte	0x4b4
+ 1412 0483 0F       		.uleb128 0xf
+ 1413 0484 D4030000 		.4byte	.LASF47
+ 1414 0488 01       		.byte	0x1
+ 1415 0489 1103     		.2byte	0x311
+ 1416 048b B7000000 		.4byte	0xb7
+ 1417 048f 9C010000 		.4byte	.LLST13
+ 1418 0493 14       		.uleb128 0x14
+ 1419 0494 46020000 		.4byte	.LASF51
+ 1420 0498 01       		.byte	0x1
+ 1421 0499 1403     		.2byte	0x314
+ 1422 049b E2000000 		.4byte	0xe2
+ 1423 049f BF010000 		.4byte	.LLST14
+ 1424 04a3 14       		.uleb128 0x14
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 42
+
+
+ 1425 04a4 6B010000 		.4byte	.LASF49
+ 1426 04a8 01       		.byte	0x1
+ 1427 04a9 1503     		.2byte	0x315
+ 1428 04ab C3000000 		.4byte	0xc3
+ 1429 04af EE010000 		.4byte	.LLST15
+ 1430 04b3 00       		.byte	0
+ 1431 04b4 1F       		.uleb128 0x1f
+ 1432 04b5 2C000000 		.4byte	.LASF52
+ 1433 04b9 01       		.byte	0x1
+ 1434 04ba 3D03     		.2byte	0x33d
+ 1435 04bc CF000000 		.4byte	0xcf
+ 1436 04c0 00000000 		.4byte	.LFB17
+ 1437 04c4 4C000000 		.4byte	.LFE17-.LFB17
+ 1438 04c8 01       		.uleb128 0x1
+ 1439 04c9 9C       		.byte	0x9c
+ 1440 04ca FF040000 		.4byte	0x4ff
+ 1441 04ce 0F       		.uleb128 0xf
+ 1442 04cf D4030000 		.4byte	.LASF47
+ 1443 04d3 01       		.byte	0x1
+ 1444 04d4 3D03     		.2byte	0x33d
+ 1445 04d6 B7000000 		.4byte	0xb7
+ 1446 04da 0C020000 		.4byte	.LLST16
+ 1447 04de 14       		.uleb128 0x14
+ 1448 04df 5F020000 		.4byte	.LASF53
+ 1449 04e3 01       		.byte	0x1
+ 1450 04e4 3F03     		.2byte	0x33f
+ 1451 04e6 CF000000 		.4byte	0xcf
+ 1452 04ea 2A020000 		.4byte	.LLST17
+ 1453 04ee 14       		.uleb128 0x14
+ 1454 04ef 6B010000 		.4byte	.LASF49
+ 1455 04f3 01       		.byte	0x1
+ 1456 04f4 4003     		.2byte	0x340
+ 1457 04f6 C3000000 		.4byte	0xc3
+ 1458 04fa 52020000 		.4byte	.LLST18
+ 1459 04fe 00       		.byte	0
+ 1460 04ff 20       		.uleb128 0x20
+ 1461 0500 8A010000 		.4byte	.LASF54
+ 1462 0504 01       		.byte	0x1
+ 1463 0505 23       		.byte	0x23
+ 1464 0506 87000000 		.4byte	0x87
+ 1465 050a 05       		.uleb128 0x5
+ 1466 050b 03       		.byte	0x3
+ 1467 050c 00000000 		.4byte	ADC_initVar
+ 1468 0510 20       		.uleb128 0x20
+ 1469 0511 80030000 		.4byte	.LASF55
+ 1470 0515 01       		.byte	0x1
+ 1471 0516 24       		.byte	0x24
+ 1472 0517 21050000 		.4byte	0x521
+ 1473 051b 05       		.uleb128 0x5
+ 1474 051c 03       		.byte	0x3
+ 1475 051d 00000000 		.4byte	ADC_offset
+ 1476 0521 07       		.uleb128 0x7
+ 1477 0522 B7000000 		.4byte	0xb7
+ 1478 0526 20       		.uleb128 0x20
+ 1479 0527 35010000 		.4byte	.LASF56
+ 1480 052b 01       		.byte	0x1
+ 1481 052c 25       		.byte	0x25
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 43
+
+
+ 1482 052d 21050000 		.4byte	0x521
+ 1483 0531 05       		.uleb128 0x5
+ 1484 0532 03       		.byte	0x3
+ 1485 0533 00000000 		.4byte	ADC_countsPerVolt
+ 1486 0537 20       		.uleb128 0x20
+ 1487 0538 21010000 		.4byte	.LASF57
+ 1488 053c 01       		.byte	0x1
+ 1489 053d 26       		.byte	0x26
+ 1490 053e 48050000 		.4byte	0x548
+ 1491 0542 05       		.uleb128 0x5
+ 1492 0543 03       		.byte	0x3
+ 1493 0544 00000000 		.4byte	ADC_countsPer10Volt
+ 1494 0548 07       		.uleb128 0x7
+ 1495 0549 C3000000 		.4byte	0xc3
+ 1496 054d 20       		.uleb128 0x20
+ 1497 054e BE020000 		.4byte	.LASF58
+ 1498 0552 01       		.byte	0x1
+ 1499 0553 27       		.byte	0x27
+ 1500 0554 21050000 		.4byte	0x521
+ 1501 0558 05       		.uleb128 0x5
+ 1502 0559 03       		.byte	0x3
+ 1503 055a 00000000 		.4byte	ADC_shift
+ 1504 055e 21       		.uleb128 0x21
+ 1505 055f 65020000 		.4byte	.LASF70
+ 1506 0563 03       		.byte	0x3
+ 1507 0564 7D       		.byte	0x7d
+ 1508 0565 87000000 		.4byte	0x87
+ 1509 0569 22       		.uleb128 0x22
+ 1510 056a 53010000 		.4byte	.LASF59
+ 1511 056e 03       		.byte	0x3
+ 1512 056f 77       		.byte	0x77
+ 1513 0570 7A050000 		.4byte	0x57a
+ 1514 0574 23       		.uleb128 0x23
+ 1515 0575 93000000 		.4byte	0x93
+ 1516 0579 00       		.byte	0
+ 1517 057a 22       		.uleb128 0x22
+ 1518 057b 0F000000 		.4byte	.LASF60
+ 1519 057f 03       		.byte	0x3
+ 1520 0580 7E       		.byte	0x7e
+ 1521 0581 8B050000 		.4byte	0x58b
+ 1522 0585 23       		.uleb128 0x23
+ 1523 0586 87000000 		.4byte	0x87
+ 1524 058a 00       		.byte	0
+ 1525 058b 22       		.uleb128 0x22
+ 1526 058c FC020000 		.4byte	.LASF61
+ 1527 0590 04       		.byte	0x4
+ 1528 0591 32       		.byte	0x32
+ 1529 0592 9C050000 		.4byte	0x59c
+ 1530 0596 23       		.uleb128 0x23
+ 1531 0597 87000000 		.4byte	0x87
+ 1532 059b 00       		.byte	0
+ 1533 059c 22       		.uleb128 0x22
+ 1534 059d 30030000 		.4byte	.LASF62
+ 1535 05a1 03       		.byte	0x3
+ 1536 05a2 8B       		.byte	0x8b
+ 1537 05a3 B2050000 		.4byte	0x5b2
+ 1538 05a7 23       		.uleb128 0x23
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 44
+
+
+ 1539 05a8 87000000 		.4byte	0x87
+ 1540 05ac 23       		.uleb128 0x23
+ 1541 05ad 87000000 		.4byte	0x87
+ 1542 05b1 00       		.byte	0
+ 1543 05b2 24       		.uleb128 0x24
+ 1544 05b3 7B010000 		.4byte	.LASF63
+ 1545 05b7 03       		.byte	0x3
+ 1546 05b8 88       		.byte	0x88
+ 1547 05b9 21010000 		.4byte	0x121
+ 1548 05bd 23       		.uleb128 0x23
+ 1549 05be 87000000 		.4byte	0x87
+ 1550 05c2 23       		.uleb128 0x23
+ 1551 05c3 21010000 		.4byte	0x121
+ 1552 05c7 00       		.byte	0
+ 1553 05c8 00       		.byte	0
+ 1554              		.section	.debug_abbrev,"",%progbits
+ 1555              	.Ldebug_abbrev0:
+ 1556 0000 01       		.uleb128 0x1
+ 1557 0001 11       		.uleb128 0x11
+ 1558 0002 01       		.byte	0x1
+ 1559 0003 25       		.uleb128 0x25
+ 1560 0004 0E       		.uleb128 0xe
+ 1561 0005 13       		.uleb128 0x13
+ 1562 0006 0B       		.uleb128 0xb
+ 1563 0007 03       		.uleb128 0x3
+ 1564 0008 0E       		.uleb128 0xe
+ 1565 0009 1B       		.uleb128 0x1b
+ 1566 000a 0E       		.uleb128 0xe
+ 1567 000b 55       		.uleb128 0x55
+ 1568 000c 17       		.uleb128 0x17
+ 1569 000d 11       		.uleb128 0x11
+ 1570 000e 01       		.uleb128 0x1
+ 1571 000f 10       		.uleb128 0x10
+ 1572 0010 17       		.uleb128 0x17
+ 1573 0011 00       		.byte	0
+ 1574 0012 00       		.byte	0
+ 1575 0013 02       		.uleb128 0x2
+ 1576 0014 24       		.uleb128 0x24
+ 1577 0015 00       		.byte	0
+ 1578 0016 0B       		.uleb128 0xb
+ 1579 0017 0B       		.uleb128 0xb
+ 1580 0018 3E       		.uleb128 0x3e
+ 1581 0019 0B       		.uleb128 0xb
+ 1582 001a 03       		.uleb128 0x3
+ 1583 001b 0E       		.uleb128 0xe
+ 1584 001c 00       		.byte	0
+ 1585 001d 00       		.byte	0
+ 1586 001e 03       		.uleb128 0x3
+ 1587 001f 24       		.uleb128 0x24
+ 1588 0020 00       		.byte	0
+ 1589 0021 0B       		.uleb128 0xb
+ 1590 0022 0B       		.uleb128 0xb
+ 1591 0023 3E       		.uleb128 0x3e
+ 1592 0024 0B       		.uleb128 0xb
+ 1593 0025 03       		.uleb128 0x3
+ 1594 0026 08       		.uleb128 0x8
+ 1595 0027 00       		.byte	0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 45
+
+
+ 1596 0028 00       		.byte	0
+ 1597 0029 04       		.uleb128 0x4
+ 1598 002a 0F       		.uleb128 0xf
+ 1599 002b 00       		.byte	0
+ 1600 002c 0B       		.uleb128 0xb
+ 1601 002d 0B       		.uleb128 0xb
+ 1602 002e 49       		.uleb128 0x49
+ 1603 002f 13       		.uleb128 0x13
+ 1604 0030 00       		.byte	0
+ 1605 0031 00       		.byte	0
+ 1606 0032 05       		.uleb128 0x5
+ 1607 0033 15       		.uleb128 0x15
+ 1608 0034 00       		.byte	0
+ 1609 0035 27       		.uleb128 0x27
+ 1610 0036 19       		.uleb128 0x19
+ 1611 0037 00       		.byte	0
+ 1612 0038 00       		.byte	0
+ 1613 0039 06       		.uleb128 0x6
+ 1614 003a 16       		.uleb128 0x16
+ 1615 003b 00       		.byte	0
+ 1616 003c 03       		.uleb128 0x3
+ 1617 003d 0E       		.uleb128 0xe
+ 1618 003e 3A       		.uleb128 0x3a
+ 1619 003f 0B       		.uleb128 0xb
+ 1620 0040 3B       		.uleb128 0x3b
+ 1621 0041 05       		.uleb128 0x5
+ 1622 0042 49       		.uleb128 0x49
+ 1623 0043 13       		.uleb128 0x13
+ 1624 0044 00       		.byte	0
+ 1625 0045 00       		.byte	0
+ 1626 0046 07       		.uleb128 0x7
+ 1627 0047 35       		.uleb128 0x35
+ 1628 0048 00       		.byte	0
+ 1629 0049 49       		.uleb128 0x49
+ 1630 004a 13       		.uleb128 0x13
+ 1631 004b 00       		.byte	0
+ 1632 004c 00       		.byte	0
+ 1633 004d 08       		.uleb128 0x8
+ 1634 004e 2E       		.uleb128 0x2e
+ 1635 004f 01       		.byte	0x1
+ 1636 0050 3F       		.uleb128 0x3f
+ 1637 0051 19       		.uleb128 0x19
+ 1638 0052 03       		.uleb128 0x3
+ 1639 0053 0E       		.uleb128 0xe
+ 1640 0054 3A       		.uleb128 0x3a
+ 1641 0055 0B       		.uleb128 0xb
+ 1642 0056 3B       		.uleb128 0x3b
+ 1643 0057 0B       		.uleb128 0xb
+ 1644 0058 27       		.uleb128 0x27
+ 1645 0059 19       		.uleb128 0x19
+ 1646 005a 11       		.uleb128 0x11
+ 1647 005b 01       		.uleb128 0x1
+ 1648 005c 12       		.uleb128 0x12
+ 1649 005d 06       		.uleb128 0x6
+ 1650 005e 40       		.uleb128 0x40
+ 1651 005f 18       		.uleb128 0x18
+ 1652 0060 9742     		.uleb128 0x2117
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 46
+
+
+ 1653 0062 19       		.uleb128 0x19
+ 1654 0063 01       		.uleb128 0x1
+ 1655 0064 13       		.uleb128 0x13
+ 1656 0065 00       		.byte	0
+ 1657 0066 00       		.byte	0
+ 1658 0067 09       		.uleb128 0x9
+ 1659 0068 34       		.uleb128 0x34
+ 1660 0069 00       		.byte	0
+ 1661 006a 03       		.uleb128 0x3
+ 1662 006b 0E       		.uleb128 0xe
+ 1663 006c 3A       		.uleb128 0x3a
+ 1664 006d 0B       		.uleb128 0xb
+ 1665 006e 3B       		.uleb128 0x3b
+ 1666 006f 0B       		.uleb128 0xb
+ 1667 0070 49       		.uleb128 0x49
+ 1668 0071 13       		.uleb128 0x13
+ 1669 0072 02       		.uleb128 0x2
+ 1670 0073 17       		.uleb128 0x17
+ 1671 0074 00       		.byte	0
+ 1672 0075 00       		.byte	0
+ 1673 0076 0A       		.uleb128 0xa
+ 1674 0077 898201   		.uleb128 0x4109
+ 1675 007a 00       		.byte	0
+ 1676 007b 11       		.uleb128 0x11
+ 1677 007c 01       		.uleb128 0x1
+ 1678 007d 31       		.uleb128 0x31
+ 1679 007e 13       		.uleb128 0x13
+ 1680 007f 00       		.byte	0
+ 1681 0080 00       		.byte	0
+ 1682 0081 0B       		.uleb128 0xb
+ 1683 0082 898201   		.uleb128 0x4109
+ 1684 0085 01       		.byte	0x1
+ 1685 0086 11       		.uleb128 0x11
+ 1686 0087 01       		.uleb128 0x1
+ 1687 0088 31       		.uleb128 0x31
+ 1688 0089 13       		.uleb128 0x13
+ 1689 008a 01       		.uleb128 0x1
+ 1690 008b 13       		.uleb128 0x13
+ 1691 008c 00       		.byte	0
+ 1692 008d 00       		.byte	0
+ 1693 008e 0C       		.uleb128 0xc
+ 1694 008f 8A8201   		.uleb128 0x410a
+ 1695 0092 00       		.byte	0
+ 1696 0093 02       		.uleb128 0x2
+ 1697 0094 18       		.uleb128 0x18
+ 1698 0095 9142     		.uleb128 0x2111
+ 1699 0097 18       		.uleb128 0x18
+ 1700 0098 00       		.byte	0
+ 1701 0099 00       		.byte	0
+ 1702 009a 0D       		.uleb128 0xd
+ 1703 009b 898201   		.uleb128 0x4109
+ 1704 009e 00       		.byte	0
+ 1705 009f 11       		.uleb128 0x11
+ 1706 00a0 01       		.uleb128 0x1
+ 1707 00a1 9542     		.uleb128 0x2115
+ 1708 00a3 19       		.uleb128 0x19
+ 1709 00a4 31       		.uleb128 0x31
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 47
+
+
+ 1710 00a5 13       		.uleb128 0x13
+ 1711 00a6 00       		.byte	0
+ 1712 00a7 00       		.byte	0
+ 1713 00a8 0E       		.uleb128 0xe
+ 1714 00a9 2E       		.uleb128 0x2e
+ 1715 00aa 01       		.byte	0x1
+ 1716 00ab 3F       		.uleb128 0x3f
+ 1717 00ac 19       		.uleb128 0x19
+ 1718 00ad 03       		.uleb128 0x3
+ 1719 00ae 0E       		.uleb128 0xe
+ 1720 00af 3A       		.uleb128 0x3a
+ 1721 00b0 0B       		.uleb128 0xb
+ 1722 00b1 3B       		.uleb128 0x3b
+ 1723 00b2 05       		.uleb128 0x5
+ 1724 00b3 27       		.uleb128 0x27
+ 1725 00b4 19       		.uleb128 0x19
+ 1726 00b5 11       		.uleb128 0x11
+ 1727 00b6 01       		.uleb128 0x1
+ 1728 00b7 12       		.uleb128 0x12
+ 1729 00b8 06       		.uleb128 0x6
+ 1730 00b9 40       		.uleb128 0x40
+ 1731 00ba 18       		.uleb128 0x18
+ 1732 00bb 9742     		.uleb128 0x2117
+ 1733 00bd 19       		.uleb128 0x19
+ 1734 00be 01       		.uleb128 0x1
+ 1735 00bf 13       		.uleb128 0x13
+ 1736 00c0 00       		.byte	0
+ 1737 00c1 00       		.byte	0
+ 1738 00c2 0F       		.uleb128 0xf
+ 1739 00c3 05       		.uleb128 0x5
+ 1740 00c4 00       		.byte	0
+ 1741 00c5 03       		.uleb128 0x3
+ 1742 00c6 0E       		.uleb128 0xe
+ 1743 00c7 3A       		.uleb128 0x3a
+ 1744 00c8 0B       		.uleb128 0xb
+ 1745 00c9 3B       		.uleb128 0x3b
+ 1746 00ca 05       		.uleb128 0x5
+ 1747 00cb 49       		.uleb128 0x49
+ 1748 00cc 13       		.uleb128 0x13
+ 1749 00cd 02       		.uleb128 0x2
+ 1750 00ce 17       		.uleb128 0x17
+ 1751 00cf 00       		.byte	0
+ 1752 00d0 00       		.byte	0
+ 1753 00d1 10       		.uleb128 0x10
+ 1754 00d2 34       		.uleb128 0x34
+ 1755 00d3 00       		.byte	0
+ 1756 00d4 03       		.uleb128 0x3
+ 1757 00d5 0E       		.uleb128 0xe
+ 1758 00d6 3A       		.uleb128 0x3a
+ 1759 00d7 0B       		.uleb128 0xb
+ 1760 00d8 3B       		.uleb128 0x3b
+ 1761 00d9 05       		.uleb128 0x5
+ 1762 00da 49       		.uleb128 0x49
+ 1763 00db 13       		.uleb128 0x13
+ 1764 00dc 02       		.uleb128 0x2
+ 1765 00dd 18       		.uleb128 0x18
+ 1766 00de 00       		.byte	0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 48
+
+
+ 1767 00df 00       		.byte	0
+ 1768 00e0 11       		.uleb128 0x11
+ 1769 00e1 2E       		.uleb128 0x2e
+ 1770 00e2 01       		.byte	0x1
+ 1771 00e3 03       		.uleb128 0x3
+ 1772 00e4 0E       		.uleb128 0xe
+ 1773 00e5 3A       		.uleb128 0x3a
+ 1774 00e6 0B       		.uleb128 0xb
+ 1775 00e7 3B       		.uleb128 0x3b
+ 1776 00e8 05       		.uleb128 0x5
+ 1777 00e9 27       		.uleb128 0x27
+ 1778 00ea 19       		.uleb128 0x19
+ 1779 00eb 20       		.uleb128 0x20
+ 1780 00ec 0B       		.uleb128 0xb
+ 1781 00ed 01       		.uleb128 0x1
+ 1782 00ee 13       		.uleb128 0x13
+ 1783 00ef 00       		.byte	0
+ 1784 00f0 00       		.byte	0
+ 1785 00f1 12       		.uleb128 0x12
+ 1786 00f2 05       		.uleb128 0x5
+ 1787 00f3 00       		.byte	0
+ 1788 00f4 03       		.uleb128 0x3
+ 1789 00f5 0E       		.uleb128 0xe
+ 1790 00f6 3A       		.uleb128 0x3a
+ 1791 00f7 0B       		.uleb128 0xb
+ 1792 00f8 3B       		.uleb128 0x3b
+ 1793 00f9 05       		.uleb128 0x5
+ 1794 00fa 49       		.uleb128 0x49
+ 1795 00fb 13       		.uleb128 0x13
+ 1796 00fc 00       		.byte	0
+ 1797 00fd 00       		.byte	0
+ 1798 00fe 13       		.uleb128 0x13
+ 1799 00ff 34       		.uleb128 0x34
+ 1800 0100 00       		.byte	0
+ 1801 0101 03       		.uleb128 0x3
+ 1802 0102 0E       		.uleb128 0xe
+ 1803 0103 3A       		.uleb128 0x3a
+ 1804 0104 0B       		.uleb128 0xb
+ 1805 0105 3B       		.uleb128 0x3b
+ 1806 0106 05       		.uleb128 0x5
+ 1807 0107 49       		.uleb128 0x49
+ 1808 0108 13       		.uleb128 0x13
+ 1809 0109 00       		.byte	0
+ 1810 010a 00       		.byte	0
+ 1811 010b 14       		.uleb128 0x14
+ 1812 010c 34       		.uleb128 0x34
+ 1813 010d 00       		.byte	0
+ 1814 010e 03       		.uleb128 0x3
+ 1815 010f 0E       		.uleb128 0xe
+ 1816 0110 3A       		.uleb128 0x3a
+ 1817 0111 0B       		.uleb128 0xb
+ 1818 0112 3B       		.uleb128 0x3b
+ 1819 0113 05       		.uleb128 0x5
+ 1820 0114 49       		.uleb128 0x49
+ 1821 0115 13       		.uleb128 0x13
+ 1822 0116 02       		.uleb128 0x2
+ 1823 0117 17       		.uleb128 0x17
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 49
+
+
+ 1824 0118 00       		.byte	0
+ 1825 0119 00       		.byte	0
+ 1826 011a 15       		.uleb128 0x15
+ 1827 011b 1D       		.uleb128 0x1d
+ 1828 011c 01       		.byte	0x1
+ 1829 011d 31       		.uleb128 0x31
+ 1830 011e 13       		.uleb128 0x13
+ 1831 011f 52       		.uleb128 0x52
+ 1832 0120 01       		.uleb128 0x1
+ 1833 0121 55       		.uleb128 0x55
+ 1834 0122 17       		.uleb128 0x17
+ 1835 0123 58       		.uleb128 0x58
+ 1836 0124 0B       		.uleb128 0xb
+ 1837 0125 59       		.uleb128 0x59
+ 1838 0126 05       		.uleb128 0x5
+ 1839 0127 00       		.byte	0
+ 1840 0128 00       		.byte	0
+ 1841 0129 16       		.uleb128 0x16
+ 1842 012a 05       		.uleb128 0x5
+ 1843 012b 00       		.byte	0
+ 1844 012c 31       		.uleb128 0x31
+ 1845 012d 13       		.uleb128 0x13
+ 1846 012e 00       		.byte	0
+ 1847 012f 00       		.byte	0
+ 1848 0130 17       		.uleb128 0x17
+ 1849 0131 0B       		.uleb128 0xb
+ 1850 0132 01       		.byte	0x1
+ 1851 0133 55       		.uleb128 0x55
+ 1852 0134 17       		.uleb128 0x17
+ 1853 0135 00       		.byte	0
+ 1854 0136 00       		.byte	0
+ 1855 0137 18       		.uleb128 0x18
+ 1856 0138 34       		.uleb128 0x34
+ 1857 0139 00       		.byte	0
+ 1858 013a 31       		.uleb128 0x31
+ 1859 013b 13       		.uleb128 0x13
+ 1860 013c 02       		.uleb128 0x2
+ 1861 013d 17       		.uleb128 0x17
+ 1862 013e 00       		.byte	0
+ 1863 013f 00       		.byte	0
+ 1864 0140 19       		.uleb128 0x19
+ 1865 0141 898201   		.uleb128 0x4109
+ 1866 0144 01       		.byte	0x1
+ 1867 0145 11       		.uleb128 0x11
+ 1868 0146 01       		.uleb128 0x1
+ 1869 0147 31       		.uleb128 0x31
+ 1870 0148 13       		.uleb128 0x13
+ 1871 0149 00       		.byte	0
+ 1872 014a 00       		.byte	0
+ 1873 014b 1A       		.uleb128 0x1a
+ 1874 014c 2E       		.uleb128 0x2e
+ 1875 014d 00       		.byte	0
+ 1876 014e 3F       		.uleb128 0x3f
+ 1877 014f 19       		.uleb128 0x19
+ 1878 0150 03       		.uleb128 0x3
+ 1879 0151 0E       		.uleb128 0xe
+ 1880 0152 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 50
+
+
+ 1881 0153 0B       		.uleb128 0xb
+ 1882 0154 3B       		.uleb128 0x3b
+ 1883 0155 05       		.uleb128 0x5
+ 1884 0156 27       		.uleb128 0x27
+ 1885 0157 19       		.uleb128 0x19
+ 1886 0158 11       		.uleb128 0x11
+ 1887 0159 01       		.uleb128 0x1
+ 1888 015a 12       		.uleb128 0x12
+ 1889 015b 06       		.uleb128 0x6
+ 1890 015c 40       		.uleb128 0x40
+ 1891 015d 18       		.uleb128 0x18
+ 1892 015e 9742     		.uleb128 0x2117
+ 1893 0160 19       		.uleb128 0x19
+ 1894 0161 00       		.byte	0
+ 1895 0162 00       		.byte	0
+ 1896 0163 1B       		.uleb128 0x1b
+ 1897 0164 2E       		.uleb128 0x2e
+ 1898 0165 01       		.byte	0x1
+ 1899 0166 3F       		.uleb128 0x3f
+ 1900 0167 19       		.uleb128 0x19
+ 1901 0168 03       		.uleb128 0x3
+ 1902 0169 0E       		.uleb128 0xe
+ 1903 016a 3A       		.uleb128 0x3a
+ 1904 016b 0B       		.uleb128 0xb
+ 1905 016c 3B       		.uleb128 0x3b
+ 1906 016d 05       		.uleb128 0x5
+ 1907 016e 27       		.uleb128 0x27
+ 1908 016f 19       		.uleb128 0x19
+ 1909 0170 49       		.uleb128 0x49
+ 1910 0171 13       		.uleb128 0x13
+ 1911 0172 11       		.uleb128 0x11
+ 1912 0173 01       		.uleb128 0x1
+ 1913 0174 12       		.uleb128 0x12
+ 1914 0175 06       		.uleb128 0x6
+ 1915 0176 40       		.uleb128 0x40
+ 1916 0177 18       		.uleb128 0x18
+ 1917 0178 9742     		.uleb128 0x2117
+ 1918 017a 19       		.uleb128 0x19
+ 1919 017b 01       		.uleb128 0x1
+ 1920 017c 13       		.uleb128 0x13
+ 1921 017d 00       		.byte	0
+ 1922 017e 00       		.byte	0
+ 1923 017f 1C       		.uleb128 0x1c
+ 1924 0180 2E       		.uleb128 0x2e
+ 1925 0181 00       		.byte	0
+ 1926 0182 3F       		.uleb128 0x3f
+ 1927 0183 19       		.uleb128 0x19
+ 1928 0184 03       		.uleb128 0x3
+ 1929 0185 0E       		.uleb128 0xe
+ 1930 0186 3A       		.uleb128 0x3a
+ 1931 0187 0B       		.uleb128 0xb
+ 1932 0188 3B       		.uleb128 0x3b
+ 1933 0189 05       		.uleb128 0x5
+ 1934 018a 27       		.uleb128 0x27
+ 1935 018b 19       		.uleb128 0x19
+ 1936 018c 49       		.uleb128 0x49
+ 1937 018d 13       		.uleb128 0x13
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 51
+
+
+ 1938 018e 11       		.uleb128 0x11
+ 1939 018f 01       		.uleb128 0x1
+ 1940 0190 12       		.uleb128 0x12
+ 1941 0191 06       		.uleb128 0x6
+ 1942 0192 40       		.uleb128 0x40
+ 1943 0193 18       		.uleb128 0x18
+ 1944 0194 9742     		.uleb128 0x2117
+ 1945 0196 19       		.uleb128 0x19
+ 1946 0197 00       		.byte	0
+ 1947 0198 00       		.byte	0
+ 1948 0199 1D       		.uleb128 0x1d
+ 1949 019a 34       		.uleb128 0x34
+ 1950 019b 00       		.byte	0
+ 1951 019c 03       		.uleb128 0x3
+ 1952 019d 08       		.uleb128 0x8
+ 1953 019e 3A       		.uleb128 0x3a
+ 1954 019f 0B       		.uleb128 0xb
+ 1955 01a0 3B       		.uleb128 0x3b
+ 1956 01a1 05       		.uleb128 0x5
+ 1957 01a2 49       		.uleb128 0x49
+ 1958 01a3 13       		.uleb128 0x13
+ 1959 01a4 02       		.uleb128 0x2
+ 1960 01a5 18       		.uleb128 0x18
+ 1961 01a6 00       		.byte	0
+ 1962 01a7 00       		.byte	0
+ 1963 01a8 1E       		.uleb128 0x1e
+ 1964 01a9 05       		.uleb128 0x5
+ 1965 01aa 00       		.byte	0
+ 1966 01ab 03       		.uleb128 0x3
+ 1967 01ac 0E       		.uleb128 0xe
+ 1968 01ad 3A       		.uleb128 0x3a
+ 1969 01ae 0B       		.uleb128 0xb
+ 1970 01af 3B       		.uleb128 0x3b
+ 1971 01b0 05       		.uleb128 0x5
+ 1972 01b1 49       		.uleb128 0x49
+ 1973 01b2 13       		.uleb128 0x13
+ 1974 01b3 02       		.uleb128 0x2
+ 1975 01b4 18       		.uleb128 0x18
+ 1976 01b5 00       		.byte	0
+ 1977 01b6 00       		.byte	0
+ 1978 01b7 1F       		.uleb128 0x1f
+ 1979 01b8 2E       		.uleb128 0x2e
+ 1980 01b9 01       		.byte	0x1
+ 1981 01ba 3F       		.uleb128 0x3f
+ 1982 01bb 19       		.uleb128 0x19
+ 1983 01bc 03       		.uleb128 0x3
+ 1984 01bd 0E       		.uleb128 0xe
+ 1985 01be 3A       		.uleb128 0x3a
+ 1986 01bf 0B       		.uleb128 0xb
+ 1987 01c0 3B       		.uleb128 0x3b
+ 1988 01c1 05       		.uleb128 0x5
+ 1989 01c2 27       		.uleb128 0x27
+ 1990 01c3 19       		.uleb128 0x19
+ 1991 01c4 49       		.uleb128 0x49
+ 1992 01c5 13       		.uleb128 0x13
+ 1993 01c6 11       		.uleb128 0x11
+ 1994 01c7 01       		.uleb128 0x1
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 52
+
+
+ 1995 01c8 12       		.uleb128 0x12
+ 1996 01c9 06       		.uleb128 0x6
+ 1997 01ca 40       		.uleb128 0x40
+ 1998 01cb 18       		.uleb128 0x18
+ 1999 01cc 9642     		.uleb128 0x2116
+ 2000 01ce 19       		.uleb128 0x19
+ 2001 01cf 01       		.uleb128 0x1
+ 2002 01d0 13       		.uleb128 0x13
+ 2003 01d1 00       		.byte	0
+ 2004 01d2 00       		.byte	0
+ 2005 01d3 20       		.uleb128 0x20
+ 2006 01d4 34       		.uleb128 0x34
+ 2007 01d5 00       		.byte	0
+ 2008 01d6 03       		.uleb128 0x3
+ 2009 01d7 0E       		.uleb128 0xe
+ 2010 01d8 3A       		.uleb128 0x3a
+ 2011 01d9 0B       		.uleb128 0xb
+ 2012 01da 3B       		.uleb128 0x3b
+ 2013 01db 0B       		.uleb128 0xb
+ 2014 01dc 49       		.uleb128 0x49
+ 2015 01dd 13       		.uleb128 0x13
+ 2016 01de 3F       		.uleb128 0x3f
+ 2017 01df 19       		.uleb128 0x19
+ 2018 01e0 02       		.uleb128 0x2
+ 2019 01e1 18       		.uleb128 0x18
+ 2020 01e2 00       		.byte	0
+ 2021 01e3 00       		.byte	0
+ 2022 01e4 21       		.uleb128 0x21
+ 2023 01e5 2E       		.uleb128 0x2e
+ 2024 01e6 00       		.byte	0
+ 2025 01e7 3F       		.uleb128 0x3f
+ 2026 01e8 19       		.uleb128 0x19
+ 2027 01e9 03       		.uleb128 0x3
+ 2028 01ea 0E       		.uleb128 0xe
+ 2029 01eb 3A       		.uleb128 0x3a
+ 2030 01ec 0B       		.uleb128 0xb
+ 2031 01ed 3B       		.uleb128 0x3b
+ 2032 01ee 0B       		.uleb128 0xb
+ 2033 01ef 27       		.uleb128 0x27
+ 2034 01f0 19       		.uleb128 0x19
+ 2035 01f1 49       		.uleb128 0x49
+ 2036 01f2 13       		.uleb128 0x13
+ 2037 01f3 3C       		.uleb128 0x3c
+ 2038 01f4 19       		.uleb128 0x19
+ 2039 01f5 00       		.byte	0
+ 2040 01f6 00       		.byte	0
+ 2041 01f7 22       		.uleb128 0x22
+ 2042 01f8 2E       		.uleb128 0x2e
+ 2043 01f9 01       		.byte	0x1
+ 2044 01fa 3F       		.uleb128 0x3f
+ 2045 01fb 19       		.uleb128 0x19
+ 2046 01fc 03       		.uleb128 0x3
+ 2047 01fd 0E       		.uleb128 0xe
+ 2048 01fe 3A       		.uleb128 0x3a
+ 2049 01ff 0B       		.uleb128 0xb
+ 2050 0200 3B       		.uleb128 0x3b
+ 2051 0201 0B       		.uleb128 0xb
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 53
+
+
+ 2052 0202 27       		.uleb128 0x27
+ 2053 0203 19       		.uleb128 0x19
+ 2054 0204 3C       		.uleb128 0x3c
+ 2055 0205 19       		.uleb128 0x19
+ 2056 0206 01       		.uleb128 0x1
+ 2057 0207 13       		.uleb128 0x13
+ 2058 0208 00       		.byte	0
+ 2059 0209 00       		.byte	0
+ 2060 020a 23       		.uleb128 0x23
+ 2061 020b 05       		.uleb128 0x5
+ 2062 020c 00       		.byte	0
+ 2063 020d 49       		.uleb128 0x49
+ 2064 020e 13       		.uleb128 0x13
+ 2065 020f 00       		.byte	0
+ 2066 0210 00       		.byte	0
+ 2067 0211 24       		.uleb128 0x24
+ 2068 0212 2E       		.uleb128 0x2e
+ 2069 0213 01       		.byte	0x1
+ 2070 0214 3F       		.uleb128 0x3f
+ 2071 0215 19       		.uleb128 0x19
+ 2072 0216 03       		.uleb128 0x3
+ 2073 0217 0E       		.uleb128 0xe
+ 2074 0218 3A       		.uleb128 0x3a
+ 2075 0219 0B       		.uleb128 0xb
+ 2076 021a 3B       		.uleb128 0x3b
+ 2077 021b 0B       		.uleb128 0xb
+ 2078 021c 27       		.uleb128 0x27
+ 2079 021d 19       		.uleb128 0x19
+ 2080 021e 49       		.uleb128 0x49
+ 2081 021f 13       		.uleb128 0x13
+ 2082 0220 3C       		.uleb128 0x3c
+ 2083 0221 19       		.uleb128 0x19
+ 2084 0222 00       		.byte	0
+ 2085 0223 00       		.byte	0
+ 2086 0224 00       		.byte	0
+ 2087              		.section	.debug_loc,"",%progbits
+ 2088              	.Ldebug_loc0:
+ 2089              	.LLST0:
+ 2090 0000 38000000 		.4byte	.LVL2
+ 2091 0004 3C000000 		.4byte	.LVL3
+ 2092 0008 0500     		.2byte	0x5
+ 2093 000a 73       		.byte	0x73
+ 2094 000b 00       		.sleb128 0
+ 2095 000c 32       		.byte	0x32
+ 2096 000d 21       		.byte	0x21
+ 2097 000e 9F       		.byte	0x9f
+ 2098 000f 3C000000 		.4byte	.LVL3
+ 2099 0013 40000000 		.4byte	.LVL4
+ 2100 0017 0100     		.2byte	0x1
+ 2101 0019 53       		.byte	0x53
+ 2102 001a 40000000 		.4byte	.LVL4
+ 2103 001e 42000000 		.4byte	.LVL5
+ 2104 0022 0200     		.2byte	0x2
+ 2105 0024 72       		.byte	0x72
+ 2106 0025 00       		.sleb128 0
+ 2107 0026 42000000 		.4byte	.LVL5
+ 2108 002a 44000000 		.4byte	.LVL6
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 54
+
+
+ 2109 002e 0500     		.2byte	0x5
+ 2110 0030 0C       		.byte	0xc
+ 2111 0031 03590040 		.4byte	0x40005903
+ 2112 0035 00000000 		.4byte	0
+ 2113 0039 00000000 		.4byte	0
+ 2114              	.LLST1:
+ 2115 003d 0A000000 		.4byte	.LVL1
+ 2116 0041 84000000 		.4byte	.LVL8
+ 2117 0045 0100     		.2byte	0x1
+ 2118 0047 54       		.byte	0x54
+ 2119 0048 00000000 		.4byte	0
+ 2120 004c 00000000 		.4byte	0
+ 2121              	.LLST2:
+ 2122 0050 06000000 		.4byte	.LVL10
+ 2123 0054 41000000 		.4byte	.LVL11-1
+ 2124 0058 0100     		.2byte	0x1
+ 2125 005a 50       		.byte	0x50
+ 2126 005b 00000000 		.4byte	0
+ 2127 005f 00000000 		.4byte	0
+ 2128              	.LLST3:
+ 2129 0063 00000000 		.4byte	.LVL12
+ 2130 0067 00000000 		.4byte	.LVL12
+ 2131 006b 0100     		.2byte	0x1
+ 2132 006d 50       		.byte	0x50
+ 2133 006e 00000000 		.4byte	.LVL12
+ 2134 0072 06000000 		.4byte	.LVL13
+ 2135 0076 0500     		.2byte	0x5
+ 2136 0078 70       		.byte	0x70
+ 2137 0079 00       		.sleb128 0
+ 2138 007a 33       		.byte	0x33
+ 2139 007b 1A       		.byte	0x1a
+ 2140 007c 9F       		.byte	0x9f
+ 2141 007d 06000000 		.4byte	.LVL13
+ 2142 0081 18000000 		.4byte	.LFE4
+ 2143 0085 0600     		.2byte	0x6
+ 2144 0087 F3       		.byte	0xf3
+ 2145 0088 01       		.uleb128 0x1
+ 2146 0089 50       		.byte	0x50
+ 2147 008a 33       		.byte	0x33
+ 2148 008b 1A       		.byte	0x1a
+ 2149 008c 9F       		.byte	0x9f
+ 2150 008d 00000000 		.4byte	0
+ 2151 0091 00000000 		.4byte	0
+ 2152              	.LLST4:
+ 2153 0095 00000000 		.4byte	.LVL16
+ 2154 0099 12000000 		.4byte	.LVL19
+ 2155 009d 0100     		.2byte	0x1
+ 2156 009f 50       		.byte	0x50
+ 2157 00a0 12000000 		.4byte	.LVL19
+ 2158 00a4 60000000 		.4byte	.LFE5
+ 2159 00a8 0400     		.2byte	0x4
+ 2160 00aa F3       		.byte	0xf3
+ 2161 00ab 01       		.uleb128 0x1
+ 2162 00ac 50       		.byte	0x50
+ 2163 00ad 9F       		.byte	0x9f
+ 2164 00ae 00000000 		.4byte	0
+ 2165 00b2 00000000 		.4byte	0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 55
+
+
+ 2166              	.LLST5:
+ 2167 00b6 0E000000 		.4byte	.LVL17
+ 2168 00ba 10000000 		.4byte	.LVL18
+ 2169 00be 0300     		.2byte	0x3
+ 2170 00c0 08       		.byte	0x8
+ 2171 00c1 42       		.byte	0x42
+ 2172 00c2 9F       		.byte	0x9f
+ 2173 00c3 00000000 		.4byte	0
+ 2174 00c7 00000000 		.4byte	0
+ 2175              	.LLST6:
+ 2176 00cb 2E000000 		.4byte	.LVL21
+ 2177 00cf 3A000000 		.4byte	.LVL22
+ 2178 00d3 0100     		.2byte	0x1
+ 2179 00d5 51       		.byte	0x51
+ 2180 00d6 00000000 		.4byte	0
+ 2181 00da 00000000 		.4byte	0
+ 2182              	.LLST7:
+ 2183 00de 00000000 		.4byte	.LVL29
+ 2184 00e2 16000000 		.4byte	.LVL32
+ 2185 00e6 0100     		.2byte	0x1
+ 2186 00e8 50       		.byte	0x50
+ 2187 00e9 16000000 		.4byte	.LVL32
+ 2188 00ed 24000000 		.4byte	.LFE8
+ 2189 00f1 0400     		.2byte	0x4
+ 2190 00f3 F3       		.byte	0xf3
+ 2191 00f4 01       		.uleb128 0x1
+ 2192 00f5 50       		.byte	0x50
+ 2193 00f6 9F       		.byte	0x9f
+ 2194 00f7 00000000 		.4byte	0
+ 2195 00fb 00000000 		.4byte	0
+ 2196              	.LLST8:
+ 2197 00ff 06000000 		.4byte	.LVL30
+ 2198 0103 0A000000 		.4byte	.LVL31
+ 2199 0107 0500     		.2byte	0x5
+ 2200 0109 74       		.byte	0x74
+ 2201 010a 00       		.sleb128 0
+ 2202 010b 31       		.byte	0x31
+ 2203 010c 1A       		.byte	0x1a
+ 2204 010d 9F       		.byte	0x9f
+ 2205 010e 00000000 		.4byte	0
+ 2206 0112 00000000 		.4byte	0
+ 2207              	.LLST9:
+ 2208 0116 00000000 		.4byte	.LVL36
+ 2209 011a 04000000 		.4byte	.LVL37
+ 2210 011e 0100     		.2byte	0x1
+ 2211 0120 50       		.byte	0x50
+ 2212 0121 04000000 		.4byte	.LVL37
+ 2213 0125 10000000 		.4byte	.LFE13
+ 2214 0129 0400     		.2byte	0x4
+ 2215 012b F3       		.byte	0xf3
+ 2216 012c 01       		.uleb128 0x1
+ 2217 012d 50       		.byte	0x50
+ 2218 012e 9F       		.byte	0x9f
+ 2219 012f 00000000 		.4byte	0
+ 2220 0133 00000000 		.4byte	0
+ 2221              	.LLST10:
+ 2222 0137 00000000 		.4byte	.LVL39
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 56
+
+
+ 2223 013b 22000000 		.4byte	.LVL43
+ 2224 013f 0100     		.2byte	0x1
+ 2225 0141 50       		.byte	0x50
+ 2226 0142 22000000 		.4byte	.LVL43
+ 2227 0146 28000000 		.4byte	.LVL44
+ 2228 014a 0400     		.2byte	0x4
+ 2229 014c F3       		.byte	0xf3
+ 2230 014d 01       		.uleb128 0x1
+ 2231 014e 50       		.byte	0x50
+ 2232 014f 9F       		.byte	0x9f
+ 2233 0150 28000000 		.4byte	.LVL44
+ 2234 0154 48000000 		.4byte	.LFE15
+ 2235 0158 0100     		.2byte	0x1
+ 2236 015a 51       		.byte	0x51
+ 2237 015b 00000000 		.4byte	0
+ 2238 015f 00000000 		.4byte	0
+ 2239              	.LLST11:
+ 2240 0163 30000000 		.4byte	.LVL45
+ 2241 0167 32000000 		.4byte	.LVL46
+ 2242 016b 0900     		.2byte	0x9
+ 2243 016d 70       		.byte	0x70
+ 2244 016e 00       		.sleb128 0
+ 2245 016f 73       		.byte	0x73
+ 2246 0170 00       		.sleb128 0
+ 2247 0171 22       		.byte	0x22
+ 2248 0172 72       		.byte	0x72
+ 2249 0173 00       		.sleb128 0
+ 2250 0174 1B       		.byte	0x1b
+ 2251 0175 9F       		.byte	0x9f
+ 2252 0176 00000000 		.4byte	0
+ 2253 017a 00000000 		.4byte	0
+ 2254              	.LLST12:
+ 2255 017e 10000000 		.4byte	.LVL40
+ 2256 0182 12000000 		.4byte	.LVL41
+ 2257 0186 0100     		.2byte	0x1
+ 2258 0188 52       		.byte	0x52
+ 2259 0189 16000000 		.4byte	.LVL42
+ 2260 018d 48000000 		.4byte	.LFE15
+ 2261 0191 0100     		.2byte	0x1
+ 2262 0193 52       		.byte	0x52
+ 2263 0194 00000000 		.4byte	0
+ 2264 0198 00000000 		.4byte	0
+ 2265              	.LLST13:
+ 2266 019c 00000000 		.4byte	.LVL48
+ 2267 01a0 1C000000 		.4byte	.LVL52
+ 2268 01a4 0100     		.2byte	0x1
+ 2269 01a6 50       		.byte	0x50
+ 2270 01a7 1C000000 		.4byte	.LVL52
+ 2271 01ab 20000000 		.4byte	.LVL53
+ 2272 01af 0600     		.2byte	0x6
+ 2273 01b1 70       		.byte	0x70
+ 2274 01b2 00       		.sleb128 0
+ 2275 01b3 74       		.byte	0x74
+ 2276 01b4 00       		.sleb128 0
+ 2277 01b5 1C       		.byte	0x1c
+ 2278 01b6 9F       		.byte	0x9f
+ 2279 01b7 00000000 		.4byte	0
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 57
+
+
+ 2280 01bb 00000000 		.4byte	0
+ 2281              	.LLST14:
+ 2282 01bf 1C000000 		.4byte	.LVL52
+ 2283 01c3 20000000 		.4byte	.LVL53
+ 2284 01c7 1D00     		.2byte	0x1d
+ 2285 01c9 70       		.byte	0x70
+ 2286 01ca 00       		.sleb128 0
+ 2287 01cb 74       		.byte	0x74
+ 2288 01cc 00       		.sleb128 0
+ 2289 01cd 1C       		.byte	0x1c
+ 2290 01ce F7       		.byte	0xf7
+ 2291 01cf 41       		.uleb128 0x41
+ 2292 01d0 F7       		.byte	0xf7
+ 2293 01d1 25       		.uleb128 0x25
+ 2294 01d2 0C       		.byte	0xc
+ 2295 01d3 80969800 		.4byte	0x989680
+ 2296 01d7 F7       		.byte	0xf7
+ 2297 01d8 25       		.uleb128 0x25
+ 2298 01d9 1E       		.byte	0x1e
+ 2299 01da F7       		.byte	0xf7
+ 2300 01db 33       		.uleb128 0x33
+ 2301 01dc 72       		.byte	0x72
+ 2302 01dd 00       		.sleb128 0
+ 2303 01de F7       		.byte	0xf7
+ 2304 01df 3A       		.uleb128 0x3a
+ 2305 01e0 F7       		.byte	0xf7
+ 2306 01e1 33       		.uleb128 0x33
+ 2307 01e2 1B       		.byte	0x1b
+ 2308 01e3 F7       		.byte	0xf7
+ 2309 01e4 25       		.uleb128 0x25
+ 2310 01e5 9F       		.byte	0x9f
+ 2311 01e6 00000000 		.4byte	0
+ 2312 01ea 00000000 		.4byte	0
+ 2313              	.LLST15:
+ 2314 01ee 12000000 		.4byte	.LVL49
+ 2315 01f2 14000000 		.4byte	.LVL50
+ 2316 01f6 0100     		.2byte	0x1
+ 2317 01f8 52       		.byte	0x52
+ 2318 01f9 18000000 		.4byte	.LVL51
+ 2319 01fd 31000000 		.4byte	.LVL54-1
+ 2320 0201 0100     		.2byte	0x1
+ 2321 0203 52       		.byte	0x52
+ 2322 0204 00000000 		.4byte	0
+ 2323 0208 00000000 		.4byte	0
+ 2324              	.LLST16:
+ 2325 020c 00000000 		.4byte	.LVL55
+ 2326 0210 1E000000 		.4byte	.LVL59
+ 2327 0214 0100     		.2byte	0x1
+ 2328 0216 50       		.byte	0x50
+ 2329 0217 1E000000 		.4byte	.LVL59
+ 2330 021b 23000000 		.4byte	.LVL60-1
+ 2331 021f 0100     		.2byte	0x1
+ 2332 0221 50       		.byte	0x50
+ 2333 0222 00000000 		.4byte	0
+ 2334 0226 00000000 		.4byte	0
+ 2335              	.LLST17:
+ 2336 022a 1E000000 		.4byte	.LVL59
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 58
+
+
+ 2337 022e 23000000 		.4byte	.LVL60-1
+ 2338 0232 1600     		.2byte	0x16
+ 2339 0234 70       		.byte	0x70
+ 2340 0235 00       		.sleb128 0
+ 2341 0236 F7       		.byte	0xf7
+ 2342 0237 41       		.uleb128 0x41
+ 2343 0238 F7       		.byte	0xf7
+ 2344 0239 2C       		.uleb128 0x2c
+ 2345 023a F4       		.byte	0xf4
+ 2346 023b 2C       		.uleb128 0x2c
+ 2347 023c 04       		.byte	0x4
+ 2348 023d 00002041 		.4byte	0x41200000
+ 2349 0241 1E       		.byte	0x1e
+ 2350 0242 74       		.byte	0x74
+ 2351 0243 00       		.sleb128 0
+ 2352 0244 F7       		.byte	0xf7
+ 2353 0245 3A       		.uleb128 0x3a
+ 2354 0246 F7       		.byte	0xf7
+ 2355 0247 2C       		.uleb128 0x2c
+ 2356 0248 1B       		.byte	0x1b
+ 2357 0249 9F       		.byte	0x9f
+ 2358 024a 00000000 		.4byte	0
+ 2359 024e 00000000 		.4byte	0
+ 2360              	.LLST18:
+ 2361 0252 12000000 		.4byte	.LVL56
+ 2362 0256 14000000 		.4byte	.LVL57
+ 2363 025a 0100     		.2byte	0x1
+ 2364 025c 54       		.byte	0x54
+ 2365 025d 18000000 		.4byte	.LVL58
+ 2366 0261 3C000000 		.4byte	.LVL64
+ 2367 0265 0100     		.2byte	0x1
+ 2368 0267 54       		.byte	0x54
+ 2369 0268 00000000 		.4byte	0
+ 2370 026c 00000000 		.4byte	0
+ 2371              		.section	.debug_aranges,"",%progbits
+ 2372 0000 9C000000 		.4byte	0x9c
+ 2373 0004 0200     		.2byte	0x2
+ 2374 0006 00000000 		.4byte	.Ldebug_info0
+ 2375 000a 04       		.byte	0x4
+ 2376 000b 00       		.byte	0
+ 2377 000c 0000     		.2byte	0
+ 2378 000e 0000     		.2byte	0
+ 2379 0010 00000000 		.4byte	.LFB2
+ 2380 0014 9C000000 		.4byte	.LFE2-.LFB2
+ 2381 0018 00000000 		.4byte	.LFB3
+ 2382 001c 48000000 		.4byte	.LFE3-.LFB3
+ 2383 0020 00000000 		.4byte	.LFB4
+ 2384 0024 18000000 		.4byte	.LFE4-.LFB4
+ 2385 0028 00000000 		.4byte	.LFB5
+ 2386 002c 60000000 		.4byte	.LFE5-.LFB5
+ 2387 0030 00000000 		.4byte	.LFB1
+ 2388 0034 3C000000 		.4byte	.LFE1-.LFB1
+ 2389 0038 00000000 		.4byte	.LFB0
+ 2390 003c 1C000000 		.4byte	.LFE0-.LFB0
+ 2391 0040 00000000 		.4byte	.LFB6
+ 2392 0044 18000000 		.4byte	.LFE6-.LFB6
+ 2393 0048 00000000 		.4byte	.LFB7
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 59
+
+
+ 2394 004c 18000000 		.4byte	.LFE7-.LFB7
+ 2395 0050 00000000 		.4byte	.LFB8
+ 2396 0054 24000000 		.4byte	.LFE8-.LFB8
+ 2397 0058 00000000 		.4byte	.LFB9
+ 2398 005c 18000000 		.4byte	.LFE9-.LFB9
+ 2399 0060 00000000 		.4byte	.LFB10
+ 2400 0064 18000000 		.4byte	.LFE10-.LFB10
+ 2401 0068 00000000 		.4byte	.LFB11
+ 2402 006c 0C000000 		.4byte	.LFE11-.LFB11
+ 2403 0070 00000000 		.4byte	.LFB13
+ 2404 0074 10000000 		.4byte	.LFE13-.LFB13
+ 2405 0078 00000000 		.4byte	.LFB14
+ 2406 007c 0C000000 		.4byte	.LFE14-.LFB14
+ 2407 0080 00000000 		.4byte	.LFB15
+ 2408 0084 48000000 		.4byte	.LFE15-.LFB15
+ 2409 0088 00000000 		.4byte	.LFB16
+ 2410 008c 44000000 		.4byte	.LFE16-.LFB16
+ 2411 0090 00000000 		.4byte	.LFB17
+ 2412 0094 4C000000 		.4byte	.LFE17-.LFB17
+ 2413 0098 00000000 		.4byte	0
+ 2414 009c 00000000 		.4byte	0
+ 2415              		.section	.debug_ranges,"",%progbits
+ 2416              	.Ldebug_ranges0:
+ 2417 0000 28000000 		.4byte	.LBB4
+ 2418 0004 2A000000 		.4byte	.LBE4
+ 2419 0008 2E000000 		.4byte	.LBB7
+ 2420 000c 60000000 		.4byte	.LBE7
+ 2421 0010 00000000 		.4byte	0
+ 2422 0014 00000000 		.4byte	0
+ 2423 0018 00000000 		.4byte	.LFB2
+ 2424 001c 9C000000 		.4byte	.LFE2
+ 2425 0020 00000000 		.4byte	.LFB3
+ 2426 0024 48000000 		.4byte	.LFE3
+ 2427 0028 00000000 		.4byte	.LFB4
+ 2428 002c 18000000 		.4byte	.LFE4
+ 2429 0030 00000000 		.4byte	.LFB5
+ 2430 0034 60000000 		.4byte	.LFE5
+ 2431 0038 00000000 		.4byte	.LFB1
+ 2432 003c 3C000000 		.4byte	.LFE1
+ 2433 0040 00000000 		.4byte	.LFB0
+ 2434 0044 1C000000 		.4byte	.LFE0
+ 2435 0048 00000000 		.4byte	.LFB6
+ 2436 004c 18000000 		.4byte	.LFE6
+ 2437 0050 00000000 		.4byte	.LFB7
+ 2438 0054 18000000 		.4byte	.LFE7
+ 2439 0058 00000000 		.4byte	.LFB8
+ 2440 005c 24000000 		.4byte	.LFE8
+ 2441 0060 00000000 		.4byte	.LFB9
+ 2442 0064 18000000 		.4byte	.LFE9
+ 2443 0068 00000000 		.4byte	.LFB10
+ 2444 006c 18000000 		.4byte	.LFE10
+ 2445 0070 00000000 		.4byte	.LFB11
+ 2446 0074 0C000000 		.4byte	.LFE11
+ 2447 0078 00000000 		.4byte	.LFB13
+ 2448 007c 10000000 		.4byte	.LFE13
+ 2449 0080 00000000 		.4byte	.LFB14
+ 2450 0084 0C000000 		.4byte	.LFE14
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 60
+
+
+ 2451 0088 00000000 		.4byte	.LFB15
+ 2452 008c 48000000 		.4byte	.LFE15
+ 2453 0090 00000000 		.4byte	.LFB16
+ 2454 0094 44000000 		.4byte	.LFE16
+ 2455 0098 00000000 		.4byte	.LFB17
+ 2456 009c 4C000000 		.4byte	.LFE17
+ 2457 00a0 00000000 		.4byte	0
+ 2458 00a4 00000000 		.4byte	0
+ 2459              		.section	.debug_line,"",%progbits
+ 2460              	.Ldebug_line0:
+ 2461 0000 07020000 		.section	.debug_str,"MS",%progbits,1
+ 2461      02005E00 
+ 2461      00000201 
+ 2461      FB0E0D00 
+ 2461      01010101 
+ 2462              	.LASF13:
+ 2463 0000 75696E74 		.ascii	"uint16\000"
+ 2463      313600
+ 2464              	.LASF44:
+ 2465 0007 61646347 		.ascii	"adcGain\000"
+ 2465      61696E00 
+ 2466              	.LASF60:
+ 2467 000f 43794578 		.ascii	"CyExitCriticalSection\000"
+ 2467      69744372 
+ 2467      69746963 
+ 2467      616C5365 
+ 2467      6374696F 
+ 2468              	.LASF68:
+ 2469 0025 636F756E 		.ascii	"counts\000"
+ 2469      747300
+ 2470              	.LASF52:
+ 2471 002c 4144435F 		.ascii	"ADC_CountsTo_Volts\000"
+ 2471      436F756E 
+ 2471      7473546F 
+ 2471      5F566F6C 
+ 2471      747300
+ 2472              	.LASF33:
+ 2473 003f 4144435F 		.ascii	"ADC_Init\000"
+ 2473      496E6974 
+ 2473      00
+ 2474              	.LASF0:
+ 2475 0048 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 2475      206C6F6E 
+ 2475      6720756E 
+ 2475      7369676E 
+ 2475      65642069 
+ 2476              	.LASF35:
+ 2477 005f 4144435F 		.ascii	"ADC_StartConvert\000"
+ 2477      53746172 
+ 2477      74436F6E 
+ 2477      76657274 
+ 2477      00
+ 2478              	.LASF66:
+ 2479 0070 433A5C55 		.ascii	"C:\\Users\\suzukihajime\\Documents\\PSoC Creator\\b"
+ 2479      73657273 
+ 2479      5C73757A 
+ 2479      756B6968 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 61
+
+
+ 2479      616A696D 
+ 2480 009e 6F6F7374 		.ascii	"oost\\boost.soft.cydsn\000"
+ 2480      5C626F6F 
+ 2480      73742E73 
+ 2480      6F66742E 
+ 2480      63796473 
+ 2481              	.LASF2:
+ 2482 00b4 6C6F6E67 		.ascii	"long long int\000"
+ 2482      206C6F6E 
+ 2482      6720696E 
+ 2482      7400
+ 2483              	.LASF5:
+ 2484 00c2 7369676E 		.ascii	"signed char\000"
+ 2484      65642063 
+ 2484      68617200 
+ 2485              	.LASF38:
+ 2486 00ce 73746174 		.ascii	"status\000"
+ 2486      757300
+ 2487              	.LASF65:
+ 2488 00d5 2E5C4765 		.ascii	".\\Generated_Source\\PSoC5\\ADC.c\000"
+ 2488      6E657261 
+ 2488      7465645F 
+ 2488      536F7572 
+ 2488      63655C50 
+ 2489              	.LASF17:
+ 2490 00f4 696E7433 		.ascii	"int32\000"
+ 2490      3200
+ 2491              	.LASF34:
+ 2492 00fa 4144435F 		.ascii	"ADC_Start\000"
+ 2492      53746172 
+ 2492      7400
+ 2493              	.LASF8:
+ 2494 0104 6C6F6E67 		.ascii	"long int\000"
+ 2494      20696E74 
+ 2494      00
+ 2495              	.LASF50:
+ 2496 010d 4144435F 		.ascii	"ADC_CountsTo_uVolts\000"
+ 2496      436F756E 
+ 2496      7473546F 
+ 2496      5F75566F 
+ 2496      6C747300 
+ 2497              	.LASF57:
+ 2498 0121 4144435F 		.ascii	"ADC_countsPer10Volt\000"
+ 2498      636F756E 
+ 2498      74735065 
+ 2498      72313056 
+ 2498      6F6C7400 
+ 2499              	.LASF56:
+ 2500 0135 4144435F 		.ascii	"ADC_countsPerVolt\000"
+ 2500      636F756E 
+ 2500      74735065 
+ 2500      72566F6C 
+ 2500      7400
+ 2501              	.LASF22:
+ 2502 0147 72656731 		.ascii	"reg16\000"
+ 2502      3600
+ 2503              	.LASF12:
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 62
+
+
+ 2504 014d 75696E74 		.ascii	"uint8\000"
+ 2504      3800
+ 2505              	.LASF59:
+ 2506 0153 43794465 		.ascii	"CyDelayUs\000"
+ 2506      6C617955 
+ 2506      7300
+ 2507              	.LASF19:
+ 2508 015d 646F7562 		.ascii	"double\000"
+ 2508      6C6500
+ 2509              	.LASF14:
+ 2510 0164 75696E74 		.ascii	"uint32\000"
+ 2510      333200
+ 2511              	.LASF49:
+ 2512 016b 636F756E 		.ascii	"countsPer10Volt\000"
+ 2512      74735065 
+ 2512      72313056 
+ 2512      6F6C7400 
+ 2513              	.LASF63:
+ 2514 017b 4379496E 		.ascii	"CyIntSetVector\000"
+ 2514      74536574 
+ 2514      56656374 
+ 2514      6F7200
+ 2515              	.LASF54:
+ 2516 018a 4144435F 		.ascii	"ADC_initVar\000"
+ 2516      696E6974 
+ 2516      56617200 
+ 2517              	.LASF29:
+ 2518 0196 4144435F 		.ascii	"ADC_SetPower\000"
+ 2518      53657450 
+ 2518      6F776572 
+ 2518      00
+ 2519              	.LASF37:
+ 2520 01a3 7265744D 		.ascii	"retMode\000"
+ 2520      6F646500 
+ 2521              	.LASF4:
+ 2522 01ab 756E7369 		.ascii	"unsigned int\000"
+ 2522      676E6564 
+ 2522      20696E74 
+ 2522      00
+ 2523              	.LASF64:
+ 2524 01b8 474E5520 		.ascii	"GNU C 4.9.3 20150303 (release) [ARM/embedded-4_9-br"
+ 2524      4320342E 
+ 2524      392E3320 
+ 2524      32303135 
+ 2524      30333033 
+ 2525 01eb 616E6368 		.ascii	"anch revision 221220] -mcpu=cortex-m3 -mthumb -g -O"
+ 2525      20726576 
+ 2525      6973696F 
+ 2525      6E203232 
+ 2525      31323230 
+ 2526 021e 73202D66 		.ascii	"s -ffunction-sections -ffat-lto-objects\000"
+ 2526      66756E63 
+ 2526      74696F6E 
+ 2526      2D736563 
+ 2526      74696F6E 
+ 2527              	.LASF51:
+ 2528 0246 75566F6C 		.ascii	"uVolts\000"
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 63
+
+
+ 2528      747300
+ 2529              	.LASF9:
+ 2530 024d 6C6F6E67 		.ascii	"long unsigned int\000"
+ 2530      20756E73 
+ 2530      69676E65 
+ 2530      6420696E 
+ 2530      7400
+ 2531              	.LASF53:
+ 2532 025f 766F6C74 		.ascii	"volts\000"
+ 2532      7300
+ 2533              	.LASF70:
+ 2534 0265 4379456E 		.ascii	"CyEnterCriticalSection\000"
+ 2534      74657243 
+ 2534      72697469 
+ 2534      63616C53 
+ 2534      65637469 
+ 2535              	.LASF7:
+ 2536 027c 73686F72 		.ascii	"short unsigned int\000"
+ 2536      7420756E 
+ 2536      7369676E 
+ 2536      65642069 
+ 2536      6E7400
+ 2537              	.LASF15:
+ 2538 028f 696E7438 		.ascii	"int8\000"
+ 2538      00
+ 2539              	.LASF36:
+ 2540 0294 4144435F 		.ascii	"ADC_StopConvert\000"
+ 2540      53746F70 
+ 2540      436F6E76 
+ 2540      65727400 
+ 2541              	.LASF67:
+ 2542 02a4 4144435F 		.ascii	"ADC_CalcGain\000"
+ 2542      43616C63 
+ 2542      4761696E 
+ 2542      00
+ 2543              	.LASF48:
+ 2544 02b1 6D566F6C 		.ascii	"mVolts\000"
+ 2544      747300
+ 2545              	.LASF23:
+ 2546 02b8 72656733 		.ascii	"reg32\000"
+ 2546      3200
+ 2547              	.LASF58:
+ 2548 02be 4144435F 		.ascii	"ADC_shift\000"
+ 2548      73686966 
+ 2548      7400
+ 2549              	.LASF18:
+ 2550 02c8 666C6F61 		.ascii	"float32\000"
+ 2550      74333200 
+ 2551              	.LASF10:
+ 2552 02d0 73697A65 		.ascii	"sizetype\000"
+ 2552      74797065 
+ 2552      00
+ 2553              	.LASF39:
+ 2554 02d9 4144435F 		.ascii	"ADC_IsEndConversion\000"
+ 2554      4973456E 
+ 2554      64436F6E 
+ 2554      76657273 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 64
+
+
+ 2554      696F6E00 
+ 2555              	.LASF69:
+ 2556 02ed 4144435F 		.ascii	"ADC_GetResult8\000"
+ 2556      47657452 
+ 2556      6573756C 
+ 2556      743800
+ 2557              	.LASF61:
+ 2558 02fc 4144435F 		.ascii	"ADC_theACLK_SetModeRegister\000"
+ 2558      74686541 
+ 2558      434C4B5F 
+ 2558      5365744D 
+ 2558      6F646552 
+ 2559              	.LASF30:
+ 2560 0318 4144435F 		.ascii	"ADC_SetResolution\000"
+ 2560      53657452 
+ 2560      65736F6C 
+ 2560      7574696F 
+ 2560      6E00
+ 2561              	.LASF20:
+ 2562 032a 696E7436 		.ascii	"int64\000"
+ 2562      3400
+ 2563              	.LASF62:
+ 2564 0330 4379496E 		.ascii	"CyIntSetPriority\000"
+ 2564      74536574 
+ 2564      5072696F 
+ 2564      72697479 
+ 2564      00
+ 2565              	.LASF43:
+ 2566 0341 4144435F 		.ascii	"ADC_SetGain\000"
+ 2566      53657447 
+ 2566      61696E00 
+ 2567              	.LASF1:
+ 2568 034d 666C6F61 		.ascii	"float\000"
+ 2568      7400
+ 2569              	.LASF46:
+ 2570 0353 4144435F 		.ascii	"ADC_CountsTo_mVolts\000"
+ 2570      436F756E 
+ 2570      7473546F 
+ 2570      5F6D566F 
+ 2570      6C747300 
+ 2571              	.LASF31:
+ 2572 0367 706F7765 		.ascii	"power\000"
+ 2572      7200
+ 2573              	.LASF21:
+ 2574 036d 72656738 		.ascii	"reg8\000"
+ 2574      00
+ 2575              	.LASF6:
+ 2576 0372 756E7369 		.ascii	"unsigned char\000"
+ 2576      676E6564 
+ 2576      20636861 
+ 2576      7200
+ 2577              	.LASF55:
+ 2578 0380 4144435F 		.ascii	"ADC_offset\000"
+ 2578      6F666673 
+ 2578      657400
+ 2579              	.LASF3:
+ 2580 038b 73686F72 		.ascii	"short int\000"
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 65
+
+
+ 2580      7420696E 
+ 2580      7400
+ 2581              	.LASF28:
+ 2582 0395 4144435F 		.ascii	"ADC_Stop\000"
+ 2582      53746F70 
+ 2582      00
+ 2583              	.LASF32:
+ 2584 039e 7265736F 		.ascii	"resolution\000"
+ 2584      6C757469 
+ 2584      6F6E00
+ 2585              	.LASF45:
+ 2586 03a9 4144435F 		.ascii	"ADC_SetScaledGain\000"
+ 2586      53657453 
+ 2586      63616C65 
+ 2586      64476169 
+ 2586      6E00
+ 2587              	.LASF11:
+ 2588 03bb 63686172 		.ascii	"char\000"
+ 2588      00
+ 2589              	.LASF24:
+ 2590 03c0 63796973 		.ascii	"cyisraddress\000"
+ 2590      72616464 
+ 2590      72657373 
+ 2590      00
+ 2591              	.LASF42:
+ 2592 03cd 6F666673 		.ascii	"offset\000"
+ 2592      657400
+ 2593              	.LASF47:
+ 2594 03d4 61646343 		.ascii	"adcCounts\000"
+ 2594      6F756E74 
+ 2594      7300
+ 2595              	.LASF26:
+ 2596 03de 656E6162 		.ascii	"enableInterrupts\000"
+ 2596      6C65496E 
+ 2596      74657272 
+ 2596      75707473 
+ 2596      00
+ 2597              	.LASF27:
+ 2598 03ef 4144435F 		.ascii	"ADC_Enable\000"
+ 2598      456E6162 
+ 2598      6C6500
+ 2599              	.LASF16:
+ 2600 03fa 696E7431 		.ascii	"int16\000"
+ 2600      3600
+ 2601              	.LASF41:
+ 2602 0400 4144435F 		.ascii	"ADC_SetOffset\000"
+ 2602      5365744F 
+ 2602      66667365 
+ 2602      7400
+ 2603              	.LASF25:
+ 2604 040e 746D7052 		.ascii	"tmpReg\000"
+ 2604      656700
+ 2605              	.LASF40:
+ 2606 0415 4144435F 		.ascii	"ADC_GetResult16\000"
+ 2606      47657452 
+ 2606      6573756C 
+ 2606      74313600 
+ARM GAS  C:\Users\SUZUKI~1\AppData\Local\Temp\ccrcKek3.s 			page 66
+
+
+ 2607              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.9.3 20150303 (release) [ARM/embedded-4_9-br
