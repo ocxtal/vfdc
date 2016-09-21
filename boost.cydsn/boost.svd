@@ -9,7 +9,7 @@
     <peripheral>
       <name>clock_creg</name>
       <description>No description available</description>
-      <baseAddress>0x40006479</baseAddress>
+      <baseAddress>0x4000647A</baseAddress>
       <addressBlock>
         <offset>0</offset>
         <size>0x0</size>

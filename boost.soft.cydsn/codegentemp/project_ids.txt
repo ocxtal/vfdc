@@ -1,7 +1,0 @@
-C:\Users\suzukihajime\Documents\PSoC Creator\boost\boost.old.cydsn\boost.old.cyprj|8a7df187-c7c9-4bc4-9d96-f2e60f1c4d66
-C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|ec90401a-838b-4e5b-9a91-6b60bbc87a10
-C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|12c1db90-ba0d-4327-97aa-5c9d25390fb4
-C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|499602cb-11b5-43fd-820c-36e1b54ff4d8
-C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|fc3ca931-7d7b-438d-bfce-ee418cf7fed3
-C:\Users\suzukihajime\Documents\PSoC Creator\boost\boost.cydsn\boost.cyprj|e2c5bd13-dac7-4675-bb25-64de24d6515a
-C:\Users\suzukihajime\Documents\PSoC Creator\boost\boost.soft.cydsn\boost.soft.cyprj|9583705c-47d3-42db-bb98-0340dc939883

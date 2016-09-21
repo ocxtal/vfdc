@@ -21,7 +21,7 @@ static uint8_t DMA1_TD[1], DMA2_TD[1];
 static inline
 void boost_start(void)
 {
-	int i, offset = 10;
+	int i, offset = -10;
 	
 	/* bootstrap */
 	PWM_Start();

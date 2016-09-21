@@ -34,6 +34,60 @@ module clock24_intl(
 		.enable(1'b1)
 	);
 
+	// clock divider
+	// combine three count7 instance to generate 21bit counter
+	// divide 32768 Hz clock into 1/60 Hz (pulse per minute) signal
+	wire div1_enable;
+	wire div2_enable;
+	wire div3_enable;
+	wire div1_tc;
+	wire div2_tc;
+	wire div3_tc;
+	assign div1_enable = 1'b1;		// free run in the first stage
+	assign div2_enable = div1_tc;
+	assign div3_enable = div1_tc & div2_tc;
+	wire clk_div_pulse;
+	wire[6:0] div1_count;
+	wire[6:0] div2_count;
+	wire[6:0] div3_count;
+	cy_psoc3_count7 #(
+		.cy_period(7'b1111111),
+		.cy_route_ld(`FALSE),
+		.cy_route_en(`TRUE))
+		div1_counter (
+		.clock(clk_intl),
+		.reset(1'b0),
+		.load(1'b0),
+		.enable(div1_enable),
+		.count(div1_count),
+		.tc(div1_tc)
+	);
+	cy_psoc3_count7 #(
+		.cy_period(7'b1111111),
+		.cy_route_ld(`FALSE),
+		.cy_route_en(`TRUE))
+		div2_counter (
+		.clock(clk_intl),
+		.reset(1'b0),
+		.load(1'b0),
+		.enable(div2_enable),
+		.count(div2_count),
+		.tc(div2_tc)
+	);
+	cy_psoc3_count7 #(
+		.cy_period(7'd120),
+		.cy_route_ld(`FALSE),
+		.cy_route_en(`TRUE))
+		div3_counter (
+		.clock(clk_intl),
+		.reset(1'b0),
+		.load(1'b0),
+		.enable(div3_enable),
+		.count(div3_count),
+		.tc(div3_tc)
+	);
+	assign clk_div_pulse = div3_tc & div2_tc & div1_tc;
+
 	// synchronize input pins with clk
 	reg mode_intl;
 	reg up_intl;
@@ -69,18 +123,18 @@ module clock24_intl(
 	wire mode_idle;
 	cy_psoc3_count7 #(
 		.cy_period(7'd2),
-		.cy_route_ld(1),
-		.cy_route_en(1))
+		.cy_route_ld(`FALSE),
+		.cy_route_en(`TRUE))
 		mode_state_counter (
 		.clock(clk_intl),
 		.reset(1'b0),
 		.load(1'b0),
 		.enable(mode_posedge),		// advance counter (state) by one on the posedge on mode pin
-		.count(mode_state_counter_out),
-		.tc(mode_idle)				// use tc to detect idle state
+		.count(mode_state_counter_out)
 	);
 	assign mode_minute_adj = mode_state_counter_out[1];
 	assign mode_hour_adj = mode_state_counter_out[0];
+	assign mode_idle = ~(mode_state_counter_out[1] | mode_state_counter_out[0]);
 
 	// up and down buttons are or'ed to generate state input signal of bsig module
 	wire up_down_pressed;
@@ -95,59 +149,61 @@ module clock24_intl(
 	// and generates single pulse in response to the head of the signal high
 	// when signal high continued longer than a period which is determined by
 	// the value in D1, then it begin to generate contiguous pulses in a period D0
+	wire bsig_enable;
 	wire bsig_a0_zero;
 	wire[2:0] bsig_sel;
 	wire up_down_pulse;
-	assign bsig_sel[2:0] = { 1'b0, bsig_a0_zero, up_down_pressed };
+	assign bsig_enable = div1_count[6];
+	assign bsig_sel[2:0] = { ~bsig_enable, bsig_a0_zero, up_down_pressed };
 	assign up_down_pulse = bsig_a0_zero | up_down_posedge;
 	cy_psoc3_dp #(.cy_dpconfig(
 	{
 	    `CS_ALU_OP_PASS, `CS_SRCA_A1, `CS_SRCB_A0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC__ALU, `CS_A1_SRC___D1,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM0:  idle state, load A1 to A0, D1 to A1*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM0:      idle state, load A1 to A0, D1 to A1*/
 	    `CS_ALU_OP__DEC, `CS_SRCA_A0, `CS_SRCB_D0,
-	    `CS_SHFT_OP_PASS, `CS_A0_SRC__ALU, `CS_A1_SRC_NONE,
+	    `CS_SHFT_OP_PASS, `CS_A0_SRC__ALU, `CS_A1_SRC___D1,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM1:  input high, decrement counter*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM1:      input high, decrement counter*/
 	    `CS_ALU_OP_PASS, `CS_SRCA_A1, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC__ALU, `CS_A1_SRC___D1,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM2:  move to idle state*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM2:      move to idle state*/
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D1,
-	    `CS_SHFT_OP_PASS, `CS_A0_SRC___D0, `CS_A1_SRC_NONE,
+	    `CS_SHFT_OP_PASS, `CS_A0_SRC___D0, `CS_A1_SRC___D1,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM3:  input high, reload short period*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM3:      input high, reload short period*/
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM4:  */
+	    `CS_CMP_SEL_CFGA, /*CFGRAM4:      */
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM5:  */
+	    `CS_CMP_SEL_CFGA, /*CFGRAM5:      */
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM6:  */
+	    `CS_CMP_SEL_CFGA, /*CFGRAM6:      */
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM7:  */
-	    8'hFF, 8'h00,  /*CFG9:  */
-	    8'hFF, 8'hFF,  /*CFG11-10:  */
+	    `CS_CMP_SEL_CFGA, /*CFGRAM7:      */
+	    8'hFF, 8'h00,  /*CFG9:      */
+	    8'hFF, 8'hFF,  /*CFG11-10:      */
 	    `SC_CMPB_A1_D1, `SC_CMPA_A1_D1, `SC_CI_B_ARITH,
 	    `SC_CI_A_ARITH, `SC_C1_MASK_DSBL, `SC_C0_MASK_DSBL,
 	    `SC_A_MASK_DSBL, `SC_DEF_SI_0, `SC_SI_B_DEFSI,
-	    `SC_SI_A_DEFSI, /*CFG13-12:  */
+	    `SC_SI_A_DEFSI, /*CFG13-12:      */
 	    `SC_A0_SRC_ACC, `SC_SHIFT_SL, 1'h0,
 	    1'h0, `SC_FIFO1_BUS, `SC_FIFO0_BUS,
 	    `SC_MSB_DSBL, `SC_MSB_BIT0, `SC_MSB_NOCHN,
 	    `SC_FB_NOCHN, `SC_CMP1_NOCHN,
-	    `SC_CMP0_NOCHN, /*CFG15-14:  */
+	    `SC_CMP0_NOCHN, /*CFG15-14:      */
 	    10'h00, `SC_FIFO_CLK__DP,`SC_FIFO_CAP_AX,
 	    `SC_FIFO_LEVEL,`SC_FIFO__SYNC,`SC_EXTCRC_DSBL,
-	    `SC_WRK16CAT_DSBL /*CFG17-16:  */
+	    `SC_WRK16CAT_DSBL /*CFG17-16:      */
 	}
 	)) bsig_dp(
 	        /*  input                   */  .reset(1'b0),
@@ -199,51 +255,7 @@ module clock24_intl(
 	        /* input [07:00]            */  .pi(8'b0),     // Parallel data port
 	        /* output [07:00]           */  .po()          // Parallel data port
 	);
-	
-	// clock divider
-	// combine three count7 instance to generate 21bit counter
-	// divide 32768 Hz clock into 1/60 Hz (pulse per minute) signal
-	wire div1_tc;
-	wire div2_tc;
-	wire div3_tc;
-	wire clk_div_pulse;
-	wire[6:0] div2_count;
-	cy_psoc3_count7 #(
-		.cy_period(7'b1111111),
-		.cy_route_ld(1),
-		.cy_route_en(1))
-		div1_counter (
-		.clock(clk_intl),
-		.reset(1'b0),
-		.load(1'b0),
-		.enable(1'b1),		// free run in the first stage
-		.tc(div1_tc)
-	);
-	cy_psoc3_count7 #(
-		.cy_period(7'b1111111),
-		.cy_route_ld(1),
-		.cy_route_en(1))
-		div2_counter (
-		.clock(clk_intl),
-		.reset(1'b0),
-		.load(1'b0),
-		.enable(div1_tc),
-		.count(div2_count),
-		.tc(div2_tc)
-	);
-	cy_psoc3_count7 #(
-		.cy_period(7'b0000001),
-		.cy_route_ld(1),
-		.cy_route_en(1))
-		div3_counter (
-		.clock(clk_intl),
-		.reset(1'b0),
-		.load(1'b0),
-		.enable(div2_tc),
-		.tc(div3_tc)
-	);
-	assign clk_div_pulse = div3_tc;
-	
+
 	// generate dma invoke signal from div2 counter
 	function [3:0] gen_sel;
 		input [1:0] cnt;
@@ -260,11 +272,11 @@ module clock24_intl(
 	wire minute_high_intl;
 	wire hour_low_intl;
 	wire hour_high_intl;
-	assign { hour_high_intl, hour_low_intl, minute_high_intl, minute_low_intl } = gen_sel(div2_count[3:2]);
-	assign ml = minute_low_intl;
-	assign mh = minute_high_intl;
-	assign hl = hour_low_intl;
-	assign hh = hour_high_intl;
+	assign { hour_high_intl, hour_low_intl, minute_high_intl, minute_low_intl } = gen_sel({ div2_count[0], div1_count[6] });
+	assign ml = minute_low_intl & ~(mode_minute_adj & div3_count[0]);
+	assign mh = minute_high_intl & ~(mode_minute_adj & div3_count[0]);
+	assign hl = hour_low_intl & ~(mode_hour_adj & div3_count[0]);
+	assign hh = hour_high_intl & ~(mode_hour_adj & div3_count[0]);
 
 	// minute counter
 	wire minute_a0_zero;
@@ -272,57 +284,57 @@ module clock24_intl(
 	wire minute_a0_reload;
 	wire minute_pulse;
 	wire[2:0] minute_sel;
-	assign minute_a0_reload = minute_a0_zero | minute_a0_period;
-	assign minute_pulse = (mode_minute_adj & up_down_pulse) | (~mode_minute_adj & clk_div_pulse);
+	assign minute_a0_reload = (up_down_direction & minute_a0_zero) | (~up_down_direction & minute_a0_period);
+	assign minute_pulse = (mode_minute_adj & up_down_pulse) | (mode_idle & clk_div_pulse);
 	assign minute_sel = { minute_a0_reload, up_down_direction, minute_pulse };
 	cy_psoc3_dp #(.cy_dpconfig(
 	{
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM0: normal operation (idle)*/
-	    `CS_ALU_OP__INC, `CS_SRCA_A1, `CS_SRCB_D0,
+	    `CS_CMP_SEL_CFGA, /*CFGRAM0:     normal operation (idle)*/
+	    `CS_ALU_OP__INC, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC__ALU, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM1: count up*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM1:     count up*/
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM2: normal operation (idle)*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM2:     normal operation (idle)*/
 	    `CS_ALU_OP__DEC, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC__ALU, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM3: count down*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM3:     count down*/
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM4: idle*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM4:     idle*/
 	    `CS_ALU_OP__XOR, `CS_SRCA_A0, `CS_SRCB_A0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC__ALU, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM5: clear A0*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM5:     clear A0*/
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM6: idle*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM6:     idle*/
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC___D0, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM7: reload period to A0*/
-	    8'hFF, 8'h00,  /*CFG9: */
-	    8'hFF, 8'hFF,  /*CFG11-10: */
+	    `CS_CMP_SEL_CFGA, /*CFGRAM7:     reload period to A0*/
+	    8'hFF, 8'h00,  /*CFG9:     */
+	    8'hFF, 8'hFF,  /*CFG11-10:     */
 	    `SC_CMPB_A1_D1, `SC_CMPA_A1_D1, `SC_CI_B_ARITH,
 	    `SC_CI_A_ARITH, `SC_C1_MASK_DSBL, `SC_C0_MASK_DSBL,
 	    `SC_A_MASK_DSBL, `SC_DEF_SI_0, `SC_SI_B_DEFSI,
-	    `SC_SI_A_DEFSI, /*CFG13-12: */
+	    `SC_SI_A_DEFSI, /*CFG13-12:     */
 	    `SC_A0_SRC_ACC, `SC_SHIFT_SL, 1'h0,
 	    1'h0, `SC_FIFO1_BUS, `SC_FIFO0_BUS,
 	    `SC_MSB_DSBL, `SC_MSB_BIT0, `SC_MSB_NOCHN,
 	    `SC_FB_NOCHN, `SC_CMP1_NOCHN,
-	    `SC_CMP0_NOCHN, /*CFG15-14: */
+	    `SC_CMP0_NOCHN, /*CFG15-14:     */
 	    10'h00, `SC_FIFO_CLK__DP,`SC_FIFO_CAP_AX,
 	    `SC_FIFO_LEVEL,`SC_FIFO__SYNC,`SC_EXTCRC_DSBL,
-	    `SC_WRK16CAT_DSBL /*CFG17-16: */
+	    `SC_WRK16CAT_DSBL /*CFG17-16:     */
 	}
 	)) minute_counter(
 	        /*  input                   */  .reset(1'b0),
@@ -381,57 +393,58 @@ module clock24_intl(
 	wire hour_a0_reload;
 	wire hour_pulse;
 	wire[2:0] hour_sel;
-	assign hour_a0_reload = hour_a0_zero | hour_a0_period;
-	assign hour_pulse = (mode_hour_adj & up_down_pulse) | (~mode_hour_adj & clk_div_pulse & minute_a0_period);
+	assign hour_a0_reload = (up_down_direction & hour_a0_zero) | (~up_down_direction & hour_a0_period);
+	assign hour_pulse = (mode_hour_adj & up_down_pulse) | (mode_idle & clk_div_pulse & minute_a0_period);
+	// assign hour_pulse = clk_div_pulse & minute_a0_period;
 	assign hour_sel = { hour_a0_reload, up_down_direction, hour_pulse };
 	cy_psoc3_dp #(.cy_dpconfig(
 	{
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM0: normal operation (idle)*/
-	    `CS_ALU_OP__INC, `CS_SRCA_A1, `CS_SRCB_D0,
+	    `CS_CMP_SEL_CFGA, /*CFGRAM0:     normal operation (idle)*/
+	    `CS_ALU_OP__INC, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC__ALU, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM1: count up*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM1:     count up*/
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM2: normal operation (idle)*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM2:     normal operation (idle)*/
 	    `CS_ALU_OP__DEC, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC__ALU, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM3: count down*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM3:     count down*/
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM4: idle*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM4:     idle*/
 	    `CS_ALU_OP__XOR, `CS_SRCA_A0, `CS_SRCB_A0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC__ALU, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM5: clear A0*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM5:     clear A0*/
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC_NONE, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM6: idle*/
+	    `CS_CMP_SEL_CFGA, /*CFGRAM6:     idle*/
 	    `CS_ALU_OP_PASS, `CS_SRCA_A0, `CS_SRCB_D0,
 	    `CS_SHFT_OP_PASS, `CS_A0_SRC___D0, `CS_A1_SRC_NONE,
 	    `CS_FEEDBACK_DSBL, `CS_CI_SEL_CFGA, `CS_SI_SEL_CFGA,
-	    `CS_CMP_SEL_CFGA, /*CFGRAM7: reload period to A0*/
-	    8'hFF, 8'h00,  /*CFG9: */
-	    8'hFF, 8'hFF,  /*CFG11-10: */
+	    `CS_CMP_SEL_CFGA, /*CFGRAM7:     reload period to A0*/
+	    8'hFF, 8'h00,  /*CFG9:     */
+	    8'hFF, 8'hFF,  /*CFG11-10:     */
 	    `SC_CMPB_A1_D1, `SC_CMPA_A1_D1, `SC_CI_B_ARITH,
 	    `SC_CI_A_ARITH, `SC_C1_MASK_DSBL, `SC_C0_MASK_DSBL,
 	    `SC_A_MASK_DSBL, `SC_DEF_SI_0, `SC_SI_B_DEFSI,
-	    `SC_SI_A_DEFSI, /*CFG13-12: */
+	    `SC_SI_A_DEFSI, /*CFG13-12:     */
 	    `SC_A0_SRC_ACC, `SC_SHIFT_SL, 1'h0,
 	    1'h0, `SC_FIFO1_BUS, `SC_FIFO0_BUS,
 	    `SC_MSB_DSBL, `SC_MSB_BIT0, `SC_MSB_NOCHN,
 	    `SC_FB_NOCHN, `SC_CMP1_NOCHN,
-	    `SC_CMP0_NOCHN, /*CFG15-14: */
+	    `SC_CMP0_NOCHN, /*CFG15-14:     */
 	    10'h00, `SC_FIFO_CLK__DP,`SC_FIFO_CAP_AX,
 	    `SC_FIFO_LEVEL,`SC_FIFO__SYNC,`SC_EXTCRC_DSBL,
-	    `SC_WRK16CAT_DSBL /*CFG17-16: */
+	    `SC_WRK16CAT_DSBL /*CFG17-16:     */
 	}
 	)) hour_counter(
 	        /*  input                   */  .reset(1'b0),
@@ -492,5 +505,9 @@ endmodule
 
 
 //[] END OF FILE
+
+
+
+
 
 

@@ -9,4 +9,5 @@
 *_timing.html
 *.cydsn/codegentemp
 *.cydsn/DP8051
-*.cydsn/Generated_Source:
+*.cydsn/CortexM3
+*.cydsn/Generated_Source
