@@ -2,12 +2,14 @@
 
 Table clock firmware on PSoC5LP, driving four NEC LD8035 VFD tubes.
 
+![picture 1](pic/pic1.jpg)
+
+*See also: [article in Japanese](https://qiita.com/ocxtal/items/3816ec1c6df2d1c86bde).*
+
 ## Contents
 
-* **boost.soft.cydsn** software-based one
-* **boost.cydsn** hardware (UDB and DMA) based one
-
-Schematics is not available yet...😢
+* **boost.soft.cydsn** software implementation, for initial hardware testing.
+* **boost.cydsn** hardware implementation using UDB and DMA.
 
 ## Internal architecture
 
@@ -30,14 +32,14 @@ Thus the default offset -10 give a output voltage V = 13.1(V) and PWM period c =
 Constant current driver is used to supply bias for heaters. Inside the chip is only a voltage DAC, whose output is used as a reference voltage of a current regurator with an OPAMP to amplify voltage by 21 (10k / 470) on 1Ohm current detection registor and another OPAMP to drive a NPN transistor. Any part of dual OPAMP is suited at least it is capable of driving 4V output at Vcc = 5V. The default value 60 (which gives 0.96V on DAC output) results in 45mA current (11mA for each heater with 4 tubes).
 
 
-### 24 hour clock module
+### 24-hour clock module
 
 A clock counters are implemented with PLD and DMA, but codes running on CPU. The clock counter module takes 32768kHz clock (from ILO) and divide it into 1/60 Hz. Each minute and hour conter is implemented with a UDB block, handling count up and count down signal synchronized with master clock. In a counter adjustment mode, the count up / down signals are bypassed to pulse generator, which send pulses according to the UP / DOWN button input signals. The clock counter values (kept in A0 registers) are converted to 7-segment pattern with two-staged DMAs in the same way described in the boost converter section.
 
 
 ## License
 
-Copyright (c) 2016, Hajime Suzuki
+Copyright (c) 2016-2020, Hajime Suzuki
 
 MIT
 
